@@ -81,6 +81,36 @@ export class AuthService {
 
     return { user, token };
   }
+
+  async resetPassword({ email, newPassword }) {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // 1. Fetch user by email
+    const result = await db.query(
+      'SELECT id FROM "User" WHERE LOWER(email) = $1 LIMIT 1',
+      [normalizedEmail]
+    );
+
+    if (result.rows.length === 0) {
+      const error = new Error('No account found with this email address');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const userId = result.rows[0].id;
+
+    // 2. Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // 3. Update password in database
+    await db.query(
+      'UPDATE "User" SET "password" = $1, "updatedAt" = NOW() WHERE "id" = $2',
+      [hashedPassword, userId]
+    );
+
+    return { success: true };
+  }
 }
 
 export const authService = new AuthService();

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { registerApi } from '../api/auth.api';
@@ -20,6 +21,7 @@ export const RegisterForm = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,8 +67,7 @@ export const RegisterForm = () => {
     try {
       const response = await registerApi(formData);
       if (response.success) {
-        setAuth(response.data.user, response.data.token);
-        navigate('/dashboard');
+        navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed. Please try again.';
@@ -89,7 +90,7 @@ export const RegisterForm = () => {
           label="First Name"
           name="firstName"
           type="text"
-          placeholder="John"
+          placeholder="Abdi"
           value={formData.firstName}
           onChange={handleChange}
           error={errors.firstName}
@@ -98,7 +99,7 @@ export const RegisterForm = () => {
           label="Last Name"
           name="lastName"
           type="text"
-          placeholder="Doe"
+          placeholder="Alemu"
           value={formData.lastName}
           onChange={handleChange}
           error={errors.lastName}
@@ -109,7 +110,7 @@ export const RegisterForm = () => {
         label="Email Address"
         name="email"
         type="email"
-        placeholder="john.doe@example.com"
+        placeholder="abdialemu@gmail.com"
         value={formData.email}
         onChange={handleChange}
         error={errors.email}
@@ -119,24 +120,62 @@ export const RegisterForm = () => {
         label="Phone Number"
         name="phone"
         type="tel"
-        placeholder="+1 (555) 000-0000"
+        placeholder="0901756305"
         value={formData.phone}
         onChange={handleChange}
         error={errors.phone}
       />
 
-      <Input
-        label="Password"
-        name="password"
-        type="password"
-        placeholder="••••••••"
-        value={formData.password}
-        onChange={handleChange}
-        error={errors.password}
-      />
+      <div className="relative">
+        <Input
+          label="Password"
+          name="password"
+          type={showPassword ? 'text' : 'password'}
+          placeholder="••••••••"
+          value={formData.password}
+          onChange={handleChange}
+          error={errors.password}
+          className="pr-10"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-[34px] text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+          tabIndex={-1}
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+        >
+          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        </button>
+      </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? 'Creating account...' : 'Create Account'}
+      <Button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2">
+        {loading ? (
+          <>
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            <span>Creating account...</span>
+          </>
+        ) : (
+          'Create Account'
+        )}
       </Button>
 
       <p className="text-center text-sm text-slate-600 mt-4">

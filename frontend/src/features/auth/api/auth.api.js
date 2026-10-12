@@ -9,3 +9,8 @@ export const registerApi = async (userData) => {
   const res = await apiClient.post('/auth/register', userData);
   return res.data;
 };
+
+export const resetPasswordApi = async (data) => {
+  const res = await apiClient.post('/auth/reset-password', data);
+  return res.data;
+};

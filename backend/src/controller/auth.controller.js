@@ -26,5 +26,17 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async resetPassword(req, res, next) {
+    try {
+      await authService.resetPassword(req.body);
+      return res.status(200).json({
+        success: true,
+        message: 'Password has been reset successfully. Please sign in.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 

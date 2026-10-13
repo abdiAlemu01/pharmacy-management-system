@@ -8,6 +8,7 @@ import { DashboardPage } from '@/features/dashboard';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from '@/features/auth';
 import { MedicinesPage } from '@/features/medicines';
 import { InventoryPage } from '@/features/inventory';
+import { SalesPage } from '@/features/sales';
 
 export const AppRouter = () => {
   return (
@@ -29,6 +30,7 @@ export const AppRouter = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/medicines" element={<MedicinesPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/sales" element={<SalesPage />} />
           </Route>
         </Route>
 

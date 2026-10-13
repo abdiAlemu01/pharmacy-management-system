@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, History, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Plus, Minus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { InventorySummaryCards } from '../components/InventorySummaryCards';
@@ -7,7 +7,6 @@ import { InventoryTable } from '../components/InventoryTable';
 import { AddStockModal } from '../components/AddStockModal';
 import { ReduceStockModal } from '../components/ReduceStockModal';
 import { EditStockModal } from '../components/EditStockModal';
-import { InventoryMovementsModal } from '../components/InventoryMovementsModal';
 import {
   useInventorySummary,
   useInventory,
@@ -27,7 +26,6 @@ export const InventoryPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isReduceModalOpen, setIsReduceModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   // Contextual target item for modals
   const [selectedMedicine, setSelectedMedicine] = useState(null);
@@ -158,36 +156,27 @@ export const InventoryPage = () => {
             variant="outline"
             onClick={handleRefresh}
             disabled={isFetching}
-            className="flex items-center gap-1.5 text-xs py-2"
+            className="flex items-center gap-1.5 text-sm py-2 px-4"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
 
           <Button
             variant="outline"
-            onClick={() => setIsHistoryModalOpen(true)}
-            className="flex items-center gap-1.5 text-xs py-2"
-          >
-            <History className="w-3.5 h-3.5 text-slate-600" />
-            Movements History
-          </Button>
-
-          <Button
-            variant="outline"
             onClick={() => handleOpenReduce(null)}
-            className="flex items-center gap-1.5 text-xs py-2 border-rose-200 text-rose-700 hover:bg-rose-50"
+            className="flex items-center gap-1.5 text-sm py-2 px-4 border-rose-200 text-rose-700 hover:bg-rose-50"
           >
-            <Minus className="w-3.5 h-3.5 stroke-[3] text-rose-600" />
+            <Minus className="w-4 h-4 stroke-[3] text-rose-600" />
             Reduce Stock (-)
           </Button>
 
           <Button
             variant="primary"
             onClick={() => handleOpenAdd(null)}
-            className="flex items-center gap-1.5 text-xs py-2 shadow-xs"
+            className="flex items-center gap-1.5 text-sm py-2 px-4 shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[3]" />
             Add Stock (+)
           </Button>
         </div>
@@ -278,12 +267,6 @@ export const InventoryPage = () => {
         onSubmit={handleEditSubmit}
         medicine={selectedMedicine}
         isLoading={editMedicineMutation.isPending}
-      />
-
-      {/* Movement Audit History Modal */}
-      <InventoryMovementsModal
-        isOpen={isHistoryModalOpen}
-        onClose={() => setIsHistoryModalOpen(false)}
       />
     </div>
   );

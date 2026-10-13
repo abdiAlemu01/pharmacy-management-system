@@ -99,7 +99,7 @@ export const AddStockModal = ({
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Add Stock (+)">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Add Stock">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Notice for existing medicine */}
         {matchedExisting ? (
@@ -107,10 +107,10 @@ export const AddStockModal = ({
             <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold">
-                Existing Medicine Found: &quot;{matchedExisting.name}&quot;
+                Existing Medicine Found &quot;{matchedExisting.name}&quot;
               </p>
               <p className="text-emerald-700 mt-0.5">
-                Current stock: <strong>{matchedExisting.quantity} units</strong>. Adding{' '}
+                Current stock <strong>{matchedExisting.quantity} units</strong>. Adding{' '}
                 <strong>{qtyNum} units</strong> will automatically update the inventory to{' '}
                 <strong>{updatedTotalStock} units</strong>.
               </p>
@@ -131,7 +131,7 @@ export const AddStockModal = ({
         {/* Medicine Name */}
         <div>
           <Input
-            label="Medicine Name *"
+            label="Medicine Name "
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -152,7 +152,7 @@ export const AddStockModal = ({
         {/* Quantity & Purchase Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Quantity to Add *"
+            label="Quantity to Add "
             type="number"
             min="1"
             step="1"
@@ -165,7 +165,7 @@ export const AddStockModal = ({
             error={errors.quantity}
           />
           <Input
-            label="Purchase Date *"
+            label="Purchase Date "
             type="date"
             value={purchaseDate}
             onChange={(e) => {
@@ -179,7 +179,7 @@ export const AddStockModal = ({
         {/* Unit Purchase Price & Unit Selling Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Purchase Price (Unit Price in Birr) *"
+            label="Purchase Price"
             type="number"
             min="0"
             step="0.01"
@@ -192,7 +192,7 @@ export const AddStockModal = ({
             error={errors.purchaseCost}
           />
           <Input
-            label="Selling Price (Unit Price in Birr) *"
+            label="Selling Price "
             type="number"
             min="0"
             step="0.01"
@@ -207,36 +207,30 @@ export const AddStockModal = ({
         </div>
 
         {/* Live Calculation Panel */}
-        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-          <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-sm">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-700 text-base">
             <Calculator className="w-4 h-4 text-slate-500" />
-            <span>Live Price & Cost Breakdown</span>
+            <span>Stock Price & Cost</span>
           </div>
           <div className="grid grid-cols-2 gap-2 text-slate-600 pt-1">
             <div>
-              <span className="block text-slate-400">Unit Purchase Price:</span>
-              <span className="font-bold text-slate-800">{unitCostNum.toFixed(2)} Birr</span>
+              <span className="block text-slate-400 text-sm">Unit Purchase Price</span>
+              <span className="font-bold text-slate-800 text-base">{unitCostNum.toFixed(2)} Birr</span>
             </div>
             <div>
-              <span className="block text-slate-400">Unit Selling Price:</span>
-              <span className="font-bold text-slate-800">{unitSellingNum.toFixed(2)} Birr</span>
+              <span className="block text-slate-400 text-sm">Unit Selling Price</span>
+              <span className="font-bold text-slate-800 text-base">{unitSellingNum.toFixed(2)} Birr</span>
             </div>
             <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-              <span className="block text-emerald-700 font-medium">Total Purchase Cost:</span>
-              <span className="font-extrabold text-emerald-900 text-sm">
+              <span className="block text-emerald-700 font-medium text-sm">Total Purchase Cost</span>
+              <span className="font-extrabold text-emerald-900 text-base">
                 {totalPrice} Birr
-              </span>
-              <span className="text-[10px] text-emerald-600 block mt-0.5">
-                ({qtyNum} units × {unitCostNum.toFixed(2)} Birr)
               </span>
             </div>
             <div className="p-2 bg-blue-50 rounded-lg border border-blue-100">
-              <span className="block text-blue-700 font-medium">Total Selling Value:</span>
-              <span className="font-extrabold text-blue-900 text-sm">
+              <span className="block text-blue-700 font-medium text-sm">Total Selling Value</span>
+              <span className="font-extrabold text-blue-900 text-base">
                 {totalSellingValue} Birr
-              </span>
-              <span className="text-[10px] text-blue-600 block mt-0.5">
-                ({qtyNum} units × {unitSellingNum.toFixed(2)} Birr)
               </span>
             </div>
           </div>
@@ -248,8 +242,8 @@ export const AddStockModal = ({
             Cancel
           </Button>
           <Button type="submit" variant="primary" disabled={isLoading} className="flex items-center gap-1.5">
-            <PlusCircle className="w-4 h-4" />
-            {isLoading ? 'Saving...' : 'Add Stock (+)'}
+           
+            {isLoading ? 'Saving...' : 'Add Stock '}
           </Button>
         </div>
       </form>

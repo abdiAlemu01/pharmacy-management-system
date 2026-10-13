@@ -3,7 +3,7 @@ import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Select } from '@/shared/components/ui/Select';
-import { MinusCircle, AlertTriangle, Calculator, AlertCircle } from 'lucide-react';
+import { MinusCircle, AlertTriangle, Calculator } from 'lucide-react';
 
 export const ReduceStockModal = ({
   isOpen,
@@ -17,7 +17,6 @@ export const ReduceStockModal = ({
 
   const [medicineId, setMedicineId] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [reason, setReason] = useState('Stock deduction');
   const [date, setDate] = useState(today);
   const [errors, setErrors] = useState({});
 
@@ -31,7 +30,6 @@ export const ReduceStockModal = ({
         setMedicineId('');
       }
       setQuantity('');
-      setReason('Stock deduction');
       setDate(today);
       setErrors({});
     }
@@ -45,17 +43,7 @@ export const ReduceStockModal = ({
 
   const qtyNum = parseInt(quantity, 10) || 0;
   const totalCostDeducted = (qtyNum * unitCost).toFixed(2);
-  const totalSellingDeducted = (qtyNum * unitSelling).toFixed(2);
   const remainingStock = Math.max(0, availableStock - qtyNum);
-
-  const reasonOptions = [
-    { value: 'Stock deduction', label: 'General Stock Deduction' },
-    { value: 'Damaged / Broken', label: 'Damaged or Broken Items' },
-    { value: 'Expired Stock', label: 'Expired Stock Removal' },
-    { value: 'Return to Supplier', label: 'Returned to Supplier' },
-    { value: 'Customer Dispense Correction', label: 'Customer Dispense Correction' },
-    { value: 'Inventory Audit Discrepancy', label: 'Audit / Count Discrepancy' },
-  ];
 
   const validate = () => {
     const errs = {};
@@ -66,9 +54,6 @@ export const ReduceStockModal = ({
       errs.quantity = 'Quantity to reduce must be greater than 0';
     } else if (qtyNum > availableStock) {
       errs.quantity = `Cannot reduce ${qtyNum} units. Current stock is only ${availableStock} units.`;
-    }
-    if (!reason.trim()) {
-      errs.reason = 'Reason for reduction is required';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -81,13 +66,12 @@ export const ReduceStockModal = ({
     onSubmit({
       medicineId,
       quantity: qtyNum,
-      reason,
       date,
     });
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Reduce Stock (-)">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Reduce Stock">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Medicine Selector */}
         {selectedMedicine ? (
@@ -97,7 +81,7 @@ export const ReduceStockModal = ({
           </div>
         ) : (
           <Select
-            label="Select Medicine *"
+            label="Select Medicine"
             value={medicineId}
             onChange={(e) => {
               setMedicineId(e.target.value);
@@ -113,7 +97,7 @@ export const ReduceStockModal = ({
 
         {/* Available Stock Banner */}
         <div className="flex items-center justify-between p-3 bg-slate-100 rounded-xl border border-slate-200 text-xs">
-          <span className="text-slate-600 font-medium">Currently Available in Stock:</span>
+          <span className="text-slate-600 font-medium">Currently Available Stock</span>
           <span
             className={`font-bold px-2 py-0.5 rounded-md ${
               availableStock === 0
@@ -130,7 +114,7 @@ export const ReduceStockModal = ({
         {/* Quantity to Deduct & Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Quantity to Deduct *"
+            label="Quantity to Reduced "
             type="number"
             min="1"
             max={availableStock}
@@ -145,58 +129,46 @@ export const ReduceStockModal = ({
             autoFocus
           />
           <Input
-            label="Deduction Date *"
+            label="reduced Date "
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
 
-        {/* Reason for deduction */}
-        <Select
-          label="Reason for Stock Reduction *"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          options={reasonOptions}
-          error={errors.reason}
-        />
-
         {/* Live Calculation Panel */}
-        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-          <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-sm">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-700 text-base">
             <Calculator className="w-4 h-4 text-slate-500" />
-            <span>Unit Price & Deducted Value Breakdown</span>
+            <span>Unit Price & Reduced Value</span>
           </div>
           <div className="grid grid-cols-2 gap-2 text-slate-600 pt-1">
             <div>
-              <span className="block text-slate-400">Unit Purchase Price:</span>
-              <span className="font-bold text-slate-800">{unitCost.toFixed(2)} Birr</span>
+              <span className="block text-slate-400 text-sm">Unit Purchase Price</span>
+              <span className="font-bold text-slate-800 text-base">{unitCost.toFixed(2)} Birr</span>
             </div>
             <div>
-              <span className="block text-slate-400">Unit Selling Price:</span>
-              <span className="font-bold text-slate-800">{unitSelling.toFixed(2)} Birr</span>
+              <span className="block text-slate-400 text-sm">Unit Selling Price</span>
+              <span className="font-bold text-slate-800 text-base">{unitSelling.toFixed(2)} Birr</span>
             </div>
-            <div className="p-2 bg-rose-50 rounded-lg border border-rose-100">
-              <span className="block text-rose-700 font-medium">Total Cost of Deducted Stock:</span>
-              <span className="font-extrabold text-rose-900 text-sm">
+            <div className="p-3 bg-rose-50 rounded-lg border border-rose-100">
+              <span className="block text-rose-700 font-medium text-sm">Total Cost of Reduced Stock</span>
+              <span className="font-extrabold text-rose-900 text-base">
                 {totalCostDeducted} Birr
-              </span>
-              <span className="text-[10px] text-rose-600 block mt-0.5">
-                ({qtyNum} units × {unitCost.toFixed(2)} Birr)
               </span>
             </div>
             <div className="p-2 bg-slate-100 rounded-lg border border-slate-200">
-              <span className="block text-slate-600 font-medium">Remaining Stock Level:</span>
-              <span className="font-extrabold text-slate-900 text-sm">
+              <span className="block text-slate-600 font-medium text-sm">Remaining Stock</span>
+              <span className="font-extrabold text-slate-900 text-base">
                 {remainingStock} units
               </span>
-              <span className="text-[10px] text-slate-500 block mt-0.5">
+              <span className="text-xs text-slate-500 block mt-0.5">
                 {remainingStock <= 0 ? (
                   <span className="text-rose-600 font-semibold">⚠ Will become Out of Stock</span>
                 ) : remainingStock <= 10 ? (
                   <span className="text-amber-600 font-semibold">⚠ Will reach Low Stock</span>
                 ) : (
-                  'Normal stock level'
+                  ''
                 )}
               </span>
             </div>
@@ -222,8 +194,7 @@ export const ReduceStockModal = ({
             disabled={isLoading || availableStock === 0}
             className="flex items-center gap-1.5"
           >
-            <MinusCircle className="w-4 h-4" />
-            {isLoading ? 'Reducing...' : 'Reduce Stock (-)'}
+            {isLoading ? 'Reducing...':'Reduce Stock '}
           </Button>
         </div>
       </form>

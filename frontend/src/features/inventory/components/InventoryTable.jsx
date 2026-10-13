@@ -46,7 +46,7 @@ export const InventoryTable = ({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search medicine by name..."
+            placeholder="Search medicine by name...."
             className="w-full pl-9 pr-8 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all placeholder:text-slate-400"
           />
           {searchTerm && (
@@ -89,8 +89,8 @@ export const InventoryTable = ({
             <tr>
               <th scope="col" className="px-6 py-3.5">Medicine Name</th>
               <th scope="col" className="px-4 py-3.5 text-center">Stock Level & Status</th>
-              <th scope="col" className="px-4 py-3.5 text-right">Purchase Price (Unit)</th>
-              <th scope="col" className="px-4 py-3.5 text-right">Selling Price (Unit)</th>
+              <th scope="col" className="px-4 py-3.5 text-right">Purchase Price </th>
+              <th scope="col" className="px-4 py-3.5 text-right">Selling Price </th>
               <th scope="col" className="px-5 py-3.5 text-right bg-emerald-50/50 text-emerald-800">
                 Individual Total Cost
               </th>

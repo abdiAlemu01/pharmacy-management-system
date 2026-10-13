@@ -1,0 +1,253 @@
+import React, { useState } from 'react';
+import { ShoppingCart, BarChart3, Receipt, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/shared/components/ui/Button';
+import { Pagination } from '@/shared/components/ui/Pagination';
+import { SalesAnalyticsCards } from '../components/SalesAnalyticsCards';
+import { TopAndLessSellingSection } from '../components/TopAndLessSellingSection';
+import { POSTerminal } from '../components/POSTerminal';
+import { SalesHistoryTable } from '../components/SalesHistoryTable';
+import { ReceiptModal } from '../components/ReceiptModal';
+import {
+  useSalesAnalytics,
+  usePOSMedicines,
+  useSalesHistory,
+  useCreateSale,
+} from '../hooks/use-sales';
+
+export const SalesPage = () => {
+  const [activeTab, setActiveTab] = useState('pos'); // 'pos' | 'analytics' | 'history'
+
+  // History search & pagination
+  const [historySearch, setHistorySearch] = useState('');
+  const [historyStartDate, setHistoryStartDate] = useState('');
+  const [historyEndDate, setHistoryEndDate] = useState('');
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyLimit, setHistoryLimit] = useState(15);
+
+  // Completed sale receipt modal
+  const [completedSale, setCompletedSale] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  // Queries
+  const {
+    data: analyticsData,
+    isLoading: isAnalyticsLoading,
+    refetch: refetchAnalytics,
+    isFetching: isFetchingAnalytics,
+  } = useSalesAnalytics();
+
+  const {
+    data: posMedsData,
+    isLoading: isPOSMedsLoading,
+    refetch: refetchPOSMeds,
+  } = usePOSMedicines();
+
+  const {
+    data: historyData,
+    isLoading: isHistoryLoading,
+    refetch: refetchHistory,
+  } = useSalesHistory({
+    page: historyPage,
+    limit: historyLimit,
+    search: historySearch,
+    startDate: historyStartDate,
+    endDate: historyEndDate,
+  });
+
+  const createSaleMutation = useCreateSale();
+
+  const analytics = analyticsData?.data || {};
+  const posMedicines = posMedsData?.data || [];
+  const salesHistory = historyData?.data?.sales || [];
+  const historyPagination = historyData?.data?.pagination || {
+    total: 0,
+    page: 1,
+    limit: 15,
+    totalPages: 1,
+  };
+
+  const handleRefresh = () => {
+    refetchAnalytics();
+    refetchPOSMeds();
+    refetchHistory();
+  };
+
+  const handleCheckout = async (salePayload, onSuccessCallback) => {
+    try {
+      setNotification(null);
+      const res = await createSaleMutation.mutateAsync(salePayload);
+      if (onSuccessCallback) onSuccessCallback();
+      setCompletedSale(res.data);
+      setNotification({
+        type: 'success',
+        message: `Sale completed successfully! Total: ${res.data.total} Birr, Profit: +${res.data.totalProfit} Birr.`,
+      });
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to process sale. Please check available stock.';
+      setNotification({ type: 'error', message: msg });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Sales & Point of Sale 
+          </h1>
+         
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isFetchingAnalytics}
+            className="flex items-center gap-1.5 text-sm py-2 px-4"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetchingAnalytics ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* Notifications */}
+      {notification && (
+        <div
+          className={`p-4 rounded-xl flex items-center justify-between text-sm transition-all ${
+            notification.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border border-rose-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {notification.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            )}
+            <span>{notification.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotification(null)}
+            className="text-xs font-bold px-2 py-1 hover:opacity-75 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Key Financial Analytics Cards (Daily & Monthly Sell & Profit) */}
+      <SalesAnalyticsCards analytics={analytics} isLoading={isAnalyticsLoading} />
+
+      {/* Tab Navigation */}
+      <div className="flex border-b border-slate-200 gap-1 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveTab('pos')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'pos'
+              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+          }`}
+        >
+          <ShoppingCart className="w-4 h-4" />
+          <span>Point of Sale (POS Terminal)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('analytics')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'analytics'
+              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>Turnover Analytics (Most & Less Selling)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('history')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'history'
+              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+          }`}
+        >
+          <Receipt className="w-4 h-4" />
+          <span>Sales History & Receipts</span>
+        </button>
+      </div>
+
+      {/* Tab Contents */}
+      {activeTab === 'pos' && (
+        <POSTerminal
+          medicines={posMedicines}
+          isLoading={isPOSMedsLoading}
+          onCheckout={handleCheckout}
+          isCheckingOut={createSaleMutation.isPending}
+        />
+      )}
+
+      {activeTab === 'analytics' && (
+        <TopAndLessSellingSection
+          analytics={analytics}
+          isLoading={isAnalyticsLoading}
+        />
+      )}
+
+      {activeTab === 'history' && (
+        <div className="space-y-4">
+          <SalesHistoryTable
+            sales={salesHistory}
+            isLoading={isHistoryLoading}
+            searchTerm={historySearch}
+            onSearchChange={(val) => {
+              setHistorySearch(val);
+              setHistoryPage(1);
+            }}
+            startDate={historyStartDate}
+            onStartDateChange={(val) => {
+              setHistoryStartDate(val);
+              setHistoryPage(1);
+            }}
+            endDate={historyEndDate}
+            onEndDateChange={(val) => {
+              setHistoryEndDate(val);
+              setHistoryPage(1);
+            }}
+          />
+
+          {historyPagination.total > 0 && (
+            <Pagination
+              currentPage={historyPagination.page}
+              totalPages={historyPagination.totalPages}
+              totalRecords={historyPagination.total}
+              pageSize={historyPagination.limit}
+              onPageChange={setHistoryPage}
+              onPageSizeChange={(newLimit) => {
+                setHistoryLimit(newLimit);
+                setHistoryPage(1);
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Printable Receipt Modal */}
+      <ReceiptModal
+        isOpen={Boolean(completedSale)}
+        onClose={() => setCompletedSale(null)}
+        sale={completedSale}
+      />
+    </div>
+  );
+};
+
+export default SalesPage;
+

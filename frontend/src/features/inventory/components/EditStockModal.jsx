@@ -106,7 +106,7 @@ export const EditStockModal = ({
         {/* Purchase Price & Selling Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Purchase Price (Unit Price in Birr) *"
+            label="Purchase Price "
             type="number"
             min="0"
             step="0.01"
@@ -119,7 +119,7 @@ export const EditStockModal = ({
             error={errors.purchaseCost}
           />
           <Input
-            label="Selling Price (Unit Price in Birr) *"
+            label="Selling Price"
             type="number"
             min="0"
             step="0.01"

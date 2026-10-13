@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Pill, Boxes } from 'lucide-react';
+import { LayoutDashboard, Pill, Boxes, ShoppingCart } from 'lucide-react';
 
 export const Sidebar = () => {
   const navItems = [
@@ -18,6 +18,11 @@ export const Sidebar = () => {
       to: '/inventory',
       label: 'Inventory',
       icon: Boxes,
+    },
+    {
+      to: '/sales',
+      label: 'Sales / POS',
+      icon: ShoppingCart,
     },
   ];
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Pill } from 'lucide-react';
+import { LayoutDashboard, Pill, Boxes } from 'lucide-react';
 
 export const Sidebar = () => {
   const navItems = [
@@ -13,6 +13,11 @@ export const Sidebar = () => {
       to: '/medicines',
       label: 'Medicines',
       icon: Pill,
+    },
+    {
+      to: '/inventory',
+      label: 'Inventory',
+      icon: Boxes,
     },
   ];
 

@@ -7,6 +7,7 @@ import { ProtectedRoute, GuestRoute } from './route-guards';
 import { DashboardPage } from '@/features/dashboard';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from '@/features/auth';
 import { MedicinesPage } from '@/features/medicines';
+import { InventoryPage } from '@/features/inventory';
 
 export const AppRouter = () => {
   return (
@@ -27,6 +28,7 @@ export const AppRouter = () => {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/medicines" element={<MedicinesPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
           </Route>
         </Route>
 

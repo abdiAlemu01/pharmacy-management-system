@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { Sidebar } from './Sidebar';
+import { ThemeToggle } from '@/shared/components/ThemeToggle';
 
 export const AppLayout = () => {
   const { user } = useAuth();
@@ -15,7 +16,12 @@ export const AppLayout = () => {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 shadow-xs">
           <div></div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Shift between Dark and White theme on the top right-hand side */}
+            <ThemeToggle />
+
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
+
             <div className="flex flex-col text-right">
               <span className="text-sm font-semibold text-slate-800">
                 {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email}

@@ -1,7 +1,173 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   body {
-    @apply min-h-screen bg-slate-50 text-slate-900;
+    @apply min-h-screen bg-slate-50 text-slate-900 transition-colors duration-200;
   }
+}
+
+/* ============================================================
+   Dark Mode & White Mode Universal Styling Rules
+   Triggered dynamically via `html.dark` class
+   ============================================================ */
+
+/* 1. Root & Body Backgrounds */
+html.dark,
+html.dark body {
+  background-color: #0b1120 !important;
+  color: #f8fafc !important;
+  color-scheme: dark;
+}
+
+/* 2. Main Surface Containers & Cards */
+html.dark aside,
+html.dark header,
+html.dark .bg-white {
+  background-color: #0f172a !important;
+  color: #f8fafc;
+}
+
+/* 3. Subtle & Secondary Backgrounds */
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/40,
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-50\/60,
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/80,
+html.dark .bg-slate-50\/90 {
+  background-color: #1e293b80 !important;
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-slate-100\/90,
+html.dark .bg-slate-100\/80,
+html.dark .bg-slate-100\/70 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #334155 !important;
+}
+
+/* 4. Borders & Dividers */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/90,
+html.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #1e293b !important;
+}
+
+/* 5. Typography */
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* 6. Form Inputs & Selects */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  background-color: #0f172a !important;
+  border-color: #10b981 !important;
+}
+
+/* 7. Hover Rows & Interactive States */
+html.dark tr.hover\:bg-slate-50\/60:hover,
+html.dark tr:hover {
+  background-color: #1e293b4d !important;
+}
+
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #1e293b !important;
+}
+
+/* 8. Badges & Accent Overrides for Dark Mode */
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-50\/20,
+html.dark .bg-emerald-50\/40 {
+  background-color: #064e3b33 !important;
+}
+
+html.dark .bg-emerald-100,
+html.dark .bg-emerald-100\/50,
+html.dark .bg-emerald-100\/60,
+html.dark .bg-emerald-100\/70,
+html.dark .bg-emerald-100\/80 {
+  background-color: #064e3b66 !important;
+  color: #6ee7b7 !important;
+}
+
+html.dark .text-emerald-700,
+html.dark .text-emerald-800 {
+  color: #34d399 !important;
+}
+
+html.dark .border-emerald-100,
+html.dark .border-emerald-200,
+html.dark .border-emerald-200\/80 {
+  border-color: #04785766 !important;
+}
+
+html.dark .bg-rose-50,
+html.dark .bg-rose-50\/70 {
+  background-color: #4c051933 !important;
+}
+
+html.dark .border-rose-200,
+html.dark .border-rose-200\/60,
+html.dark .border-rose-200\/80 {
+  border-color: #88133766 !important;
+}
+
+html.dark .text-rose-600,
+html.dark .text-rose-700 {
+  color: #fb7185 !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: #451a0333 !important;
+}
+
+html.dark .text-amber-700,
+html.dark .text-amber-800 {
+  color: #fbbf24 !important;
+}
+
+html.dark .border-amber-100,
+html.dark .border-amber-200,
+html.dark .border-amber-200\/80 {
+  border-color: #78350f66 !important;
 }

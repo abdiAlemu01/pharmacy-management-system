@@ -36,9 +36,7 @@ export const TopAndLessSellingSection = ({ analytics = {}, isLoading = false }) 
           <h3 className="text-base font-bold text-slate-900">
             Most Selling Medicines Analytics
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Analyze top-performing medicines based on units sold, purchase price, selling price, total revenue, and profit.
-          </p>
+          
         </div>
 
         <div className="inline-flex p-1 bg-slate-100 rounded-xl shrink-0 self-start sm:self-auto">
@@ -183,9 +181,7 @@ export const TopAndLessSellingSection = ({ analytics = {}, isLoading = false }) 
                 Admin Sales Analysis
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              Cumulative {period === 'daily' ? 'daily' : 'monthly'} totals of quantity sold, total sell, and profit
-            </p>
+            
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs w-full md:w-auto">

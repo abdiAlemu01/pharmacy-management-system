@@ -31,7 +31,7 @@ export const SalesHistoryTable = ({
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by receipt ID, medicine, cashier..."
+            placeholder="Search by medicine name....."
             className="w-full pl-9 pr-8 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
           />
           {searchTerm && (

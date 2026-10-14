@@ -1,8 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Pill, Boxes, ShoppingCart } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Pill, Boxes, ShoppingCart, LogOut } from 'lucide-react';
+import { useAuth } from '@/features/auth';
 
 export const Sidebar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const navItems = [
     {
       to: '/dashboard',
@@ -27,9 +36,9 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 min-h-screen">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-screen sticky top-0">
       {/* Brand logo header */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-100 gap-3">
+      <div className="h-16 flex items-center px-6 border-b border-slate-100 gap-3 shrink-0">
         <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-xs">
           +
         </div>
@@ -40,7 +49,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 p-4 space-y-1.5">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
           Main Menu
         </div>
@@ -64,6 +73,35 @@ export const Sidebar = () => {
           );
         })}
       </nav>
+
+      {/* Bottom Footer: User Info & Sign Out Button */}
+      <div className="p-4 border-t border-slate-100 bg-white shrink-0 mt-auto">
+        {user && (
+          <div className="px-3 py-2 mb-2.5 bg-slate-50 rounded-xl flex items-center gap-2.5 border border-slate-100">
+            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              {(user?.name || user?.firstName || user?.email || 'U')[0].toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-slate-800 truncate">
+                {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email}
+              </p>
+              <p className="text-[10px] text-slate-400 truncate capitalize font-medium">
+                {user?.role || 'Staff'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100 border border-rose-200/80 transition-all cursor-pointer shadow-2xs"
+          title="Sign Out"
+        >
+          <LogOut className="w-5 h-5 shrink-0 text-rose-600" />
+          <span>Sign Out</span>
+        </button>
+      </div>
     </aside>
   );
 };

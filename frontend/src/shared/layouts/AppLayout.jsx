@@ -1,21 +1,14 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { Sidebar } from './Sidebar';
-import { LogOut } from 'lucide-react';
 
 export const AppLayout = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar containing only Dashboard and Medicines */}
+      {/* Sidebar containing Navigation Menu and Bottom Sign Out */}
       <Sidebar />
 
       {/* Main Content Area */}
@@ -34,14 +27,6 @@ export const AppLayout = () => {
             <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 uppercase font-bold tracking-wide">
               {user?.role || 'Staff'}
             </span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-rose-600 font-medium cursor-pointer transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
           </div>
         </header>
 

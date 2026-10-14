@@ -35,7 +35,7 @@ export class SalesService {
     const dailyUnitsSold = parseInt(summaryRow.dailyUnitsSold || 0, 10);
     const monthlyUnitsSold = parseInt(summaryRow.monthlyUnitsSold || 0, 10);
 
-    // B. Most Selling Medicine Daily (Top 5)
+    // B. Most Selling Medicine Daily (Ranked by quantity sold)
     const mostDailyRes = await db.query(`
       SELECT 
         m.id as "medicineId",
@@ -52,10 +52,10 @@ export class SalesService {
       WHERE DATE(s."createdAt") = CURRENT_DATE
       GROUP BY m.id, m.name, m.quantity, m."purchaseCost", m."sellingPrice", m.price
       ORDER BY "quantitySold" DESC, "totalRevenue" DESC
-      LIMIT 5
+      LIMIT 100
     `);
 
-    // C. Most Selling Medicine Monthly (Top 5)
+    // C. Most Selling Medicine Monthly (Ranked by quantity sold)
     const mostMonthlyRes = await db.query(`
       SELECT 
         m.id as "medicineId",
@@ -72,7 +72,7 @@ export class SalesService {
       WHERE DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE)
       GROUP BY m.id, m.name, m.quantity, m."purchaseCost", m."sellingPrice", m.price
       ORDER BY "quantitySold" DESC, "totalRevenue" DESC
-      LIMIT 5
+      LIMIT 100
     `);
 
     // D. Less Selling Medicine Daily (Least sold medicines that had sales today, plus low turnover)

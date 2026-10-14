@@ -167,7 +167,7 @@ export const SalesPage = () => {
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>Turnover Analytics (Most & Less Selling)</span>
+          <span>Most Selling Medicines (Analytics)</span>
         </button>
 
         <button

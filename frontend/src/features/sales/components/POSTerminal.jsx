@@ -334,22 +334,22 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
 
           <div className="space-y-3 text-xs text-slate-600">
             <div className="flex justify-between items-center">
-              <span>Total Units to Dispense:</span>
+              <span>Total Units to Dispense</span>
               <span className="font-bold text-slate-900 text-sm">{cartTotals.totalUnits} units</span>
             </div>
             <div className="flex justify-between items-center">
-              <span>Inventory Purchase Cost:</span>
+              <span>Stock purchase Cost</span>
               <span className="font-semibold text-slate-800">{formatBirr(cartTotals.totalCost)}</span>
             </div>
             <div className="flex justify-between items-center text-emerald-700 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-100">
-              <span className="font-bold">Estimated Profit ({cartTotals.profitMargin}%):</span>
-              <span className="font-black text-sm">+{formatBirr(cartTotals.totalProfit)}</span>
+              <span className="font-bold">Estimated Profit </span>
+              <span className="font-black text-sm">{formatBirr(cartTotals.totalProfit)}</span>
             </div>
           </div>
 
           <div className="pt-3 border-t border-slate-200">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              Grand Total Sale:
+              Grand Total Sale
             </span>
             <div className="text-3xl font-black text-emerald-700 tracking-tight mt-1">
               {formatBirr(cartTotals.totalSell)}

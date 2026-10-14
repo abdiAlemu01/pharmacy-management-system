@@ -62,22 +62,37 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
   };
 
   const updateQuantity = (medicineId, newQty) => {
-    const qty = parseInt(newQty, 10);
-    if (isNaN(qty) || qty <= 0) {
-      removeFromCart(medicineId);
+    // If the input is temporarily cleared, allow empty string so user can type a new number
+    if (newQty === '') {
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item.medicine.id === medicineId ? { ...item, quantity: '' } : item
+        )
+      );
       return;
     }
+
+    const qty = parseInt(newQty, 10);
+    if (isNaN(qty)) return;
 
     setCart((prevCart) =>
       prevCart.map((item) => {
         if (item.medicine.id === medicineId) {
           const maxStock = item.medicine.quantity;
-          const clampedQty = Math.min(qty, maxStock);
+          // Clamp quantity between 1 and maxStock (Never delete the item on number edit!)
+          const clampedQty = Math.max(1, Math.min(qty, maxStock));
           return { ...item, quantity: clampedQty };
         }
         return item;
       })
     );
+  };
+
+  const handleQuantityBlur = (medicineId, currentQty) => {
+    const qty = parseInt(currentQty, 10);
+    if (isNaN(qty) || qty < 1) {
+      updateQuantity(medicineId, 1);
+    }
   };
 
   const removeFromCart = (medicineId) => {
@@ -93,11 +108,12 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
     let totalUnits = 0;
 
     cart.forEach((item) => {
-      const sell = item.quantity * item.medicine.sellingPrice;
-      const cost = item.quantity * item.medicine.purchaseCost;
+      const q = parseInt(item.quantity, 10) || 0;
+      const sell = q * item.medicine.sellingPrice;
+      const cost = q * item.medicine.purchaseCost;
       totalSell += sell;
       totalCost += cost;
-      totalUnits += item.quantity;
+      totalUnits += q;
     });
 
     const totalProfit = totalSell - totalCost;
@@ -117,7 +133,7 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
     const payload = {
       items: cart.map((i) => ({
         medicineId: i.medicine.id,
-        quantity: i.quantity,
+        quantity: Math.max(1, parseInt(i.quantity, 10) || 1),
         unitPrice: i.medicine.sellingPrice,
       })),
     };
@@ -198,8 +214,8 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                 <tr>
                   <th className="px-5 py-3.5">Medicine Name</th>
                   <th className="px-3 py-3.5 text-center">Available Stock</th>
-                  <th className="px-3 py-3.5 text-right">Unit Price</th>
                   <th className="px-3 py-3.5 text-right">Unit Cost</th>
+                  <th className="px-3 py-3.5 text-right">Unit Price</th>
                   <th className="px-4 py-3.5 text-center">Quantity to Sell</th>
                   <th className="px-3 py-3.5 text-center">Action</th>
                 </tr>
@@ -245,12 +261,12 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                           </span>
                         </td>
 
-                        <td className="px-3 py-4 text-right font-medium text-slate-800 whitespace-nowrap">
-                          {formatBirr(med.sellingPrice)}
-                        </td>
-
                         <td className="px-3 py-4 text-right text-xs text-slate-500 whitespace-nowrap">
                           {formatBirr(med.purchaseCost)}
+                        </td>
+
+                        <td className="px-3 py-4 text-right font-medium text-slate-800 whitespace-nowrap">
+                          {formatBirr(med.sellingPrice)}
                         </td>
 
                         {/* Interactive Quantity Stepper */}
@@ -258,8 +274,9 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                           <div className="inline-flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(med.id, item.quantity - 1)}
-                              className="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
+                              onClick={() => updateQuantity(med.id, Math.max(1, (parseInt(item.quantity, 10) || 1) - 1))}
+                              disabled={(parseInt(item.quantity, 10) || 1) <= 1}
+                              className="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
                               title="Decrease quantity"
                             >
                               <Minus className="w-3.5 h-3.5" />
@@ -271,13 +288,14 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                               max={med.quantity}
                               value={item.quantity}
                               onChange={(e) => updateQuantity(med.id, e.target.value)}
+                              onBlur={(e) => handleQuantityBlur(med.id, e.target.value)}
                               className="w-12 text-center text-sm font-black bg-transparent focus:outline-none"
                             />
 
                             <button
                               type="button"
-                              onClick={() => updateQuantity(med.id, item.quantity + 1)}
-                              disabled={item.quantity >= med.quantity}
+                              onClick={() => updateQuantity(med.id, (parseInt(item.quantity, 10) || 1) + 1)}
+                              disabled={(parseInt(item.quantity, 10) || 1) >= med.quantity}
                               className="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
                               title="Increase quantity"
                             >
@@ -290,10 +308,10 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                           <button
                             type="button"
                             onClick={() => removeFromCart(med.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Remove from cart"
+                            className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                            title="Delete item from cart"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 text-rose-600" />
                           </button>
                         </td>
                       </tr>

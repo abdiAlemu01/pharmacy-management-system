@@ -126,7 +126,7 @@ export const SuppliersPage = () => {
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <Truck className="w-7 h-7 text-emerald-600" />
-            <span>Supplier Management</span>
+            <span>Supplier Management Page </span>
           </h1>
           
         </div>
@@ -163,58 +163,68 @@ export const SuppliersPage = () => {
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Suppliers */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
               Total Suppliers
             </span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">
+            <span className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1 block">
               {summary.totalSuppliers}
             </span>
-            
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
             <Building2 className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Search Input */}
-        <div className="relative w-full md:w-96">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full md:max-w-xl">
+          <Search className="w-5 h-5 text-emerald-600 dark:text-emerald-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by supplier name, contact, phone, stock..."
-            className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium"
+            placeholder="Search by Company/Supplier name...."
+            className="w-full pl-12 pr-10 py-3 text-sm sm:text-base bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-all font-medium shadow-2xs"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+              title="Clear search"
+              aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center gap-2 w-full md:w-auto self-end md:self-auto text-xs">
-          {(searchTerm || statusFilter) && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchTerm('');
-                setStatusFilter('');
-              }}
-              className="px-2.5 py-1.5 text-xs text-rose-600 hover:underline font-bold cursor-pointer"
-            >
-              Reset
-            </button>
+        {/* Search Results Summary & Reset */}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end text-sm">
+          {searchTerm ? (
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                Found <strong className="text-emerald-700 dark:text-emerald-400 font-bold">{suppliersList.length}</strong> matching supplier{suppliersList.length !== 1 ? 's' : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('');
+                }}
+                className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 transition-colors cursor-pointer"
+              >
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+              Total Suppliers: <strong className="text-slate-800 dark:text-slate-200 font-bold">{summary.totalSuppliers}</strong>
+            </span>
           )}
         </div>
       </div>

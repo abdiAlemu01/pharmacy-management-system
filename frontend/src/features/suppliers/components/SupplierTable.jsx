@@ -25,6 +25,11 @@ export const SupplierTable = ({
 
   const selectedSupplier = suppliers.find((s) => s.id === selectedSupplierId) || null;
 
+  const handleToggleSelect = (id) => {
+    setSelectedSupplierId((prev) => (prev === id ? null : id));
+    setNoSelectionPrompt(false);
+  };
+
   const handleActionClick = (actionType) => {
     if (!selectedSupplier) {
       setNoSelectionPrompt(true);
@@ -142,7 +147,7 @@ export const SupplierTable = ({
             </div>
           ) : (
             <span className="text-slate-500 dark:text-slate-400 text-xs font-medium italic">
-              Click any row below to select a supplier
+              Click any circle below to select a supplier
             </span>
           )}
         </div>
@@ -202,10 +207,7 @@ export const SupplierTable = ({
                 return (
                   <tr
                     key={supplier.id}
-                    onClick={() => {
-                      setSelectedSupplierId(supplier.id);
-                      setNoSelectionPrompt(false);
-                    }}
+                    onClick={() => handleToggleSelect(supplier.id)}
                     onDoubleClick={() => onViewDetails(supplier)}
                     className={`group transition-all cursor-pointer select-none border-b border-slate-100 dark:border-slate-800/80 ${
                       isSelected
@@ -213,20 +215,25 @@ export const SupplierTable = ({
                         : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/50'
                     }`}
                   >
-                    {/* Radio Select */}
+                    {/* Toggle Select Button */}
                     <td className="px-4 py-4 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center">
-                        <input
-                          type="radio"
-                          name="selectedSupplier"
-                          checked={isSelected}
-                          onChange={() => {
-                            setSelectedSupplierId(supplier.id);
-                            setNoSelectionPrompt(false);
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleSelect(supplier.id);
                           }}
-                          className="w-4 h-4 accent-emerald-600 text-emerald-600 cursor-pointer"
-                          aria-label={`Select ${supplier.name}`}
-                        />
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-emerald-600 bg-emerald-600 dark:border-emerald-500 dark:bg-emerald-500 shadow-2xs'
+                              : 'border-slate-300 dark:border-slate-600 hover:border-emerald-500'
+                          }`}
+                          title={isSelected ? `Click to unselect ${supplier.name}` : `Click to select ${supplier.name}`}
+                          aria-label={isSelected ? `Unselect ${supplier.name}` : `Select ${supplier.name}`}
+                        >
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </button>
                       </div>
                     </td>
 
@@ -252,9 +259,7 @@ export const SupplierTable = ({
                           >
                             {supplier.name}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
-                            {supplier.taxNumber ? `TIN: ${supplier.taxNumber}` : `ID: ${supplier.id.slice(0, 8)}`}
-                          </span>
+                          
                         </div>
                       </div>
                     </td>
@@ -297,7 +302,10 @@ export const SupplierTable = ({
                     {/* Selection Status Badge */}
                     <td className="px-4 py-4 text-center whitespace-nowrap">
                       {isSelected ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-2xs">
+                        <span
+                          title="Click row to unselect"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-2xs hover:bg-emerald-200/80 dark:hover:bg-emerald-900 transition-colors"
+                        >
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           <span>Selected</span>
                         </span>

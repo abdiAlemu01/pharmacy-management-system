@@ -56,3 +56,12 @@ export const createSupplierPurchaseApi = async ({ id, ...purchaseData }) => {
   return res.data;
 };
 
+/**
+ * Delete a purchase record from a supplier's purchase history
+ */
+export const deleteSupplierPurchaseApi = async ({ supplierId, purchaseId }) => {
+  const res = await apiClient.delete(`/suppliers/${supplierId}/purchases/${purchaseId}`);
+  return res.data;
+};
+
+

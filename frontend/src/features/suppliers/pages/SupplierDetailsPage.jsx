@@ -337,7 +337,7 @@ export const SupplierDetailsPage = () => {
                   <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                     <tr>
                       <th className="py-2.5 px-3">Date</th>
-                      <th className="py-2.5 px-3">Invoice #</th>
+                      <th className="py-2.5 px-3">Order #</th>
                       <th className="py-2.5 px-3">Items</th>
                       <th className="py-2.5 px-3">Status</th>
                       <th className="py-2.5 px-3 text-right">Total Amount</th>
@@ -347,9 +347,9 @@ export const SupplierDetailsPage = () => {
                     {purchases.slice(0, 5).map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50/60">
                         <td className="py-2.5 px-3 font-medium text-slate-800">
-                          {new Date(p.purchaseDate).toLocaleDateString()}
+                          {new Date(p.purchaseDate || p.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-slate-600">{p.invoiceNumber}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-600">{p.purchaseOrderNo || p.id?.slice(0, 8)}</td>
                         <td className="py-2.5 px-3 text-slate-600">
                           {p.items ? p.items.length : 0} items
                         </td>

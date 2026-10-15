@@ -3,6 +3,7 @@ import authRoutes from './auth.routes.js';
 import medicinesRoutes from './medicines.routes.js';
 import inventoryRoutes from './inventory.routes.js';
 import salesRoutes from './sales.routes.js';
+import suppliersRoutes from './suppliers.routes.js';
 
 const router = Router();
 
@@ -18,6 +19,10 @@ router.use('/inventory', inventoryRoutes);
 // Mount Sales routes
 router.use('/sales', salesRoutes);
 
+// Mount Suppliers routes
+router.use('/suppliers', suppliersRoutes);
+
 export default router;
+
 
 

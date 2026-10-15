@@ -4,13 +4,9 @@ import {
   Plus,
   Search,
   X,
-  Filter,
   CheckCircle2,
   AlertCircle,
   Truck,
-  DollarSign,
-  PackageCheck,
-  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
@@ -132,9 +128,7 @@ export const SuppliersPage = () => {
             <Truck className="w-7 h-7 text-emerald-600" />
             <span>Supplier Management</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Manage pharmaceutical vendors, medical stock supplied, contact information, and purchase histories.
-          </p>
+          
         </div>
 
         {/* Add Supplier Button */}
@@ -177,60 +171,10 @@ export const SuppliersPage = () => {
             <span className="text-2xl font-black text-slate-900 mt-1 block">
               {summary.totalSuppliers}
             </span>
-            <span className="text-[11px] text-slate-400 font-medium">Registered vendors</span>
+            
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
             <Building2 className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Active Partners */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
-              Active Partners
-            </span>
-            <span className="text-2xl font-black text-emerald-700 mt-1 block">
-              {summary.activeSuppliers}
-            </span>
-            <span className="text-[11px] text-slate-400 font-medium">
-              {summary.inactiveSuppliers} inactive / suspended
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <PackageCheck className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Total Purchase Orders */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
-              Purchase Orders
-            </span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">
-              {summary.totalPurchasesCount}
-            </span>
-            <span className="text-[11px] text-slate-400 font-medium">Total deliveries recorded</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Total Spent */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 block uppercase tracking-wider">
-              Total Purchases Value
-            </span>
-            <span className="text-xl font-black text-emerald-800 mt-1 block whitespace-nowrap">
-              {formatBirr(summary.totalPurchasesAmount)}
-            </span>
-            <span className="text-[11px] text-slate-400 font-medium">Cumulative spend</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-            <DollarSign className="w-6 h-6" />
           </div>
         </div>
       </div>
@@ -260,21 +204,6 @@ export const SuppliersPage = () => {
 
         {/* Status Filter */}
         <div className="flex items-center gap-2 w-full md:w-auto self-end md:self-auto text-xs">
-          <div className="flex items-center gap-1.5 text-slate-500 font-medium shrink-0">
-            <Filter className="w-3.5 h-3.5" />
-            <span>Filter Status:</span>
-          </div>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold text-slate-700 cursor-pointer"
-          >
-            <option value="">All Statuses ({summary.totalSuppliers})</option>
-            <option value="ACTIVE">ACTIVE ({summary.activeSuppliers})</option>
-            <option value="INACTIVE">INACTIVE ({summary.inactiveSuppliers})</option>
-          </select>
-
           {(searchTerm || statusFilter) && (
             <button
               type="button"

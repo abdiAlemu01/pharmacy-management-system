@@ -7,6 +7,7 @@ import {
   deleteSupplierApi,
   getSupplierPurchaseHistoryApi,
   createSupplierPurchaseApi,
+  deleteSupplierPurchaseApi,
 } from '../api/suppliers.api';
 
 export const SUPPLIERS_KEY = ['suppliers'];
@@ -102,3 +103,20 @@ export const useCreateSupplierPurchase = () => {
     },
   });
 };
+
+/**
+ * Hook to delete a purchase record from a supplier's history
+ */
+export const useDeleteSupplierPurchase = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteSupplierPurchaseApi,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: SUPPLIERS_KEY });
+      queryClient.invalidateQueries({ queryKey: [...SUPPLIER_PURCHASES_KEY, variables.supplierId] });
+      queryClient.invalidateQueries({ queryKey: [...SUPPLIER_DETAILS_KEY, variables.supplierId] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+

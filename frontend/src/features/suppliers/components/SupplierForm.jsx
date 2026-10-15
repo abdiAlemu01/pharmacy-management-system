@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
-import { Building2, User, Phone, Mail, MapPin, Package, FileText, CheckCircle2 } from 'lucide-react';
+import { Building2, User, Phone, MapPin, Package, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const SupplierForm = ({
   isOpen,
@@ -69,7 +69,7 @@ export const SupplierForm = ({
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) {
-      newErrors.name = 'Supplier name is required';
+      newErrors.name = 'Company / Supplier name is required';
     } else if (formData.name.trim().length < 2) {
       newErrors.name = 'Supplier name must be at least 2 characters';
     }
@@ -79,7 +79,7 @@ export const SupplierForm = ({
     }
 
     if (!formData.stockSupplied.trim()) {
-      newErrors.stockSupplied = 'Please specify the stock or medicines supplied';
+      newErrors.stockSupplied = 'Please specify the medicines or stock supplied';
     }
 
     if (formData.email && formData.email.trim()) {
@@ -108,203 +108,145 @@ export const SupplierForm = ({
       onClose={onClose}
       title={isEditing ? 'Edit Supplier Information' : 'Register New Supplier'}
     >
-      <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-        {/* Supplier Name */}
+      <form onSubmit={handleSubmit} className="space-y-4.5 text-sm">
+        {/* Company / Supplier Name */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-            Supplier Name <span className="text-rose-500">*</span>
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+            Company / Supplier Name <span className="text-rose-500 font-bold">*</span>
           </label>
           <div className="relative">
-            <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="e.g. Ethiopian Pharmaceuticals Supply Agency (EPSA)"
-              className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${
-                errors.name ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+              placeholder="Enter company / supplier name"
+              className={`w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
+                errors.name
+                  ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-200 dark:border-slate-700'
               }`}
             />
           </div>
-          {errors.name && <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-xs text-rose-500 mt-1.5 font-medium flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{errors.name}</span>
+            </p>
+          )}
         </div>
 
         {/* Contact Person & Phone */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
               Contact Person
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 name="contactPerson"
                 value={formData.contactPerson}
                 onChange={handleChange}
-                placeholder="e.g. Ato Daniel Girma"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                placeholder="Enter contact person's name"
+                className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Phone Number <span className="text-rose-500">*</span>
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+              Phone Number <span className="text-rose-500 font-bold">*</span>
             </label>
             <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="e.g. +251 911 234 567"
-                className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${
-                  errors.phone ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+                placeholder="Enter phone number"
+                className={`w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
+                  errors.phone
+                    ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20'
+                    : 'border-slate-200 dark:border-slate-700'
                 }`}
               />
             </div>
-            {errors.phone && <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.phone}</p>}
+            {errors.phone && (
+              <p className="text-xs text-rose-500 mt-1.5 font-medium flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{errors.phone}</span>
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Stock It Supplies (Crucial Requirement) */}
+        {/* Supplied Medicines / Stock Supplied */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-            Stock It Supplies <span className="text-rose-500">*</span>
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+            Supplied Medicines  <span className="text-rose-500 font-bold">*</span>
           </label>
           <div className="relative">
-            <Package className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+            <Package className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
             <textarea
               name="stockSupplied"
-              rows="2"
+              rows={3}
               value={formData.stockSupplied}
               onChange={handleChange}
-              placeholder="e.g. Essential Antibiotics, Analgesics, IV Fluids, Pediatric Syrups, Diabetic Care"
-              className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${
-                errors.stockSupplied ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+              placeholder="Enter medicines supplied by the supplier"
+              className={`w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border rounded-xl leading-relaxed focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
+                errors.stockSupplied
+                  ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-200 dark:border-slate-700'
               }`}
             />
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            List the medication classes, brands, or medical supplies this supplier provides.
-          </p>
           {errors.stockSupplied && (
-            <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.stockSupplied}</p>
+            <p className="text-xs text-rose-500 mt-1.5 font-medium flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{errors.stockSupplied}</span>
+            </p>
           )}
         </div>
 
-        {/* Email & Address */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="e.g. orders@epsa.gov.et"
-                className={`w-full pl-9 pr-3 py-2 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${
-                  errors.email ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
-                }`}
-              />
-            </div>
-            {errors.email && <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.email}</p>}
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Address / City
-            </label>
-            <div className="relative">
-              <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="e.g. Churchill Road, Arada Subcity, Addis Ababa"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Status & Payment Terms */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Supplier Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-semibold"
-            >
-              <option value="ACTIVE">ACTIVE (Active Business Partner)</option>
-              <option value="INACTIVE">INACTIVE (Suspended / Inactive)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Payment Terms
-            </label>
+        {/* Address / Location */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+            Address / City
+          </label>
+          <div className="relative">
+            <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              name="paymentTerms"
-              value={formData.paymentTerms}
+              name="address"
+              value={formData.address}
               onChange={handleChange}
-              placeholder="e.g. Net 30 Days, Cash on Delivery"
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+              placeholder="Enter address or city"
+              className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
         </div>
 
-        {/* Tax Number & Notes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              TIN / Tax Number
-            </label>
-            <input
-              type="text"
-              name="taxNumber"
-              value={formData.taxNumber}
-              onChange={handleChange}
-              placeholder="e.g. TIN-001928374"
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Internal Notes
-            </label>
-            <input
-              type="text"
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              placeholder="e.g. Primary contact for urgent weekend deliveries"
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+        {/* Action Buttons */}
+        <div className="pt-4 mt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-4 py-2 text-sm font-semibold rounded-xl cursor-pointer"
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={isLoading} className="flex items-center gap-1.5">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isLoading}
+            className="px-5 py-2 text-sm font-semibold rounded-xl flex items-center gap-2 shadow-xs cursor-pointer"
+          >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isLoading ? 'Saving...' : isEditing ? 'Update Supplier' : 'Register Supplier'}</span>
           </Button>
@@ -313,4 +255,3 @@ export const SupplierForm = ({
     </Dialog>
   );
 };
-

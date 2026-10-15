@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/Button';
 import {
   Building2,
   User,
-  Phone,
+  Phone ,
   MapPin,
   Package,
   Calendar,
@@ -21,27 +21,22 @@ export const SupplierDetailsModal = ({
 }) => {
   if (!supplier) return null;
 
-  const formatBirr = (val) => {
-    const num = parseFloat(val || 0);
-    return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
-  };
-
   return (
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
       title="Supplier Business Profile"
-      className="max-w-2xl"
+      className="max-w-3xl"
     >
-      <div className="space-y-5 text-base">
+      <div className="space-y-6 text-base sm:text-lg">
         {/* Header banner */}
-        <div className="p-4 sm:p-5 bg-linear-to-r from-slate-50 to-emerald-50/40 dark:from-slate-800 dark:to-emerald-950/20 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-2xs">
+        <div className="p-4 sm:p-6 bg-gradient-to-r from-emerald-50/70 via-slate-50 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-emerald-950/20 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shrink-0 shadow-xs">
-              <Building2 className="w-7 h-7" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-black text-3xl flex items-center justify-center shrink-0 shadow-sm ring-4 ring-emerald-500/10">
+              <Building2 className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 dark:text-slate-100 text-xl sm:text-2xl tracking-tight">
+              <h3 className="font-black text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl tracking-tight">
                 {supplier.name}
               </h3>
             </div>
@@ -56,83 +51,57 @@ export const SupplierDetailsModal = ({
                   onClose();
                   onEdit(supplier);
                 }}
-                className="text-sm sm:text-base py-2.5 px-4 font-semibold flex items-center gap-2 rounded-xl cursor-pointer shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="text-base sm:text-lg py-2.5 px-4 font-bold flex items-center gap-2 rounded-xl cursor-pointer shadow-xs hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-300 dark:border-slate-700 transition-all"
               >
-                <Edit className="w-4.5 h-4.5 text-slate-600 dark:text-slate-300" />
+                <Edit className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 <span>Edit</span>
               </Button>
             )}
           </div>
         </div>
 
-        {/* Quick Purchase Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs">
-            <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
-              Total Purchases
-            </span>
-            <span className="font-black text-slate-900 dark:text-slate-100 text-xl sm:text-2xl">
-              {supplier.totalPurchases || 0} orders
-            </span>
-          </div>
-
-          <div className="p-4 sm:p-5 bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl shadow-2xs">
-            <span className="text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider block mb-1.5">
-              Total Spend
-            </span>
-            <span className="font-black text-emerald-800 dark:text-emerald-300 text-lg sm:text-2xl whitespace-nowrap">
-              {formatBirr(supplier.totalSpend)}
-            </span>
-          </div>
-
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs col-span-2 sm:col-span-1">
-            <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
-              Last Order
-            </span>
-            <span className="font-bold text-slate-800 dark:text-slate-200 text-base sm:text-lg">
-              {supplier.lastPurchaseDate
-                ? new Date(supplier.lastPurchaseDate).toLocaleDateString()
-                : 'No orders yet'}
-            </span>
-          </div>
-        </div>
-
         {/* Contact & Business Information */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Contact Details Card */}
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-3.5 shadow-2xs">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
+          <div className="p-5 sm:p-6 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-5 shadow-xs">
+            <h4 className="font-black text-slate-900 dark:text-slate-100 text-sm sm:text-base uppercase tracking-wider pb-3 border-b border-slate-100 dark:border-slate-700/80 flex items-center gap-2">
               Contact Details
             </h4>
 
-            <div className="flex items-start gap-3">
-              <User className="w-5 h-5 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold block mb-0.5">Contact Person:</span>
-                <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                <User className="w-5.5 h-5.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Contact Person</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 text-lg sm:text-xl break-words">
                   {supplier.contactPerson || 'Not specified'}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <Phone className="w-5 h-5 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold block mb-0.5">Phone:</span>
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <Phone className="w-5.5 h-5.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Phone Number</span>
                 <a
                   href={`tel:${supplier.phone}`}
-                  className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline text-base"
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline text-lg sm:text-xl break-all transition-colors"
                 >
                   {supplier.phone}
                 </a>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold block mb-0.5">Address / Location:</span>
-                <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                <MapPin className="w-5.5 h-5.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Address / Location</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 text-lg sm:text-xl break-words">
                   {supplier.address || 'Not specified'}
                 </span>
               </div>
@@ -140,45 +109,51 @@ export const SupplierDetailsModal = ({
           </div>
 
           {/* Business & Commercial Terms */}
-          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-3.5 shadow-2xs">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider pb-2 border-b border-slate-200/80 dark:border-slate-700/80">
-              Commercial Terms
-            </h4>
+          <div className="p-5 sm:p-6 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-5 shadow-xs flex flex-col justify-between">
+            <div className="space-y-5">
+              <h4 className="font-black text-slate-900 dark:text-slate-100 text-sm sm:text-base uppercase tracking-wider pb-3 border-b border-slate-100 dark:border-slate-700/80 flex items-center gap-2">
+                Commercial Terms
+              </h4>
 
-            <div className="flex items-start gap-3">
-              <Calendar className="w-5 h-5 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold block mb-0.5">Registered On:</span>
-                <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
-                  {new Date(supplier.createdAt).toLocaleDateString()}
-                </span>
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5.5 h-5.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Registered On:</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 text-lg sm:text-xl">
+                    {new Date(supplier.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
 
             {supplier.notes && (
-              <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-700">
-                <span className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold block mb-1">Notes:</span>
-                <p className="text-slate-700 dark:text-slate-300 italic text-sm sm:text-base font-medium">{supplier.notes}</p>
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-700/60 rounded-xl mt-3">
+                <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-bold block mb-1">Notes:</span>
+                <p className="text-slate-700 dark:text-slate-300 italic text-base sm:text-lg font-medium leading-relaxed">{supplier.notes}</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Stock It Supplies Highlight Box */}
-        <div className="p-4 sm:p-5 bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl shadow-2xs">
-          <div className="flex items-center gap-2.5 mb-2">
-            <Package className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <h4 className="font-extrabold text-emerald-900 dark:text-emerald-300 text-sm uppercase tracking-wider">
-              Medicine it Supplies:
+        <div className="p-5 sm:p-6 bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl shadow-xs">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+              <Package className="w-5 h-5" />
+            </div>
+            <h4 className="font-black text-emerald-900 dark:text-emerald-300 text-sm sm:text-base uppercase tracking-wider">
+              Medicine {supplier.name || 'Not specified'} Supplies
             </h4>
           </div>
-          <p className="text-slate-900 dark:text-slate-100 font-bold pl-7.5 text-base sm:text-lg leading-relaxed">
+          <p className="text-slate-900 dark:text-slate-100 font-black pl-12 text-lg sm:text-2xl leading-relaxed">
             {supplier.stockSupplied || 'General Pharmaceuticals'}
           </p>
         </div>
 
         {/* Bottom Actions */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {onViewPurchases ? (
             <Button
               type="button"
@@ -187,9 +162,9 @@ export const SupplierDetailsModal = ({
                 onClose();
                 onViewPurchases(supplier);
               }}
-              className="text-sm sm:text-base py-2.5 px-5 font-semibold flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl cursor-pointer shadow-2xs"
+              className="text-base sm:text-lg py-3 px-5 font-bold flex items-center justify-center gap-2.5 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl cursor-pointer shadow-xs transition-colors"
             >
-              <ShoppingBag className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <ShoppingBag className="w-5.5 h-5.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>View Purchase History ({supplier.totalPurchases || 0})</span>
             </Button>
           ) : <div />}
@@ -198,7 +173,7 @@ export const SupplierDetailsModal = ({
             type="button"
             variant="secondary"
             onClick={onClose}
-            className="px-6 py-2.5 text-sm sm:text-base font-semibold rounded-xl cursor-pointer shadow-2xs"
+            className="px-7 py-3 text-base sm:text-lg font-bold rounded-xl cursor-pointer shadow-xs transition-colors"
           >
             Close
           </Button>

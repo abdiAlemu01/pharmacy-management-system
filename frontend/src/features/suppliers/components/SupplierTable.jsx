@@ -62,11 +62,6 @@ export const SupplierTable = ({
       <div className="p-3 sm:p-4 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         {/* Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs uppercase font-extrabold text-slate-500 dark:text-slate-400 tracking-wider mr-1">
-            Actions:
-          </span>
-
-          {/* View Details */}
           <button
             type="button"
             onClick={() => handleActionClick('viewDetails')}
@@ -85,7 +80,8 @@ export const SupplierTable = ({
           <button
             type="button"
             onClick={() => handleActionClick('purchases')}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold 
+              text-xs sm:text-sm transition-all shadow-2xs ${
               selectedSupplier
                 ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer shadow-xs active:scale-95'
                 : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'

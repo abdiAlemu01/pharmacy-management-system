@@ -24,7 +24,7 @@ export const CreateSupplierPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     contactPerson: '',
-    phone: '',
+    phone : '',
     email: '',
     address: '',
     stockSupplied: '',

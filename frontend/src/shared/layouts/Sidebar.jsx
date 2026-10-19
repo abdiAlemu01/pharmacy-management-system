@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 
 export const Sidebar = () => {
@@ -32,6 +32,11 @@ export const Sidebar = () => {
       to: '/suppliers',
       label: 'Suppliers',
       icon: Truck,
+    },
+    {
+      to: '/purchases',
+      label: 'Purchases',
+      icon: ShoppingBag,
     },
     {
       to: '/sales',

@@ -120,7 +120,7 @@ export const SupplierDetailsModal = ({
                   <Calendar className="w-5.5 h-5.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Registered On:</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Registered On</span>
                   <span className="font-bold text-slate-900 dark:text-slate-100 text-lg sm:text-xl">
                     {new Date(supplier.createdAt).toLocaleDateString()}
                   </span>
@@ -143,7 +143,7 @@ export const SupplierDetailsModal = ({
             <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <Package className="w-5 h-5" />
             </div>
-            <h4 className="font-black text-emerald-900 dark:text-emerald-300 text-sm sm:text-base uppercase tracking-wider">
+            <h4 className="font-black text-emerald-900 dark:text-emerald-300 text-sm sm:text-base  tracking-wider">
               Medicine {supplier.name || 'Not specified'} Supplies
             </h4>
           </div>

@@ -157,7 +157,7 @@ export const SupplierPurchaseHistory = ({
       <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`Purchase History: ${supplier.name}`}
+      title={`Purchase History of the ${supplier.name}`}
       className="max-w-4xl"
     >
       <div className="space-y-5 text-sm">

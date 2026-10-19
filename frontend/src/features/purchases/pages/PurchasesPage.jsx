@@ -488,10 +488,11 @@ export const PurchasesPage = () => {
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs">
+            <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold tracking-wider border-b border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs">
               <tr>
                 <th className="py-3 px-3 text-center w-10">Select</th>
                 <th className="py-3 px-4">Supplier</th>
+                <th className="py-3 px-4">Medicine  Name</th>
                 <th className="py-3 px-4">Order Date</th>
                 <th className="py-3 px-3 text-center">Items</th>
                 <th className="py-3 px-4">Total Amount</th>
@@ -504,13 +505,13 @@ export const PurchasesPage = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
                     Loading purchase orders...
                   </td>
                 </tr>
               ) : purchasesList.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center">
+                  <td colSpan={10} className="py-16 text-center">
                     <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       No purchase orders found
@@ -569,6 +570,31 @@ export const PurchasesPage = () => {
                         )}
                       </td>
 
+                      {/* Medicine Name */}
+                      <td className="py-3 px-4">
+                        {p.items && p.items.length > 0 ? (
+                          <div className="max-w-[180px] sm:max-w-[220px]">
+                            <span
+                              className="font-bold text-slate-900 dark:text-slate-100 block truncate"
+                              title={p.items.map((it) => `${it.medicineName} (${it.quantity})`).join(', ')}
+                            >
+                              {p.items.map((it) => it.medicineName).join(', ')}
+                            </span>
+                            {p.items.length > 1 ? (
+                              <span className="text-[10px] text-slate-400 block font-medium">
+                                +{p.items.length - 1} more
+                              </span>
+                            ) : p.items[0]?.batchNumber ? (
+                              <span className="text-[10px] text-slate-400 block font-mono">
+                                Batch: {p.items[0].batchNumber}
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic text-xs">-</span>
+                        )}
+                      </td>
+
                       {/* Order Date */}
                       <td className="py-3 px-4 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
                         {new Date(p.orderDate).toLocaleDateString()}
@@ -576,22 +602,22 @@ export const PurchasesPage = () => {
 
                       {/* Items */}
                       <td className="py-3 px-3 text-center font-bold text-slate-700 dark:text-slate-300">
-                        {p.itemCount} item{p.itemCount !== 1 ? 's' : ''}
+                        {p.itemCount}
                       </td>
 
                       {/* Total Amount */}
                       <td className="py-3 px-4 font-black text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                        {p.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+                        {Math.round(p.totalCost || 0).toLocaleString('en-US')}
                       </td>
 
                       {/* Paid */}
                       <td className="py-3 px-4 font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
-                        {p.amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+                        {Math.round(p.amountPaid || 0).toLocaleString('en-US')}
                       </td>
 
                       {/* Balance Due */}
                       <td className="py-3 px-4 font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">
-                        {p.amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+                        {Math.round(p.amountDue || 0).toLocaleString('en-US')}
                       </td>
 
                       {/* Delivery Status Badge */}

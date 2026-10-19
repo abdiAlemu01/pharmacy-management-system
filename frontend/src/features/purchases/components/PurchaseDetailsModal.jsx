@@ -62,24 +62,20 @@ export const PurchaseDetailsModal = ({
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-black text-slate-900 dark:text-slate-100 text-xl tracking-tight">
-                  {activePurchase.purchaseOrderNo}
-                </span>
-                {activePurchase.invoiceNo && (
-                  <span className="text-xs font-semibold px-2 py-0.5 bg-slate-200 dark:bg-slate-700 rounded-lg text-slate-700 dark:text-slate-300">
-                    Inv: {activePurchase.invoiceNo}
-                  </span>
-                )}
+                
+                
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Ordered on {new Date(activePurchase.orderDate).toLocaleDateString()}
-              </p>
+               <p className="flex flex-wrap items-center gap-1.5 text-base font-medium text-slate-600 dark:text-slate-300">
+  <span>Ordered on :</span>
+  <span className="font-semibold text-slate-800 dark:text-slate-100">
+    {new Date(activePurchase.orderDate).toLocaleDateString()}
+  </span>
+</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-            <DeliveryStatusBadge status={activePurchase.status} />
-            <PaymentStatusBadge status={activePurchase.paymentStatus} />
+            
           </div>
         </div>
 

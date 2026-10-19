@@ -122,32 +122,31 @@ export const PurchaseDetailsModal = ({
           </div>
 
           {/* Financial Breakdown card */}
-          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 shadow-2xs flex flex-col justify-between">
+          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs flex flex-col justify-between">
+            
+            
             <div>
               <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-emerald-100" />
+                <DollarSign className="w-4 h-4 text-emerald-600" />
                 <span>Financial Breakdown</span>
               </h4>
-
-              
             </div>
-
-            <div className="pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-3 gap-2 text-center">
+            <div className="pt-2 grid grid-cols-3 gap-2 text-center">
               <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                 <span className="text-[10px] font-bold text-slate-500 block">Total Cost</span>
-                <span className="text-sm font-black text-slate-900 dark:text-slate-100">
+                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">
                   {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                 </span>
               </div>
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl">
                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block">Amount Paid</span>
-                <span className="text-sm font-black text-emerald-700 dark:text-emerald-400">
+                <span className="text-xs sm:text-sm font-black text-emerald-700 dark:text-emerald-400">
                   {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                 </span>
               </div>
               <div className="p-2 bg-rose-50 dark:bg-rose-950/40 rounded-xl">
                 <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 block">Remaining Due</span>
-                <span className="text-sm font-black text-rose-700 dark:text-rose-300">
+                <span className="text-xs sm:text-sm font-black text-rose-700 dark:text-rose-300">
                   {amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                 </span>
               </div>
@@ -222,7 +221,7 @@ export const PurchaseDetailsModal = ({
           <div className="space-y-2">
             <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
               <Receipt className="w-4 h-4 text-emerald-600" />
-              <span>Payment Installments Log ({activePurchase.payments.length})</span>
+              <span>Payment Installments ({activePurchase.payments.length})</span>
             </h4>
             <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl text-xs">
               <table className="w-full text-left">
@@ -230,8 +229,6 @@ export const PurchaseDetailsModal = ({
                   <tr>
                     <th className="py-2 px-3">Date</th>
                     <th className="py-2 px-3">Amount</th>
-                    <th className="py-2 px-3">Method</th>
-                    <th className="py-2 px-3">Notes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -241,8 +238,6 @@ export const PurchaseDetailsModal = ({
                       <td className="py-2 px-3 font-bold text-emerald-700 dark:text-emerald-400">
                         {p.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                       </td>
-                      <td className="py-2 px-3 font-semibold">{p.paymentMethod}</td>
-                      <td className="py-2 px-3 text-slate-500">{p.notes || '-'}</td>
                     </tr>
                   ))}
                 </tbody>

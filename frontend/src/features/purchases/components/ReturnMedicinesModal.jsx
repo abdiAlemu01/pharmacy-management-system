@@ -152,8 +152,7 @@ export const ReturnMedicinesModal = ({
                   <th className="py-2.5 px-3">Medicine</th>
                   <th className="py-2.5 px-3 text-center w-24">Accepted Qty</th>
                   <th className="py-2.5 px-3 text-center w-28 bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300">Return Qty</th>
-                  <th className="py-2.5 px-3 w-40">Return Reason </th>
-                  <th className="py-2.5 px-3 w-36">Credit / Refund Status</th>
+                  <th className="py-2.5 px-3 w-44">Return Reason</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -194,17 +193,6 @@ export const ReturnMedicinesModal = ({
                         <option value="Other">Other</option>
                       </select>
                     </td>
-                    <td className="py-2.5 px-3">
-                      <select
-                        value={it.refundStatus}
-                        onChange={(e) => handleItemChange(idx, 'refundStatus', e.target.value)}
-                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
-                      >
-                        <option value="CREDITED">Credited to Balance</option>
-                        <option value="REFUNDED">Direct Refund</option>
-                        <option value="PENDING">Pending Refund</option>
-                      </select>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -231,11 +219,11 @@ export const ReturnMedicinesModal = ({
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span>Return Notes / Supplier Acknowledgment</span>
+              <span>Return Notes / Supplier Confirmation</span>
             </label>
             <textarea
               rows={2}
-              placeholder="e.g. Return authorization #RMA-5542 granted by supplier rep..."
+              placeholder="Please provide a return reason..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20"
@@ -257,7 +245,6 @@ export const ReturnMedicinesModal = ({
                     <th className="py-1.5 px-3">Medicine</th>
                     <th className="py-1.5 px-3">Returned Qty</th>
                     <th className="py-1.5 px-3">Reason</th>
-                    <th className="py-1.5 px-3">Refund Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -267,7 +254,6 @@ export const ReturnMedicinesModal = ({
                       <td className="py-1.5 px-3 font-semibold">{r.medicineName}</td>
                       <td className="py-1.5 px-3 font-bold text-rose-600">{r.returnQuantity} units</td>
                       <td className="py-1.5 px-3">{r.returnReason}</td>
-                      <td className="py-1.5 px-3 font-semibold">{r.refundStatus}</td>
                     </tr>
                   ))}
                 </tbody>

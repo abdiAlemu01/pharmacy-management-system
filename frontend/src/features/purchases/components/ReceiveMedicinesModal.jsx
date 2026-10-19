@@ -107,7 +107,7 @@ export const ReceiveMedicinesModal = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Receive Medicines & Update Inventory"
-      className="max-w-4xl"
+      className="max-w-5xl"
     >
       <form onSubmit={handleSubmit} className="space-y-5 text-sm">
         {errorMsg && (
@@ -139,13 +139,7 @@ export const ReceiveMedicinesModal = ({
           </div>
         </div>
 
-        {/* Key business rule callout */}
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-300">
-          <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
-          <p>
-            <strong>Inventory Notice:</strong> The system updates Inventory stock <strong>only for accepted quantities</strong>. Damaged or rejected quantities are logged separately with reasons and will not enter active inventory.
-          </p>
-        </div>
+      
 
         {/* Items Receiving Table */}
         <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
@@ -158,7 +152,7 @@ export const ReceiveMedicinesModal = ({
                 <th className="py-2.5 px-3 text-center w-28 bg-rose-50/70 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300">Rejected Qty</th>
                 <th className="py-2.5 px-3 w-32">Batch No</th>
                 <th className="py-2.5 px-3 w-32">Expiry Date</th>
-                <th className="py-2.5 px-3">Rejection Reason</th>
+                <th className="py-2.5 px-3 min-w-[280px]">Rejection Reason</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -191,9 +185,10 @@ export const ReceiveMedicinesModal = ({
                       <input
                         type="number"
                         min="0"
-                        value={it.quantityRejected}
+                        placeholder="0"
+                        value={it.quantityRejected === 0 ? '' : (it.quantityRejected ?? '')}
                         onChange={(e) => handleItemChange(idx, 'quantityRejected', e.target.value)}
-                        className="w-full text-center px-2 py-1.5 bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-700 rounded-lg text-rose-900 dark:text-rose-200 font-bold focus:outline-none focus:ring-1 focus:ring-rose-500"
+                        className="w-full text-center px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-rose-900 dark:text-rose-200 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
                     </td>
                     <td className="py-2.5 px-3">
@@ -202,7 +197,7 @@ export const ReceiveMedicinesModal = ({
                         placeholder="Batch #"
                         value={it.batchNumber}
                         onChange={(e) => handleItemChange(idx, 'batchNumber', e.target.value)}
-                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
                     </td>
                     <td className="py-2.5 px-3">
@@ -210,17 +205,31 @@ export const ReceiveMedicinesModal = ({
                         type="date"
                         value={it.expiryDate}
                         onChange={(e) => handleItemChange(idx, 'expiryDate', e.target.value)}
-                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-emerald-400 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
                     </td>
-                    <td className="py-2.5 px-3">
-                      <input
-                        type="text"
-                        placeholder="e.g. Broken packaging"
-                        value={it.rejectionReason}
-                        onChange={(e) => handleItemChange(idx, 'rejectionReason', e.target.value)}
-                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
-                      />
+                    <td className="py-2.5 px-3 min-w-[280px]">
+                      {((parseInt(it.quantityRejected, 10) || 0) > 0 || it.rejectionReason) ? (
+                        <div className="animate-in fade-in slide-in-from-top-1 duration-150">
+                          <textarea
+                            rows={3}
+                            placeholder="Please provide reason for rejected items ..."
+                            value={it.rejectionReason}
+                            onChange={(e) => handleItemChange(idx, 'rejectionReason', e.target.value)}
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm min-h-[72px] resize-y"
+                            required
+                            autoFocus
+                          />
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Please provide reason for rejected items ..."
+                          value={it.rejectionReason}
+                          onChange={(e) => handleItemChange(idx, 'rejectionReason', e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-emerald-400 rounded-lg text-xs text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        />
+                      )}
                     </td>
                   </tr>
                 ))
@@ -229,35 +238,19 @@ export const ReceiveMedicinesModal = ({
           </table>
         </div>
 
-        {/* Date and Receiving Notes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Actual Receiving Date *</span>
-            </label>
-            <input
-              type="date"
-              value={receivedDate}
-              onChange={(e) => setReceivedDate(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span>Receiving Notes / Inspection Comments</span>
-            </label>
-            <textarea
-              rows={2}
-              placeholder="e.g. Inspected shipment by cold chain, all seals verified..."
-              value={receivingNotes}
-              onChange={(e) => setReceivingNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            />
-          </div>
+        {/* Date */}
+        <div className="max-w-xs">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Actual Receiving Date</span>
+          </label>
+          <input
+            type="date"
+            value={receivedDate}
+            onChange={(e) => setReceivedDate(e.target.value)}
+            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            required
+          />
         </div>
 
         {/* Actions */}

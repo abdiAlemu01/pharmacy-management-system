@@ -56,7 +56,14 @@ export const ReceiveMedicinesModal = ({
   const handleItemChange = (index, field, value) => {
     setErrorMsg('');
     setItems((prev) =>
-      prev.map((it, i) => (i === index ? { ...it, [field]: value } : it))
+      prev.map((it, i) => {
+        if (i !== index) return it;
+        const updated = { ...it, [field]: value };
+        if (field === 'quantityRejected' && (parseInt(value, 10) || 0) <= 0) {
+          updated.rejectionReason = '';
+        }
+        return updated;
+      })
     );
   };
 
@@ -209,11 +216,11 @@ export const ReceiveMedicinesModal = ({
                       />
                     </td>
                     <td className="py-2.5 px-3 min-w-[280px]">
-                      {((parseInt(it.quantityRejected, 10) || 0) > 0 || it.rejectionReason) ? (
+                      {(parseInt(it.quantityRejected, 10) || 0) > 0 ? (
                         <div className="animate-in fade-in slide-in-from-top-1 duration-150">
                           <textarea
                             rows={3}
-                            placeholder="Please provide reason for rejected items ..."
+                            placeholder="Please provide reason for rejected items (e.g. broken packaging, defective)..."
                             value={it.rejectionReason}
                             onChange={(e) => handleItemChange(idx, 'rejectionReason', e.target.value)}
                             className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm min-h-[72px] resize-y"
@@ -224,10 +231,11 @@ export const ReceiveMedicinesModal = ({
                       ) : (
                         <input
                           type="text"
-                          placeholder="Please provide reason for rejected items ..."
-                          value={it.rejectionReason}
-                          onChange={(e) => handleItemChange(idx, 'rejectionReason', e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-emerald-400 rounded-lg text-xs text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          placeholder="Enter rejected qty first..."
+                          value=""
+                          disabled
+                          readOnly
+                          className="w-full px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-lg text-xs text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
                         />
                       )}
                     </td>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShoppingBag,
   Plus,
@@ -14,6 +14,8 @@ import {
   Trash2,
   Calendar,
   Building2,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
@@ -34,6 +36,78 @@ import { RecordPaymentModal } from '../components/RecordPaymentModal';
 import { ReturnMedicinesModal } from '../components/ReturnMedicinesModal';
 import { PurchaseDetailsModal } from '../components/PurchaseDetailsModal';
 import { PurchasesSummaryCards } from '../components/PurchasesSummaryCards';
+
+const DropdownSelect = ({
+  value,
+  onChange,
+  options,
+  placeholder = 'Select...',
+  className = '',
+  buttonClassName = '',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
+  const displayLabel = selectedOption ? selectedOption.label : placeholder;
+
+  return (
+    <div className={`relative ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`w-full flex items-center justify-between text-left transition-colors cursor-pointer bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 text-slate-800 dark:text-slate-100 font-semibold hover:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs ${
+          buttonClassName || 'px-3 py-2.5 rounded-xl text-xs'
+        }`}
+      >
+        <span className="truncate">{displayLabel}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-slate-400 dark:text-slate-300 transition-transform duration-200 shrink-0 ml-1.5 ${
+            isOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''
+          }`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-40 left-0 right-0 mt-1 min-w-[190px] max-h-60 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100">
+          {options.map((opt) => {
+            const isSelected = String(value) === String(opt.value);
+            return (
+              <button
+                key={opt.value ?? 'empty'}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                  isSelected
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 ml-2" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const PurchasesPage = () => {
   // Filters & Search
@@ -63,6 +137,26 @@ export const PurchasesPage = () => {
   // Suppliers for filter
   const { data: suppliersData } = useSuppliers({ limit: 100 });
   const suppliers = suppliersData?.data?.suppliers || [];
+
+  const supplierOptions = [
+    { value: '', label: 'All Suppliers' },
+    ...suppliers.map((s) => ({ value: s.id, label: s.name })),
+  ];
+
+  const statusOptions = [
+    { value: '', label: 'Delivery Status' },
+    { value: 'ORDERED', label: 'Ordered' },
+    { value: 'PARTIALLY_RECEIVED', label: 'Partially Received' },
+    { value: 'RECEIVED', label: 'Received' },
+    { value: 'RETURNED', label: 'Returned' },
+  ];
+
+  const paymentStatusOptions = [
+    { value: '', label: 'All Payments' },
+    { value: 'UNPAID', label: 'Unpaid' },
+    { value: 'PARTIAL', label: 'Partial' },
+    { value: 'PAID', label: 'Paid' },
+  ];
 
   // Data queries
   const { data: purchasesData, isLoading } = usePurchases({
@@ -274,7 +368,7 @@ export const PurchasesPage = () => {
                 setPage(1);
               }}
               placeholder="Search by Supplier Name, Medicine,....."
-              className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
+              className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
             />
             {searchTerm && (
               <button
@@ -289,39 +383,28 @@ export const PurchasesPage = () => {
 
           {/* Supplier filter */}
           <div>
-            <select
+            <DropdownSelect
               value={supplierFilter}
-              onChange={(e) => {
-                setSupplierFilter(e.target.value);
+              onChange={(val) => {
+                setSupplierFilter(val);
                 setPage(1);
               }}
-              className="w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="">All Suppliers</option>
-              {suppliers.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+              options={supplierOptions}
+              placeholder="All Suppliers"
+            />
           </div>
 
           {/* Delivery Status filter */}
           <div>
-            <select
+            <DropdownSelect
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
+              onChange={(val) => {
+                setStatusFilter(val);
                 setPage(1);
               }}
-              className="w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-800/70 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="">Delivery Status</option>
-              <option value="ORDERED">Ordered</option>
-              <option value="PARTIALLY_RECEIVED">Partially Received</option>
-              <option value="RECEIVED">Received</option>
-              <option value="RETURNED">Returned</option>
-            </select>
+              options={statusOptions}
+              placeholder="Delivery Status"
+            />
           </div>
         </div>
 
@@ -330,19 +413,17 @@ export const PurchasesPage = () => {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-slate-500">Payment</span>
-              <select
+              <DropdownSelect
                 value={paymentStatusFilter}
-                onChange={(e) => {
-                  setPaymentStatusFilter(e.target.value);
+                onChange={(val) => {
+                  setPaymentStatusFilter(val);
                   setPage(1);
                 }}
-                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold"
-              >
-                <option value="">All Payments</option>
-                <option value="UNPAID">Unpaid</option>
-                <option value="PARTIAL">Partial</option>
-                <option value="PAID">Paid</option>
-              </select>
+                options={paymentStatusOptions}
+                placeholder="All Payments"
+                className="min-w-[130px]"
+                buttonClassName="px-2.5 py-1.5 rounded-lg text-xs"
+              />
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -354,7 +435,7 @@ export const PurchasesPage = () => {
                   setStartDate(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
+                className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
@@ -367,7 +448,7 @@ export const PurchasesPage = () => {
                   setEndDate(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-xs"
+                className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
           </div>

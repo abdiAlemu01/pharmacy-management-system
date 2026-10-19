@@ -50,7 +50,7 @@ export const recordPaymentSchema = z.object({
   body: z.object({
     amount: z.number().positive('Payment amount must be greater than 0'),
     paymentDate: z.string().optional().nullable(),
-    paymentMethod: z.string().min(1, 'Payment method is required'),
+    paymentMethod: z.string().optional().default('CASH'),
     notes: z.string().optional().nullable(),
   }),
 });

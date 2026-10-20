@@ -5,7 +5,7 @@ export const updatePharmacySchema = z.object({
     pharmacyName: z.string().trim().min(1, 'Pharmacy name is required'),
     ownerName: z.string().trim().min(1, 'Owner name is required'),
     phone: z.string().trim().min(1, 'Phone number is required'),
-    email: z.string().trim().email('Invalid email address'),
+    email: z.string().trim().email('Invalid email address').optional().nullable().or(z.literal('')),
     address: z.string().trim().min(1, 'Pharmacy address is required'),
     logoUrl: z.string().optional().nullable(),
   }),
@@ -16,7 +16,7 @@ export const updateAccountSchema = z.object({
     name: z.string().trim().min(1, 'Name is required').optional(),
     firstName: z.string().trim().optional(),
     lastName: z.string().trim().optional(),
-    email: z.string().trim().email('Invalid email address'),
+    email: z.string().trim().email('Invalid email address').optional(),
     phone: z.string().trim().optional(),
     sessionTimeout: z.number().int().min(5).max(720).optional(),
   }),
@@ -48,13 +48,14 @@ export const updateNotificationsSchema = z.object({
 
 export const updateGeneralPreferencesSchema = z.object({
   body: z.object({
-    currency: z.string().trim().min(1).default('ETB'),
-    currencySymbol: z.string().trim().min(1).default('Br'),
-    dateFormat: z.enum(['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']).default('DD/MM/YYYY'),
-    timeZone: z.string().trim().min(1).default('Africa/Addis_Ababa'),
-    theme: z.enum(['light', 'dark', 'system']).default('light'),
-    defaultDashboardDateRange: z.enum(['today', 'week', 'month', 'year']).default('month'),
-    tableRowsPerPage: z.number().int().min(5).max(100).default(10),
+    currency: z.string().trim().min(1).optional().default('ETB'),
+    currencySymbol: z.string().trim().min(1).optional().default('Br'),
+    dateFormat: z.enum(['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']).optional().default('DD/MM/YYYY'),
+    timeZone: z.string().trim().min(1).optional().default('Africa/Addis_Ababa'),
+    theme: z.enum(['light', 'dark', 'system']).optional().default('light'),
+    language: z.enum(['en', 'om', 'am']).optional().default('en'),
+    defaultDashboardDateRange: z.enum(['today', 'week', 'month', 'year']).optional().default('month'),
+    tableRowsPerPage: z.number().int().min(5).max(100).optional().default(10),
   }),
 });
 

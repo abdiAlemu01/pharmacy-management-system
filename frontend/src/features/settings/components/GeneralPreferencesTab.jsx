@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Palette,
   Sun,
   Moon,
-  Coins,
-  Calendar,
   Globe,
-  LayoutGrid,
-  ListFilter,
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Monitor,
 } from 'lucide-react';
 import { useUpdateGeneralPreferences } from '../hooks/use-settings';
 import { useTheme } from '@/shared/hooks/use-theme';
+import { SUPPORTED_LANGUAGES } from '@/shared/lib/i18n';
 
 export const GeneralPreferencesTab = ({ settings, isLoading }) => {
+  const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
 
   const [preferences, setPreferences] = useState({
-    currency: 'ETB',
-    currencySymbol: 'Br',
-    dateFormat: 'DD/MM/YYYY',
-    timeZone: 'Africa/Addis_Ababa',
     theme: 'light',
-    defaultDashboardDateRange: 'month',
-    tableRowsPerPage: 10,
+    language: i18n.language || 'en',
   });
 
   const [successMsg, setSuccessMsg] = useState('');
@@ -36,39 +29,41 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
 
   useEffect(() => {
     if (settings) {
-      setPreferences({
-        currency: settings.currency || 'ETB',
-        currencySymbol: settings.currencySymbol || 'Br',
-        dateFormat: settings.dateFormat || 'DD/MM/YYYY',
-        timeZone: settings.timeZone || 'Africa/Addis_Ababa',
+      const activeLang = settings.language || localStorage.getItem('pharmacy_language') || i18n.language || 'en';
+      setPreferences((prev) => ({
+        ...prev,
         theme: settings.theme || theme || 'light',
-        defaultDashboardDateRange: settings.defaultDashboardDateRange || 'month',
-        tableRowsPerPage: settings.tableRowsPerPage || 10,
-      });
+        language: activeLang,
+      }));
+      if (activeLang && activeLang !== i18n.language) {
+        i18n.changeLanguage(activeLang);
+      }
     }
-  }, [settings, theme]);
+  }, [settings, theme, i18n]);
 
-  const handleChange = (field, value) => {
-    setPreferences((prev) => ({ ...prev, [field]: value }));
+  useEffect(() => {
+    const handleLangChange = (lng) => {
+      setPreferences((prev) => ({ ...prev, language: lng }));
+    };
+    i18n.on('languageChanged', handleLangChange);
+    return () => {
+      i18n.off('languageChanged', handleLangChange);
+    };
+  }, [i18n]);
+
+  const handleThemeSelect = (selectedTheme) => {
+    setPreferences((prev) => ({ ...prev, theme: selectedTheme }));
+    setTheme(selectedTheme);
     setSuccessMsg('');
     setErrorMsg('');
   };
 
-  const handleThemeSelect = (selectedTheme) => {
-    handleChange('theme', selectedTheme);
-    setTheme(selectedTheme);
-  };
-
-  // Preview formatted date
-  const getFormattedDatePreview = (format) => {
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-
-    if (format === 'MM/DD/YYYY') return `${mm}/${dd}/${yyyy}`;
-    if (format === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`;
-    return `${dd}/${mm}/${yyyy}`;
+  const handleLanguageSelect = (selectedLang) => {
+    setPreferences((prev) => ({ ...prev, language: selectedLang }));
+    i18n.changeLanguage(selectedLang);
+    localStorage.setItem('pharmacy_language', selectedLang);
+    setSuccessMsg('');
+    setErrorMsg('');
   };
 
   const handleSubmit = (e) => {
@@ -78,16 +73,19 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
 
     updateMutation.mutate(
       {
-        ...preferences,
-        tableRowsPerPage: parseInt(preferences.tableRowsPerPage, 10) || 10,
+        theme: preferences.theme,
+        language: preferences.language,
       },
       {
         onSuccess: () => {
-          setSuccessMsg('General preferences saved successfully.');
+          setSuccessMsg(t('settings.preferences.successMsg', 'Preferences saved successfully.'));
           setTimeout(() => setSuccessMsg(''), 4000);
         },
         onError: (err) => {
-          setErrorMsg(err.response?.data?.message || 'Failed to save general preferences');
+          setErrorMsg(
+            err.response?.data?.message ||
+              t('settings.preferences.errorMsg', 'Failed to save preferences')
+          );
         },
       }
     );
@@ -126,18 +124,72 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
               <Palette className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">General Preferences</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {t('settings.preferences.title', 'General Preferences')}
+              </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Customize currency, date presentation, appearance theme, and default table views.
+                {t('settings.preferences.subtitle', 'Customize appearance and visual presentation of the system.')}
               </p>
             </div>
           </div>
         </div>
 
-        {/* 1. Light / Dark Mode Appearance */}
+        {/* 1. System Language Selection */}
         <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-emerald-600" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              {t('settings.preferences.languageTitle', 'System Language')}
+            </label>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 -mt-1">
+            {t('settings.preferences.languageSubtitle', 'Choose your preferred operating language across the interface.')}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            {SUPPORTED_LANGUAGES.map((lang) => {
+              const isSelected = preferences.language === lang.code;
+              return (
+                <div
+                  key={lang.code}
+                  onClick={() => handleLanguageSelect(lang.code)}
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                    isSelected
+                      ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs'
+                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                      {lang.badge}
+                    </span>
+                    {isSelected ? (
+                      <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                    )}
+                  </div>
+
+                  <div>
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
+                      {lang.nativeName}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">
+                      {lang.name} • {lang.subtitle}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. System Appearance Theme */}
+        <div className="space-y-3 pt-2">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            System Appearance Theme
+            {t('settings.preferences.appearanceTitle', 'System Appearance Theme')}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Light Mode Card */}
@@ -160,10 +212,10 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                  Light Theme
+                  {t('settings.preferences.lightTheme', 'Light Theme')}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  Crisp daylight appearance with high contrast
+                  {t('settings.preferences.lightDesc', 'Clean daylight appearance with high contrast')}
                 </span>
               </div>
               {preferences.theme === 'light' && (
@@ -193,10 +245,10 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                  Dark Theme
+                  {t('settings.preferences.darkTheme', 'Dark Theme')}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  Low-light night shift mode for reduced eye strain
+                  {t('settings.preferences.darkDesc', 'Low-light night shift mode for reduced eye strain')}
                 </span>
               </div>
               {preferences.theme === 'dark' && (
@@ -205,139 +257,6 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* 2. Currency: Ethiopian Birr (ETB) */}
-        <div className="space-y-3">
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Primary Currency
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center gap-3.5">
-              <div className="p-2.5 bg-emerald-600 text-white rounded-xl shrink-0">
-                <Coins className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100 block">
-                  Ethiopian Birr (ETB)
-                </span>
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                  Official currency code: ETB • Symbol: Br
-                </span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
-                  Price Display Preview
-                </span>
-                <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-300">
-                  1,450.00 {preferences.currency}
-                </span>
-              </div>
-              <span className="text-xs font-semibold text-slate-400">
-                (1,450.00 {preferences.currencySymbol})
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Date Format & Time Zone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Date format */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Date Format
-            </label>
-            <div className="relative">
-              <Calendar className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={preferences.dateFormat}
-                onChange={(e) => handleChange('dateFormat', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500/80 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-              >
-                <option value="DD/MM/YYYY">DD/MM/YYYY (Standard in Ethiopia)</option>
-                <option value="MM/DD/YYYY">MM/DD/YYYY (US Format)</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD (ISO Format)</option>
-              </select>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Today's Preview: <span className="font-bold text-slate-600 dark:text-slate-300">{getFormattedDatePreview(preferences.dateFormat)}</span>
-            </p>
-          </div>
-
-          {/* Time zone */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Time Zone
-            </label>
-            <div className="relative">
-              <Globe className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={preferences.timeZone}
-                onChange={(e) => handleChange('timeZone', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500/80 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-              >
-                <option value="Africa/Addis_Ababa">Africa/Addis Ababa (EAT, UTC+3)</option>
-                <option value="Africa/Nairobi">Africa/Nairobi (EAT, UTC+3)</option>
-                <option value="Africa/Cairo">Africa/Cairo (EEST, UTC+2)</option>
-                <option value="UTC">Coordinated Universal Time (UTC)</option>
-              </select>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Ensures sales timestamps, receipts, and order dates align with local Ethiopian time.
-            </p>
-          </div>
-        </div>
-
-        {/* 4. Default Dashboard Range & Table Rows Per Page */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Default dashboard range */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Default Dashboard Date Range
-            </label>
-            <div className="relative">
-              <LayoutGrid className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={preferences.defaultDashboardDateRange}
-                onChange={(e) => handleChange('defaultDashboardDateRange', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500/80 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-              >
-                <option value="today">Today (Live Shifts)</option>
-                <option value="week">Past 7 Days</option>
-                <option value="month">Current Month (Recommended)</option>
-                <option value="year">Current Financial Year</option>
-              </select>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Determines the starting metrics loaded when opening the main Dashboard.
-            </p>
-          </div>
-
-          {/* Table rows per page */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Table Rows Per Page
-            </label>
-            <div className="relative">
-              <ListFilter className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={preferences.tableRowsPerPage}
-                onChange={(e) => handleChange('tableRowsPerPage', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500/80 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-              >
-                <option value={10}>10 rows per page (Compact)</option>
-                <option value={20}>20 rows per page (Balanced)</option>
-                <option value={50}>50 rows per page (Detailed)</option>
-                <option value={100}>100 rows per page (Maximum)</option>
-              </select>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Default pagination size for Medicines, Purchases, Inventory, and Sales tables.
-            </p>
           </div>
         </div>
 
@@ -351,12 +270,12 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             {updateMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving Preferences...</span>
+                <span>{t('settings.preferences.savingBtn', 'Saving Preferences...')}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Save General Preferences</span>
+                <span>{t('settings.preferences.saveBtn', 'Save Preferences')}</span>
               </>
             )}
           </button>
@@ -365,4 +284,3 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
     </form>
   );
 };
-

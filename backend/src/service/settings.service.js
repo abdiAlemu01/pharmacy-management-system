@@ -14,14 +14,14 @@ export class SettingsService {
           "logoUrl", "sessionTimeout", "lowStockAlerts", "lowStockThreshold", 
           "nearingExpiryAlerts", "expiryThresholdDays", "expiredAlerts", 
           "supplierPaymentDueReminders", "pendingPurchaseAlerts", "inAppNotifications", 
-          "currency", "currencySymbol", "dateFormat", "timeZone", "theme", 
+          "currency", "currencySymbol", "dateFormat", "timeZone", "theme", "language",
           "defaultDashboardDateRange", "tableRowsPerPage"
         ) VALUES (
           'default', 'Pharmacy Care', 'Abdi Alemu', '+251 901 756 305', 'contact@pharmacycare.com', 'Bole Sub City, Addis Ababa, Ethiopia',
           '', 30, true, 10,
           true, 90, true,
           true, true, true,
-          'ETB', 'Br', 'DD/MM/YYYY', 'Africa/Addis_Ababa', 'light',
+          'ETB', 'Br', 'DD/MM/YYYY', 'Africa/Addis_Ababa', 'light', 'en',
           'month', 10
         ) RETURNING *;
       `);
@@ -43,6 +43,20 @@ export class SettingsService {
         [userId]
       );
       user = userRes.rows[0] || null;
+    }
+
+    // Ensure consistent owner name and phone across settings and user
+    if (user) {
+      if (user.name && !settings.ownerName) {
+        settings.ownerName = user.name;
+      } else if (settings.ownerName && !user.name) {
+        user.name = settings.ownerName;
+      }
+      if (user.phone && !settings.phone) {
+        settings.phone = user.phone;
+      } else if (settings.phone && !user.phone) {
+        user.phone = settings.phone;
+      }
     }
 
     // Calculate real-time alert metrics for Notifications & Alerts tab
@@ -127,10 +141,13 @@ export class SettingsService {
   }
 
   /**
-   * 2. Update Pharmacy Information
+   * 2. Update Pharmacy Information (and sync ownerName & phone to User profile)
    */
-  async updatePharmacyInfo({ pharmacyName, ownerName, phone, email, address, logoUrl }) {
+  async updatePharmacyInfo(userId, { pharmacyName, ownerName, phone, email, address, logoUrl }) {
     await this.ensureDefaultSettings();
+
+    const trimmedOwnerName = ownerName?.trim();
+    const trimmedPhone = phone?.trim();
 
     const query = `
       UPDATE "PharmacySetting"
@@ -138,7 +155,7 @@ export class SettingsService {
         "pharmacyName" = $1,
         "ownerName" = $2,
         "phone" = $3,
-        "email" = $4,
+        "email" = COALESCE($4, "email"),
         "address" = $5,
         "logoUrl" = $6,
         "updatedAt" = NOW()
@@ -147,36 +164,75 @@ export class SettingsService {
     `;
     const res = await db.query(query, [
       pharmacyName.trim(),
-      ownerName.trim(),
-      phone.trim(),
-      email.trim(),
+      trimmedOwnerName,
+      trimmedPhone,
+      email ? email.trim() : null,
       address.trim(),
       logoUrl || '',
     ]);
 
-    return res.rows[0];
+    const updatedSettings = res.rows[0];
+
+    // Automatically sync ownerName and phone to the User table for full consistency
+    let updatedUser = null;
+    if (userId) {
+      let fName = null;
+      let lName = null;
+      if (trimmedOwnerName) {
+        const parts = trimmedOwnerName.split(' ');
+        fName = parts[0] || '';
+        lName = parts.slice(1).join(' ') || '';
+      }
+
+      await db.query(`
+        UPDATE "User"
+        SET 
+          "name" = COALESCE($1, "name"),
+          "firstName" = COALESCE($2, "firstName"),
+          "lastName" = COALESCE($3, "lastName"),
+          "phone" = COALESCE($4, "phone"),
+          "updatedAt" = NOW()
+        WHERE id = $5
+      `, [trimmedOwnerName || null, fName, lName, trimmedPhone || null, userId]);
+
+      const userRes = await db.query(
+        'SELECT "id", "name", "firstName", "lastName", "email", "phone", "role" FROM "User" WHERE id = $1',
+        [userId]
+      );
+      updatedUser = userRes.rows[0] || null;
+    }
+
+    return {
+      settings: updatedSettings,
+      user: updatedUser,
+    };
   }
 
   /**
-   * 3. Update Account & Security profile
+   * 3. Update Account & Security profile (and sync name & phone to PharmacySetting)
    */
   async updateAccountInfo(userId, { name, firstName, lastName, email, phone, sessionTimeout }) {
-    // 1. Update user credentials in User table
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email ? email.toLowerCase().trim() : null;
+    const trimmedName = name?.trim();
+    const trimmedPhone = phone?.trim();
 
-    // Check if new email is taken by someone else
+    let updatedUser = null;
+
     if (userId) {
-      const emailCheck = await db.query(
-        'SELECT id FROM "User" WHERE LOWER(email) = $1 AND id != $2',
-        [normalizedEmail, userId]
-      );
-      if (emailCheck.rows.length > 0) {
-        const error = new Error('This email address is already in use by another account');
-        error.statusCode = 409;
-        throw error;
+      // Check if new email is taken by someone else (only if changing email)
+      if (normalizedEmail) {
+        const emailCheck = await db.query(
+          'SELECT id FROM "User" WHERE LOWER(email) = $1 AND id != $2',
+          [normalizedEmail, userId]
+        );
+        if (emailCheck.rows.length > 0) {
+          const error = new Error('This email address is already in use by another account');
+          error.statusCode = 409;
+          throw error;
+        }
       }
 
-      let fullName = name?.trim();
+      let fullName = trimmedName;
       let fName = firstName?.trim();
       let lName = lastName?.trim();
 
@@ -194,29 +250,41 @@ export class SettingsService {
           "name" = COALESCE($1, "name"),
           "firstName" = COALESCE($2, "firstName"),
           "lastName" = COALESCE($3, "lastName"),
-          "email" = $4,
+          "email" = COALESCE($4, "email"),
           "phone" = COALESCE($5, "phone"),
           "updatedAt" = NOW()
         WHERE id = $6
-      `, [fullName, fName, lName, normalizedEmail, phone ? phone.trim() : null, userId]);
+      `, [fullName || null, fName || null, lName || null, normalizedEmail || null, trimmedPhone || null, userId]);
+
+      const updatedUserRes = await db.query(
+        'SELECT "id", "name", "firstName", "lastName", "email", "phone", "role" FROM "User" WHERE id = $1',
+        [userId]
+      );
+      updatedUser = updatedUserRes.rows[0];
     }
 
-    // 2. Update sessionTimeout in PharmacySetting if provided
-    if (sessionTimeout !== undefined) {
-      await db.query(`
-        UPDATE "PharmacySetting"
-        SET "sessionTimeout" = $1, "updatedAt" = NOW()
-        WHERE id = 'default'
-      `, [sessionTimeout]);
-    }
+    // Automatically sync ownerName, phone, and sessionTimeout into PharmacySetting table
+    const settingsUpdateRes = await db.query(`
+      UPDATE "PharmacySetting"
+      SET 
+        "ownerName" = COALESCE($1, "ownerName"),
+        "phone" = COALESCE($2, "phone"),
+        "sessionTimeout" = COALESCE($3, "sessionTimeout"),
+        "updatedAt" = NOW()
+      WHERE id = 'default'
+      RETURNING *;
+    `, [
+      trimmedName || null,
+      trimmedPhone || null,
+      sessionTimeout !== undefined ? sessionTimeout : null,
+    ]);
 
-    // Fetch updated user
-    const updatedUserRes = await db.query(
-      'SELECT "id", "name", "firstName", "lastName", "email", "phone", "role" FROM "User" WHERE id = $1',
-      [userId]
-    );
+    const updatedSettings = settingsUpdateRes.rows[0];
 
-    return updatedUserRes.rows[0];
+    return {
+      settings: updatedSettings,
+      user: updatedUser,
+    };
   }
 
   /**
@@ -318,8 +386,9 @@ export class SettingsService {
         "dateFormat" = COALESCE($3, "dateFormat"),
         "timeZone" = COALESCE($4, "timeZone"),
         "theme" = COALESCE($5, "theme"),
-        "defaultDashboardDateRange" = COALESCE($6, "defaultDashboardDateRange"),
-        "tableRowsPerPage" = COALESCE($7, "tableRowsPerPage"),
+        "language" = COALESCE($6, "language"),
+        "defaultDashboardDateRange" = COALESCE($7, "defaultDashboardDateRange"),
+        "tableRowsPerPage" = COALESCE($8, "tableRowsPerPage"),
         "updatedAt" = NOW()
       WHERE id = 'default'
       RETURNING *;
@@ -331,6 +400,7 @@ export class SettingsService {
       data.dateFormat || null,
       data.timeZone || null,
       data.theme || null,
+      data.language || null,
       data.defaultDashboardDateRange || null,
       data.tableRowsPerPage !== undefined ? data.tableRowsPerPage : null,
     ]);

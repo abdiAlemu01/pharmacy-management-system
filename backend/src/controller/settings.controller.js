@@ -25,7 +25,8 @@ export class SettingsController {
    */
   static async updatePharmacyInfo(req, res, next) {
     try {
-      const updated = await settingsService.updatePharmacyInfo(req.body);
+      const userId = req.user?.id;
+      const updated = await settingsService.updatePharmacyInfo(userId, req.body);
       return res.status(200).json({
         success: true,
         message: 'Pharmacy details updated successfully',

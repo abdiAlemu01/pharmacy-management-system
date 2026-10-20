@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Bell,
   AlertTriangle,
@@ -6,7 +7,6 @@ import {
   Skull,
   CreditCard,
   ShoppingBag,
-  Volume2,
   CheckCircle2,
   AlertCircle,
   Loader2,
@@ -15,6 +15,7 @@ import {
 import { useUpdateNotifications } from '../hooks/use-settings';
 
 export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) => {
+  const { t } = useTranslation();
   const [preferences, setPreferences] = useState({
     lowStockAlerts: true,
     lowStockThreshold: 10,
@@ -26,7 +27,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
     inAppNotifications: true,
   });
 
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -44,10 +44,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
         pendingPurchaseAlerts: settings.pendingPurchaseAlerts ?? true,
         inAppNotifications: settings.inAppNotifications ?? true,
       });
-      const savedSound = localStorage.getItem('pharmacy_alert_sound');
-      if (savedSound !== null) {
-        setSoundEnabled(savedSound === 'true');
-      }
     }
   }, [settings]);
 
@@ -58,10 +54,26 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
   };
 
   const handleNumberChange = (key, val) => {
-    const num = Math.max(1, parseInt(val, 10) || 1);
-    setPreferences((prev) => ({ ...prev, [key]: num }));
     setSuccessMsg('');
     setErrorMsg('');
+    if (val === '') {
+      setPreferences((prev) => ({ ...prev, [key]: '' }));
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      setPreferences((prev) => ({ ...prev, [key]: num }));
+    }
+  };
+
+  const handleNumberBlur = (key, defaultMin = 1) => {
+    setPreferences((prev) => {
+      const current = prev[key];
+      if (current === '' || current === null || isNaN(current) || Number(current) < defaultMin) {
+        return { ...prev, [key]: defaultMin };
+      }
+      return prev;
+    });
   };
 
   const handleSubmit = (e) => {
@@ -69,11 +81,16 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
     setSuccessMsg('');
     setErrorMsg('');
 
-    localStorage.setItem('pharmacy_alert_sound', String(soundEnabled));
+    const payload = {
+      ...preferences,
+      lowStockThreshold: Math.max(1, parseInt(preferences.lowStockThreshold, 10) || 10),
+      expiryThresholdDays: Math.max(1, parseInt(preferences.expiryThresholdDays, 10) || 90),
+    };
 
-    updateMutation.mutate(preferences, {
+    updateMutation.mutate(payload, {
       onSuccess: () => {
-        setSuccessMsg('Notification and alert preferences saved successfully.');
+        setPreferences(payload);
+        setSuccessMsg(t('settings.notifications.successMsg'));
         setTimeout(() => setSuccessMsg(''), 4000);
       },
       onError: (err) => {
@@ -113,18 +130,17 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-emerald-600" />
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-              Live System Alerts Overview
+              {t('settings.notifications.overview')}
             </h3>
           </div>
-          <span className="text-[11px] font-medium text-slate-400">
-            Real-time counts based on active inventory & purchases
-          </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Low stock badge */}
           <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">Low Stock</span>
+            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+              {t('settings.notifications.lowStock')}
+            </span>
             <span className="text-xl font-extrabold text-amber-900 dark:text-amber-100 mt-1">
               {alertMetrics?.lowStockCount ?? 0}
             </span>
@@ -132,7 +148,9 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* Nearing expiry badge */}
           <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">Nearing Expiry</span>
+            <span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">
+              {t('settings.notifications.nearingExpiry')}
+            </span>
             <span className="text-xl font-extrabold text-blue-900 dark:text-blue-100 mt-1">
               {alertMetrics?.nearingExpiryCount ?? 0}
             </span>
@@ -140,7 +158,9 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* Expired medicines badge */}
           <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-rose-800 dark:text-rose-300">Expired Items</span>
+            <span className="text-[11px] font-bold text-rose-800 dark:text-rose-300">
+              {t('settings.notifications.expired')}
+            </span>
             <span className="text-xl font-extrabold text-rose-900 dark:text-rose-100 mt-1">
               {alertMetrics?.expiredCount ?? 0}
             </span>
@@ -148,7 +168,9 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* Supplier payment due badge */}
           <div className="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-purple-800 dark:text-purple-300">Payment Due</span>
+            <span className="text-[11px] font-bold text-purple-800 dark:text-purple-300">
+              {t('settings.notifications.paymentDue')}
+            </span>
             <span className="text-xl font-extrabold text-purple-900 dark:text-purple-100 mt-1">
               {alertMetrics?.paymentDueCount ?? 0}
             </span>
@@ -156,7 +178,9 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* Pending purchases badge */}
           <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 rounded-xl flex flex-col justify-between col-span-2 sm:col-span-1">
-            <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">Pending Orders</span>
+            <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+              {t('settings.notifications.pendingPo')}
+            </span>
             <span className="text-xl font-extrabold text-emerald-900 dark:text-emerald-100 mt-1">
               {alertMetrics?.pendingPoCount ?? 0}
             </span>
@@ -173,11 +197,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                Notifications & Alert Rules
+                {t('settings.notifications.rulesTitle')}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Configure when and how the system triggers warnings and notifies you of required actions.
-              </p>
             </div>
           </div>
         </div>
@@ -191,25 +212,29 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Low-Stock Alerts
+                  {t('settings.notifications.lowStockTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Warns when available medicine stock drops to or below the minimum safety threshold.
+                  {t('settings.notifications.lowStockDesc')}
                 </p>
                 {preferences.lowStockAlerts && (
                   <div className="mt-3 flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                      Alert threshold:
+                      {t('settings.notifications.alertThreshold')}
                     </span>
                     <input
                       type="number"
                       min="1"
                       max="1000"
+                      placeholder="10"
                       value={preferences.lowStockThreshold}
                       onChange={(e) => handleNumberChange('lowStockThreshold', e.target.value)}
-                      className="w-20 px-2.5 py-1 text-xs font-extrabold text-center bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      onBlur={() => handleNumberBlur('lowStockThreshold', 1)}
+                      className="w-20 px-2.5 py-1 text-xs font-extrabold text-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs transition-colors placeholder:text-slate-400"
                     />
-                    <span className="text-xs text-slate-500">units</span>
+                    <span className="text-xs text-slate-500">
+                      {t('settings.notifications.units')}
+                    </span>
                   </div>
                 )}
               </div>
@@ -238,25 +263,29 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Medicines Nearing Expiry
+                  {t('settings.notifications.nearingExpiryTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Proactively flags medicine batches approaching their expiration date for priority dispensing or return.
+                  {t('settings.notifications.nearingExpiryDesc')}
                 </p>
                 {preferences.nearingExpiryAlerts && (
                   <div className="mt-3 flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                      Alert ahead by:
+                      {t('settings.notifications.alertAheadBy')}
                     </span>
                     <input
                       type="number"
                       min="1"
                       max="365"
+                      placeholder="90"
                       value={preferences.expiryThresholdDays}
                       onChange={(e) => handleNumberChange('expiryThresholdDays', e.target.value)}
-                      className="w-20 px-2.5 py-1 text-xs font-extrabold text-center bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      onBlur={() => handleNumberBlur('expiryThresholdDays', 1)}
+                      className="w-20 px-2.5 py-1 text-xs font-extrabold text-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs transition-colors placeholder:text-slate-400"
                     />
-                    <span className="text-xs text-slate-500">days before expiry</span>
+                    <span className="text-xs text-slate-500">
+                      {t('settings.notifications.daysBeforeExpiry')}
+                    </span>
                   </div>
                 )}
               </div>
@@ -285,10 +314,10 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Expired Medicine Alerts
+                  {t('settings.notifications.expiredTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Immediately blocks dispensing and flags batches that have passed expiration to enforce regulatory compliance.
+                  {t('settings.notifications.expiredDesc')}
                 </p>
               </div>
             </div>
@@ -316,10 +345,10 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Supplier Payment Due Reminders
+                  {t('settings.notifications.paymentDueTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Sends reminders for outstanding credit invoices and unpaid purchase orders to keep good supplier relations.
+                  {t('settings.notifications.paymentDueDesc')}
                 </p>
               </div>
             </div>
@@ -347,10 +376,10 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Pending Purchase Order Alerts
+                  {t('settings.notifications.pendingPoTitle')}
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Monitors active purchase orders in ORDERED or PENDING state to remind staff to follow up on deliveries.
+                  {t('settings.notifications.pendingPoDesc')}
                 </p>
               </div>
             </div>
@@ -369,68 +398,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
               />
             </button>
           </div>
-
-          {/* 6. In-App Notification Preferences */}
-          <div className="py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5 max-w-xl">
-              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl mt-0.5 shrink-0">
-                <Bell className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  In-App Notification Banners & Badges
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Display visual popup badges and top banner messages inside the application interface.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleToggle('inAppNotifications')}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                preferences.inAppNotifications ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  preferences.inAppNotifications ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* 7. Sound / Chime Alert Toggle */}
-          <div className="py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5 max-w-xl">
-              <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl mt-0.5 shrink-0">
-                <Volume2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Audio Alert Chime
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Plays a subtle chime when high-priority stock or expiry alerts occur.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                soundEnabled ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  soundEnabled ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
         </div>
 
         {/* Action Button */}
@@ -443,12 +410,12 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {updateMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving Preferences...</span>
+                <span>{t('settings.notifications.savingAlertsBtn')}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Save Alert Preferences</span>
+                <span>{t('settings.notifications.saveAlertsBtn')}</span>
               </>
             )}
           </button>

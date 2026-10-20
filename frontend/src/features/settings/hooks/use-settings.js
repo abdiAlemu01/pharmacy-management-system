@@ -9,6 +9,7 @@ import {
 } from '../api/settings.api';
 import { useAuth } from '@/features/auth';
 import { useTheme } from '@/shared/hooks/use-theme';
+import i18n from '@/shared/lib/i18n';
 
 export const SETTINGS_QUERY_KEY = ['settings'];
 
@@ -28,10 +29,16 @@ export const useSettings = () => {
  */
 export const useUpdatePharmacy = () => {
   const queryClient = useQueryClient();
+  const { setAuth, token, user } = useAuth();
+
   return useMutation({
     mutationFn: updatePharmacyApi,
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+      const updatedUser = res?.data?.user;
+      if (updatedUser && setAuth) {
+        setAuth({ ...user, ...updatedUser }, token);
+      }
     },
   });
 };
@@ -48,8 +55,9 @@ export const useUpdateAccount = () => {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
       // Update locally stored user profile in zustand store
-      if (res.data) {
-        setAuth({ ...user, ...res.data }, token);
+      const updatedUser = res?.data?.user || (res?.data?.id ? res?.data : null);
+      if (updatedUser && setAuth) {
+        setAuth({ ...user, ...updatedUser }, token);
       }
     },
   });
@@ -90,6 +98,10 @@ export const useUpdateGeneralPreferences = () => {
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
       if (res.data?.theme) {
         setTheme(res.data.theme);
+      }
+      if (res.data?.language) {
+        i18n.changeLanguage(res.data.language);
+        localStorage.setItem('pharmacy_language', res.data.language);
       }
       if (res.data?.currency) {
         localStorage.setItem('pharmacy_currency', res.data.currency);

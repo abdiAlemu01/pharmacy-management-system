@@ -28,6 +28,7 @@ export async function migrateSettings() {
         "dateFormat" TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
         "timeZone" TEXT NOT NULL DEFAULT 'Africa/Addis_Ababa',
         "theme" TEXT NOT NULL DEFAULT 'light',
+        "language" TEXT NOT NULL DEFAULT 'en',
         "defaultDashboardDateRange" TEXT NOT NULL DEFAULT 'month',
         "tableRowsPerPage" INTEGER NOT NULL DEFAULT 10,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,6 +59,7 @@ export async function migrateSettings() {
       ADD COLUMN IF NOT EXISTS "dateFormat" TEXT NOT NULL DEFAULT 'DD/MM/YYYY',
       ADD COLUMN IF NOT EXISTS "timeZone" TEXT NOT NULL DEFAULT 'Africa/Addis_Ababa',
       ADD COLUMN IF NOT EXISTS "theme" TEXT NOT NULL DEFAULT 'light',
+      ADD COLUMN IF NOT EXISTS "language" TEXT NOT NULL DEFAULT 'en',
       ADD COLUMN IF NOT EXISTS "defaultDashboardDateRange" TEXT NOT NULL DEFAULT 'month',
       ADD COLUMN IF NOT EXISTS "tableRowsPerPage" INTEGER NOT NULL DEFAULT 10;
     `);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Settings as SettingsIcon,
   Building2,
@@ -8,14 +9,17 @@ import {
   CheckCircle2,
   AlertCircle,
   HelpCircle,
+  Globe,
 } from 'lucide-react';
 import { useSettings } from '../hooks/use-settings';
 import { PharmacyInfoTab } from '../components/PharmacyInfoTab';
 import { AccountSecurityTab } from '../components/AccountSecurityTab';
 import { NotificationsAlertsTab } from '../components/NotificationsAlertsTab';
 import { GeneralPreferencesTab } from '../components/GeneralPreferencesTab';
+import { SUPPORTED_LANGUAGES } from '@/shared/lib/i18n';
 
 export const SettingsPage = () => {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('pharmacy');
   const { data, isLoading, error } = useSettings();
 
@@ -32,32 +36,31 @@ export const SettingsPage = () => {
   const tabs = [
     {
       id: 'pharmacy',
-      label: '1. Pharmacy Information',
+      label: t('settings.tabs.pharmacy', 'Pharmacy Information'),
       shortLabel: 'Pharmacy Info',
       icon: Building2,
-      description: 'Official details, contact & logo',
+      description: '',
     },
     {
       id: 'security',
-      label: '2. Account & Security',
+      label: t('settings.tabs.security', 'Account & Security'),
       shortLabel: 'Account & Security',
       icon: ShieldCheck,
-      description: 'Owner profile, password & session',
+      description: '',
     },
     {
       id: 'notifications',
-      label: '5. Notifications & Alerts',
+      label: t('settings.tabs.notifications', 'Notifications & Alerts'),
       shortLabel: 'Notifications',
       icon: Bell,
-      badge: totalActiveAlerts > 0 ? totalActiveAlerts : null,
-      description: 'Stock, expiry & payment warnings',
+      description: '',
     },
     {
       id: 'preferences',
-      label: '6. General Preferences',
+      label: t('settings.tabs.preferences', 'General Preferences'),
       shortLabel: 'Preferences',
       icon: Palette,
-      description: 'Currency ETB, theme & formatting',
+      description: '',
     },
   ];
 
@@ -72,40 +75,69 @@ export const SettingsPage = () => {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
-                System & Pharmacy Settings
+                {t('settings.title', 'System & Pharmacy Settings')}
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                {settings?.currency || 'ETB'} Active
+                {settings?.currency || 'ETB'} {t('settings.active', 'Active')}
               </span>
             </div>
             
           </div>
         </div>
 
-        {/* Quick Identity Chip */}
-        {settings && (
-          <div className="px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-3 shrink-0">
-            {settings.logoUrl ? (
-              <img
-                src={settings.logoUrl}
-                alt="Logo"
-                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-slate-200"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">
-                +
-              </div>
-            )}
-            <div>
-              <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block leading-tight">
-                {settings.pharmacyName || 'Pharmacy Care'}
-              </span>
-              <span className="text-[10px] text-slate-400">
-                Owner: {settings.ownerName || 'Abdi Alemu'}
-              </span>
-            </div>
+        {/* Right Side Header Controls */}
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          {/* Quick Language Switcher */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700/80">
+            <Globe className="w-3.5 h-3.5 text-slate-400 ml-1 mr-0.5" />
+            {SUPPORTED_LANGUAGES.map((lang) => {
+              const isCurrent = (i18n.language || 'en').startsWith(lang.code);
+              return (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => {
+                    i18n.changeLanguage(lang.code);
+                    localStorage.setItem('pharmacy_language', lang.code);
+                  }}
+                  className={`px-2.5 py-1 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                    isCurrent
+                      ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs border border-slate-200/60 dark:border-slate-700'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                  title={`${lang.nativeName} (${lang.name})`}
+                >
+                  {lang.badge}
+                </button>
+              );
+            })}
           </div>
-        )}
+
+          {/* Quick Identity Chip */}
+          {settings && (
+            <div className="px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-3 shrink-0">
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt="Logo"
+                  className="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-slate-200"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">
+                  +
+                </div>
+              )}
+              <div>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block leading-tight">
+                  {settings.pharmacyName || 'Pharmacy Care'}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  {t('settings.owner', 'Owner')}: {user?.name || settings.ownerName || 'Abdi Alemu'}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Error state if API fails */}
@@ -154,7 +186,7 @@ export const SettingsPage = () => {
       {/* Active Tab Content */}
       <div className="mt-6">
         {activeTab === 'pharmacy' && (
-          <PharmacyInfoTab settings={settings} isLoading={isLoading} />
+          <PharmacyInfoTab settings={settings} user={user} isLoading={isLoading} />
         )}
 
         {activeTab === 'security' && (

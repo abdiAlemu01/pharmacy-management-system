@@ -1,9 +1,11 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 
 export const Sidebar = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -15,37 +17,37 @@ export const Sidebar = () => {
   const navItems = [
     {
       to: '/dashboard',
-      label: 'Dashboard',
+      label: t('nav.dashboard', 'Dashboard'),
       icon: LayoutDashboard,
     },
     {
       to: '/medicines',
-      label: 'Medicines',
+      label: t('nav.medicines', 'Medicines'),
       icon: Pill,
     },
     {
       to: '/inventory',
-      label: 'Inventory',
+      label: t('nav.inventory', 'Inventory'),
       icon: Boxes,
     },
     {
       to: '/suppliers',
-      label: 'Suppliers',
+      label: t('nav.suppliers', 'Suppliers'),
       icon: Truck,
     },
     {
       to: '/purchases',
-      label: 'Purchases',
+      label: t('nav.purchases', 'Purchases'),
       icon: ShoppingBag,
     },
     {
       to: '/sales',
-      label: 'Sales / POS',
+      label: t('nav.sales', 'Sales / POS'),
       icon: ShoppingCart,
     },
     {
       to: '/settings',
-      label: 'Settings',
+      label: t('nav.settings', 'Settings'),
       icon: Settings,
     },
   ];
@@ -66,7 +68,7 @@ export const Sidebar = () => {
       {/* Navigation Links */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-          Main Menu
+          {t('nav.mainMenu', 'Main Menu')}
         </div>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -111,13 +113,12 @@ export const Sidebar = () => {
           type="button"
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100 border border-rose-200/80 transition-all cursor-pointer shadow-2xs"
-          title="Sign Out"
+          title={t('nav.signOut', 'Sign Out')}
         >
           <LogOut className="w-5 h-5 shrink-0 text-rose-600" />
-          <span>Sign Out</span>
+          <span>{t('nav.signOut', 'Sign Out')}</span>
         </button>
       </div>
     </aside>
   );
 };
-

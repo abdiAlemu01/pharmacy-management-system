@@ -11,6 +11,7 @@ import { InventoryPage } from '@/features/inventory';
 import { SalesPage } from '@/features/sales';
 import { SuppliersPage, CreateSupplierPage, SupplierDetailsPage } from '@/features/suppliers';
 import { PurchasesPage } from '@/features/purchases';
+import { SettingsPage } from '@/features/settings';
 
 export const AppRouter = () => {
   return (
@@ -37,6 +38,7 @@ export const AppRouter = () => {
             <Route path="/suppliers/:id" element={<SupplierDetailsPage />} />
             <Route path="/purchases" element={<PurchasesPage />} />
             <Route path="/sales" element={<SalesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, LogOut } from 'lucide-react';
+import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/features/auth';
 
 export const Sidebar = () => {
@@ -43,17 +43,22 @@ export const Sidebar = () => {
       label: 'Sales / POS',
       icon: ShoppingCart,
     },
+    {
+      to: '/settings',
+      label: 'Settings',
+      icon: Settings,
+    },
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-screen sticky top-0">
+    <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 h-screen sticky top-0">
       {/* Brand logo header */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-100 gap-3 shrink-0">
+      <div className="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800 gap-3 shrink-0">
         <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-xs">
           +
         </div>
         <div>
-          <span className="font-bold text-slate-800 text-base leading-tight block">Pharmacy Care</span>
+          <span className="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight block">Pharmacy Care</span>
           <span className="text-[11px] text-slate-400 font-medium">Management System</span>
         </div>
       </div>
@@ -72,8 +77,8 @@ export const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-emerald-50 text-emerald-700 font-semibold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                 }`
               }
             >
@@ -85,14 +90,14 @@ export const Sidebar = () => {
       </nav>
 
       {/* Bottom Footer: User Info & Sign Out Button */}
-      <div className="p-4 border-t border-slate-100 bg-white shrink-0 mt-auto">
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 mt-auto">
         {user && (
-          <div className="px-3 py-2 mb-2.5 bg-slate-50 rounded-xl flex items-center gap-2.5 border border-slate-100">
+          <div className="px-3 py-2 mb-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl flex items-center gap-2.5 border border-slate-100 dark:border-slate-800">
             <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
               {(user?.name || user?.firstName || user?.email || 'U')[0].toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-slate-800 truncate">
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
                 {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email}
               </p>
               <p className="text-[10px] text-slate-400 truncate capitalize font-medium">

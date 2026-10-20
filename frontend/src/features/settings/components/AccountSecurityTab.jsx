@@ -255,26 +255,23 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
                   onChange={(e) => setProfileData({ ...profileData, sessionTimeout: e.target.value })}
                   className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl text-sm font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-xs transition-colors appearance-none cursor-pointer"
                 >
-                  <option value={15} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.min15', '15 Minutes (High Security)')}</option>
-                  <option value={30} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.min30', '30 Minutes (Recommended)')}</option>
+                  <option value={15} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.min15', '15 Minutes')}</option>
+                  <option value={30} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.min30', '30 Minutes')}</option>
                   <option value={60} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.hour1', '1 Hour')}</option>
                   <option value={120} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.hour2', '2 Hours')}</option>
                   <option value={240} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.hour4', '4 Hours')}</option>
-                  <option value={720} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.hour12', '12 Hours (End of Shift)')}</option>
+                  <option value={720} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{t('settings.account.hour12', '12 Hours')}</option>
                 </select>
                 <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
-              <p className="text-[11px] text-slate-400">
-                {t('settings.account.timeoutHint', 'Automatically terminates inactive sessions to safeguard sensitive pharmacy data.')}
-              </p>
             </div>
           </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
             <button
               type="submit"
               disabled={updateAccountMutation.isPending}
-              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             >
               {updateAccountMutation.isPending ? (
                 <>
@@ -427,11 +424,11 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="submit"
               disabled={changePasswordMutation.isPending}
-              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             >
               {changePasswordMutation.isPending ? (
                 <>
@@ -449,7 +446,7 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             <button
               type="button"
               onClick={() => setShowLogoutModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-sm rounded-xl transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-500/30"
             >
               <LogOut className="w-4 h-4" />
               <span>{t('settings.account.signOutBtn', 'Sign Out Now')}</span>

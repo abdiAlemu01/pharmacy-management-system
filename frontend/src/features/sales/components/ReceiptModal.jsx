@@ -2,8 +2,10 @@ import React from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
 import { Printer, CheckCircle2 } from 'lucide-react';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const ReceiptModal = ({ isOpen, onClose, sale }) => {
+  const { formatDateTime } = useAppDate();
   if (!sale) return null;
 
   const formatBirr = (val) => {
@@ -33,7 +35,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
           <div className="text-center pb-3 border-b border-dashed border-slate-200 space-y-1">
             <h3 className="font-black text-base text-slate-900 tracking-tight">Pharmacy Care Management</h3>
             <p className="text-slate-500 text-[11px]">Official Pharmacy POS Sales Receipt</p>
-            <p className="text-[10px] text-slate-400">Date: {new Date(sale.createdAt || Date.now()).toLocaleString()}</p>
+            <p className="text-[10px] text-slate-400">Date: {formatDateTime(sale.createdAt || Date.now())}</p>
             <p className="text-[10px] text-slate-400">Receipt ID: {sale.id}</p>
             <p className="text-[10px] text-slate-400">Dispensed By: {sale.cashierName || 'Staff'}</p>
           </div>

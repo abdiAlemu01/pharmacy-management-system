@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   Building2,
   User,
@@ -19,6 +20,7 @@ export const SupplierDetailsModal = ({
   onEdit,
   onViewPurchases,
 }) => {
+  const { formatDate } = useAppDate();
   if (!supplier) return null;
 
   return (
@@ -122,7 +124,7 @@ export const SupplierDetailsModal = ({
                 <div className="min-w-0 flex-1">
                   <span className="text-slate-500 dark:text-slate-400 text-sm sm:text-base font-semibold block mb-0.5">Registered On</span>
                   <span className="font-bold text-slate-900 dark:text-slate-100 text-lg sm:text-xl">
-                    {new Date(supplier.createdAt).toLocaleDateString()}
+                    {supplier.createdAt ? formatDate(supplier.createdAt) : '-'}
                   </span>
                 </div>
               </div>

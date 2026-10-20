@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   CreditCard,
   DollarSign,
@@ -16,6 +17,7 @@ export const RecordPaymentModal = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const { formatDate } = useAppDate();
   const [amount, setAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [errorMsg, setErrorMsg] = useState('');
@@ -183,7 +185,7 @@ export const RecordPaymentModal = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {purchase.payments.map((p) => (
                     <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="py-1.5 px-3">{new Date(p.paymentDate).toLocaleDateString()}</td>
+                      <td className="py-1.5 px-3">{p.paymentDate ? formatDate(p.paymentDate) : '-'}</td>
                       <td className="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">
                         {p.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                       </td>

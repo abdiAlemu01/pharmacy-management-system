@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, Minus, Edit, Search, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { StockStatusBadge } from './StockStatusBadge';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const InventoryTable = ({
   items = [],
@@ -14,6 +15,7 @@ export const InventoryTable = ({
   onReduceStock,
   onEditMedicine,
 }) => {
+  const { formatDate } = useAppDate();
   const formatBirr = (val) => {
     const num = parseFloat(val || 0);
     return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
@@ -158,7 +160,7 @@ export const InventoryTable = ({
 
                   {/* Purchase Date */}
                   <td className="px-4 py-4 text-center text-xs text-slate-500 whitespace-nowrap">
-                    {item.purchaseDate || '—'}
+                    {item.purchaseDate ? formatDate(item.purchaseDate) : '—'}
                   </td>
 
                   {/* Actions: Add (+), Subtract (-), Edit */}

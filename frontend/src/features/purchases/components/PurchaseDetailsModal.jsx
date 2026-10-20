@@ -3,6 +3,7 @@ import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
 import { usePurchaseDetails } from '../hooks/use-purchases';
 import { DeliveryStatusBadge, PaymentStatusBadge } from './PurchaseStatusBadge';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   Building2,
   Calendar,
@@ -31,6 +32,7 @@ export const PurchaseDetailsModal = ({
   const { data: detailsData } = usePurchaseDetails(purchase?.id, {
     enabled: Boolean(isOpen && purchase?.id),
   });
+  const { formatDate } = useAppDate();
 
   const activePurchase = detailsData?.data || purchase;
   if (!activePurchase) return null;
@@ -68,7 +70,7 @@ export const PurchaseDetailsModal = ({
                <p className="flex flex-wrap items-center gap-1.5 text-base font-medium text-slate-600 dark:text-slate-300">
   <span>Ordered on :</span>
   <span className="font-semibold text-slate-800 dark:text-slate-100">
-    {new Date(activePurchase.orderDate).toLocaleDateString()}
+    {activePurchase.orderDate ? formatDate(activePurchase.orderDate) : '-'}
   </span>
 </p>
             </div>
@@ -207,7 +209,7 @@ export const PurchaseDetailsModal = ({
                       {it.batchNumber || '-'}
                     </td>
                     <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">
-                      {it.expiryDate ? new Date(it.expiryDate).toLocaleDateString() : '-'}
+                      {it.expiryDate ? formatDate(it.expiryDate) : '-'}
                     </td>
                   </tr>
                 ))}
@@ -234,7 +236,7 @@ export const PurchaseDetailsModal = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {activePurchase.payments.map((p) => (
                     <tr key={p.id}>
-                      <td className="py-2 px-3">{new Date(p.paymentDate).toLocaleDateString()}</td>
+                      <td className="py-2 px-3">{p.paymentDate ? formatDate(p.paymentDate) : '-'}</td>
                       <td className="py-2 px-3 font-bold text-emerald-700 dark:text-emerald-400">
                         {p.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
                       </td>
@@ -268,7 +270,7 @@ export const PurchaseDetailsModal = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {activePurchase.returns.map((r) => (
                     <tr key={r.id}>
-                      <td className="py-2 px-3">{new Date(r.returnDate).toLocaleDateString()}</td>
+                      <td className="py-2 px-3">{r.returnDate ? formatDate(r.returnDate) : '-'}</td>
                       <td className="py-2 px-3 font-bold text-slate-900 dark:text-slate-100">{r.medicineName}</td>
                       <td className="py-2 px-3 text-center font-bold text-rose-600">{r.returnQuantity} units</td>
                       <td className="py-2 px-3 font-bold text-emerald-700 dark:text-emerald-400">

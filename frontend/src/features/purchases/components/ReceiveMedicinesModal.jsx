@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
 import { usePurchaseDetails } from '../hooks/use-purchases';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   PackageCheck,
   Calendar,
@@ -18,6 +19,7 @@ export const ReceiveMedicinesModal = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const { formatDate } = useAppDate();
   const [receivedDate, setReceivedDate] = useState(new Date().toISOString().split('T')[0]);
   const [receivingNotes, setReceivingNotes] = useState('');
   const [items, setItems] = useState([]);
@@ -141,7 +143,7 @@ export const ReceiveMedicinesModal = ({
           <div>
             <span className="font-bold text-slate-500 dark:text-slate-400 block">Order Date</span>
             <span className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
-              {new Date(purchase.orderDate).toLocaleDateString()}
+              {purchase.orderDate ? formatDate(purchase.orderDate) : '-'}
             </span>
           </div>
         </div>

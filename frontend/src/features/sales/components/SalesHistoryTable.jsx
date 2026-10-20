@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Eye, X, Calendar, AlertCircle } from 'lucide-react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const SalesHistoryTable = ({
   sales = [],
@@ -14,6 +15,7 @@ export const SalesHistoryTable = ({
   onEndDateChange,
 }) => {
   const [selectedSale, setSelectedSale] = useState(null);
+  const { formatDateTime } = useAppDate();
 
   const formatBirr = (val) => {
     const num = parseFloat(val || 0);
@@ -119,7 +121,7 @@ export const SalesHistoryTable = ({
                     {sale.id.slice(0, 8)}...
                   </td>
                   <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
-                    {new Date(sale.createdAt).toLocaleString()}
+                    {formatDateTime(sale.createdAt)}
                   </td>
                   <td className="px-4 py-4 font-medium text-slate-700">
                     {sale.cashierName}
@@ -168,7 +170,7 @@ export const SalesHistoryTable = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Date & Time:</span>
-                <span className="font-medium text-slate-800">{new Date(selectedSale.createdAt).toLocaleString()}</span>
+                <span className="font-medium text-slate-800">{formatDateTime(selectedSale.createdAt)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Cashier:</span>

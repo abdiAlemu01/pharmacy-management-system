@@ -214,11 +214,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.lowStockTitle')}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {t('settings.notifications.lowStockDesc')}
-                </p>
                 {preferences.lowStockAlerts && (
-                  <div className="mt-3 flex items-center gap-2">
+                  <div className="mt-2.5 flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       {t('settings.notifications.alertThreshold')}
                     </span>
@@ -265,11 +262,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.nearingExpiryTitle')}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {t('settings.notifications.nearingExpiryDesc')}
-                </p>
                 {preferences.nearingExpiryAlerts && (
-                  <div className="mt-3 flex items-center gap-2">
+                  <div className="mt-2.5 flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       {t('settings.notifications.alertAheadBy')}
                     </span>
@@ -316,9 +310,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.expiredTitle')}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {t('settings.notifications.expiredDesc')}
-                </p>
               </div>
             </div>
 
@@ -347,9 +338,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.paymentDueTitle')}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {t('settings.notifications.paymentDueDesc')}
-                </p>
               </div>
             </div>
 
@@ -378,9 +366,6 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.pendingPoTitle')}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {t('settings.notifications.pendingPoDesc')}
-                </p>
               </div>
             </div>
 

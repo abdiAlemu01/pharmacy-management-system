@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   ShoppingBag,
   Receipt,
@@ -25,6 +26,7 @@ export const SupplierPurchaseHistory = ({
   onClose,
   supplier,
 }) => {
+  const { formatDate, formatDateTime } = useAppDate();
   const [expandedPurchaseId, setExpandedPurchaseId] = useState(null);
   const [isAddingPurchase, setIsAddingPurchase] = useState(false);
   const [deletingPurchase, setDeletingPurchase] = useState(null);
@@ -201,7 +203,7 @@ export const SupplierPurchaseHistory = ({
             </span>
             <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">
               {summary.lastPurchaseDate
-                ? new Date(summary.lastPurchaseDate).toLocaleDateString()
+                ? formatDate(summary.lastPurchaseDate)
                 : 'None'}
             </span>
           </div>
@@ -470,7 +472,7 @@ export const SupplierPurchaseHistory = ({
                             )}
                           </div>
                           <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-                            Date: {new Date(purchase.createdAt).toLocaleString()} •{' '}
+                            Date: {formatDateTime(purchase.createdAt)} •{' '}
                             {purchase.items?.length || 0} items
                           </span>
                         </div>

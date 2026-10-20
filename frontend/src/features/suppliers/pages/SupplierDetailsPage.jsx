@@ -27,8 +27,10 @@ import {
 } from '../hooks/use-suppliers';
 import { SupplierForm } from '../components/SupplierForm';
 import { SupplierPurchaseHistory } from '../components/SupplierPurchaseHistory';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const SupplierDetailsPage = () => {
+  const { formatDate } = useAppDate();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -271,7 +273,7 @@ export const SupplierDetailsPage = () => {
                 <div>
                   <p className="text-slate-400 text-[11px]">Partner Since</p>
                   <p className="font-medium text-slate-700">
-                    {supplier.createdAt ? new Date(supplier.createdAt).toLocaleDateString() : 'N/A'}
+                    {supplier.createdAt ? formatDate(supplier.createdAt) : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -347,7 +349,7 @@ export const SupplierDetailsPage = () => {
                     {purchases.slice(0, 5).map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50/60">
                         <td className="py-2.5 px-3 font-medium text-slate-800">
-                          {new Date(p.purchaseDate || p.createdAt).toLocaleDateString()}
+                          {formatDate(p.purchaseDate || p.createdAt)}
                         </td>
                         <td className="py-2.5 px-3 font-mono text-slate-600">{p.purchaseOrderNo || p.id?.slice(0, 8)}</td>
                         <td className="py-2.5 px-3 text-slate-600">

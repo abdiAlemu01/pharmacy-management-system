@@ -120,9 +120,19 @@ export const useUpdateGeneralPreferences = () => {
       if (updated?.currency) {
         localStorage.setItem('pharmacy_currency', updated.currency);
       }
+      if (updated?.dateFormat) {
+        localStorage.setItem('pharmacy_date_format', updated.dateFormat);
+      }
+      if (updated?.timeZone) {
+        localStorage.setItem('pharmacy_timezone', updated.timeZone);
+      }
+      if (updated?.calendarType) {
+        localStorage.setItem('pharmacy_calendar_type', updated.calendarType);
+      }
       if (updated?.tableRowsPerPage) {
         localStorage.setItem('pharmacy_page_size', String(updated.tableRowsPerPage));
       }
+      window.dispatchEvent(new Event('pharmacy_preferences_changed'));
     },
   });
 };

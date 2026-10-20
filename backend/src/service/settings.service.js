@@ -14,14 +14,14 @@ export class SettingsService {
           "logoUrl", "sessionTimeout", "lowStockAlerts", "lowStockThreshold", 
           "nearingExpiryAlerts", "expiryThresholdDays", "expiredAlerts", 
           "supplierPaymentDueReminders", "pendingPurchaseAlerts", "inAppNotifications", 
-          "currency", "currencySymbol", "dateFormat", "timeZone", "theme", "language",
+          "currency", "currencySymbol", "dateFormat", "timeZone", "calendarType", "theme", "language",
           "defaultDashboardDateRange", "tableRowsPerPage"
         ) VALUES (
           'default', 'Pharmacy Care', 'Abdi Alemu', '+251 901 756 305', 'contact@pharmacycare.com', 'Bole Sub City, Addis Ababa, Ethiopia',
           '', 30, true, 10,
           true, 90, true,
           true, true, true,
-          'ETB', 'Br', 'DD/MM/YYYY', 'Africa/Addis_Ababa', 'light', 'en',
+          'ETB', 'Br', 'DD/MM/YYYY', 'Africa/Addis_Ababa', 'ethiopian', 'light', 'en',
           'month', 10
         ) RETURNING *;
       `);
@@ -389,6 +389,7 @@ export class SettingsService {
         "language" = COALESCE($6, "language"),
         "defaultDashboardDateRange" = COALESCE($7, "defaultDashboardDateRange"),
         "tableRowsPerPage" = COALESCE($8, "tableRowsPerPage"),
+        "calendarType" = COALESCE($9, "calendarType"),
         "updatedAt" = NOW()
       WHERE id = 'default'
       RETURNING *;
@@ -403,6 +404,7 @@ export class SettingsService {
       data.language || null,
       data.defaultDashboardDateRange || null,
       data.tableRowsPerPage !== undefined ? data.tableRowsPerPage : null,
+      data.calendarType || null,
     ]);
 
     return res.rows[0];

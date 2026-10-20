@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
+import { useAppDate } from '@/shared/lib/date-utils';
 import { useSuppliers } from '@/features/suppliers';
 import {
   usePurchases,
@@ -110,6 +111,7 @@ const DropdownSelect = ({
 };
 
 export const PurchasesPage = () => {
+  const { formatDate } = useAppDate();
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
   const [supplierFilter, setSupplierFilter] = useState('');
@@ -678,7 +680,7 @@ export const PurchasesPage = () => {
 
                       {/* Order Date */}
                       <td className="py-3 px-4 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                        {new Date(p.orderDate).toLocaleDateString()}
+                        {p.orderDate ? formatDate(p.orderDate) : '-'}
                       </td>
 
                       {/* Items */}

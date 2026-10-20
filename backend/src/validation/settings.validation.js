@@ -52,6 +52,7 @@ export const updateGeneralPreferencesSchema = z.object({
     currencySymbol: z.string().trim().min(1).optional(),
     dateFormat: z.enum(['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']).optional(),
     timeZone: z.string().trim().min(1).optional(),
+    calendarType: z.enum(['ethiopian', 'gregorian']).optional(),
     theme: z.enum(['light', 'dark', 'system']).optional(),
     language: z.enum(['en', 'om', 'am']).optional(),
     defaultDashboardDateRange: z.enum(['today', 'week', 'month', 'year']).optional(),

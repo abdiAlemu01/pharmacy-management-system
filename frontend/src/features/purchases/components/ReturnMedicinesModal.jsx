@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { Button } from '@/shared/components/ui/Button';
 import { usePurchaseDetails } from '../hooks/use-purchases';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   RotateCcw,
   Calendar,
@@ -15,6 +16,7 @@ export const ReturnMedicinesModal = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const { formatDate } = useAppDate();
   const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [itemsToReturn, setItemsToReturn] = useState([]);
@@ -249,7 +251,7 @@ export const ReturnMedicinesModal = ({
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {purchase.returns.map((r) => (
                     <tr key={r.id}>
-                      <td className="py-1.5 px-3">{new Date(r.returnDate).toLocaleDateString()}</td>
+                      <td className="py-1.5 px-3">{r.returnDate ? formatDate(r.returnDate) : '-'}</td>
                       <td className="py-1.5 px-3 font-semibold">{r.medicineName}</td>
                       <td className="py-1.5 px-3 font-bold text-rose-600">{r.returnQuantity} units</td>
                       <td className="py-1.5 px-3">{r.returnReason}</td>

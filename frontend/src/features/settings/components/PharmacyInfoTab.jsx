@@ -158,9 +158,6 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.pharmacy.title', 'Pharmacy Information')}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {t('settings.pharmacy.subtitle', 'Official contact details and legal business address of your pharmacy establishment.')}
-              </p>
             </div>
           </div>
         </div>
@@ -318,7 +315,7 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>{t('settings.pharmacy.saveBtn', 'Save Pharmacy Information')}</span>
+                <span>{t('settings.pharmacy.saveBtn', 'Save')}</span>
               </>
             )}
           </button>

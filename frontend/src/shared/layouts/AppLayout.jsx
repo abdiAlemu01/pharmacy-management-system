@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { Sidebar } from './Sidebar';
 import { ThemeToggle } from '@/shared/components/ThemeToggle';
+import { LanguageSelector } from '@/shared/components/LanguageSelector';
 
 export const AppLayout = () => {
   const { user } = useAuth();
@@ -17,6 +18,9 @@ export const AppLayout = () => {
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between sticky top-0 z-10 shadow-xs">
           <div></div>
           <div className="flex items-center gap-3">
+            {/* Language Selection Dropdown */}
+            <LanguageSelector />
+
             {/* Shift between Dark and White theme on the top right-hand side */}
             <ThemeToggle />
 

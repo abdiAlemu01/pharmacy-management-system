@@ -464,7 +464,7 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
       >
         <div className="space-y-4 text-sm">
           <p className="text-slate-600 dark:text-slate-300">
-            {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out of the Pharmacy Management System? You will need to log back in to access the system.')}
+            {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out ?')}
           </p>
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button

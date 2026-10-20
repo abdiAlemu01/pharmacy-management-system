@@ -77,20 +77,23 @@ export class SettingsService {
       const lowStockThresh = settings?.lowStockThreshold || 10;
       const expiryDays = settings?.expiryThresholdDays || 90;
 
-      // 1. Low stock count: Medicines whose sum of batch quantities <= threshold
-      const lowStockRes = await db.query(`
+      // 1. Low stock count: Real medicines whose available stock <= threshold
+      const lowStockTotalRes = await db.query(`
         SELECT COUNT(*)::int as count
-        FROM "Medicine" m
-        LEFT JOIN (
-          SELECT "medicineId", SUM(quantity) as "totalStock"
-          FROM "Batch"
-          GROUP BY "medicineId"
-        ) b ON b."medicineId" = m.id
-        WHERE COALESCE(b."totalStock", 0) <= $1
+        FROM "Medicine"
+        WHERE COALESCE(quantity, 0) <= $1
       `, [lowStockThresh]);
 
-      // 2. Nearing expiry batches: expiryDate BETWEEN NOW() AND NOW() + interval
-      const nearingExpiryRes = await db.query(`
+      const lowStockItemsRes = await db.query(`
+        SELECT id, name, quantity, "reorderLevel"
+        FROM "Medicine"
+        WHERE COALESCE(quantity, 0) <= $1
+        ORDER BY quantity ASC
+        LIMIT 10
+      `, [lowStockThresh]);
+
+      // 2. Nearing expiry batches: Real in-stock batches expiring within threshold days
+      const nearingExpiryTotalRes = await db.query(`
         SELECT COUNT(*)::int as count
         FROM "Batch"
         WHERE "expiryDate" > NOW() 
@@ -98,44 +101,100 @@ export class SettingsService {
           AND quantity > 0
       `, [expiryDays]);
 
-      // 3. Expired batches: expiryDate <= NOW() with quantity > 0
-      const expiredRes = await db.query(`
+      const nearingExpiryItemsRes = await db.query(`
+        SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
+        FROM "Batch" b
+        LEFT JOIN "Medicine" m ON m.id = b."medicineId"
+        WHERE b."expiryDate" > NOW() 
+          AND b."expiryDate" <= NOW() + ($1 || ' days')::INTERVAL
+          AND b.quantity > 0
+        ORDER BY b."expiryDate" ASC
+        LIMIT 10
+      `, [expiryDays]);
+
+      // 3. Expired batches: Real in-stock batches with expiryDate <= NOW()
+      const expiredTotalRes = await db.query(`
         SELECT COUNT(*)::int as count
         FROM "Batch"
         WHERE "expiryDate" <= NOW() AND quantity > 0
       `);
 
-      // 4. Supplier payments due: Purchases with paymentStatus in ('UNPAID', 'PARTIAL')
-      const paymentDueRes = await db.query(`
+      const expiredItemsRes = await db.query(`
+        SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
+        FROM "Batch" b
+        LEFT JOIN "Medicine" m ON m.id = b."medicineId"
+        WHERE b."expiryDate" <= NOW() AND b.quantity > 0
+        ORDER BY b."expiryDate" DESC
+        LIMIT 10
+      `);
+
+      // 4. Supplier payments due: Real purchases with UNPAID or PARTIAL status
+      const paymentDueTotalRes = await db.query(`
         SELECT COUNT(*)::int as count, COALESCE(SUM("amountDue"), 0)::numeric as total
         FROM "Purchase"
         WHERE "paymentStatus" IN ('UNPAID', 'PARTIAL')
       `);
 
-      // 5. Pending purchase orders: Purchases with status = 'ORDERED' or 'PENDING'
-      const pendingPoRes = await db.query(`
+      const paymentDueItemsRes = await db.query(`
+        SELECT p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name as "supplierName",
+               COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
+        FROM "Purchase" p
+        LEFT JOIN "Supplier" s ON s.id = p."supplierId"
+        LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
+        LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
+        WHERE p."paymentStatus" IN ('UNPAID', 'PARTIAL')
+        GROUP BY p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name, p."createdAt"
+        ORDER BY p."createdAt" DESC
+        LIMIT 10
+      `);
+
+      // 5. Pending purchase orders: Real purchases with ORDERED or PENDING status
+      const pendingPoTotalRes = await db.query(`
         SELECT COUNT(*)::int as count
         FROM "Purchase"
         WHERE status IN ('ORDERED', 'PENDING')
       `);
 
+      const pendingPoItemsRes = await db.query(`
+        SELECT p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name as "supplierName",
+               COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
+        FROM "Purchase" p
+        LEFT JOIN "Supplier" s ON s.id = p."supplierId"
+        LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
+        LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
+        WHERE p.status IN ('ORDERED', 'PENDING')
+        GROUP BY p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name, p."createdAt"
+        ORDER BY p."createdAt" DESC
+        LIMIT 10
+      `);
+
       return {
-        lowStockCount: lowStockRes.rows[0]?.count || 0,
-        nearingExpiryCount: nearingExpiryRes.rows[0]?.count || 0,
-        expiredCount: expiredRes.rows[0]?.count || 0,
-        paymentDueCount: paymentDueRes.rows[0]?.count || 0,
-        paymentDueTotal: paymentDueRes.rows[0]?.total || 0,
-        pendingPoCount: pendingPoRes.rows[0]?.count || 0,
+        lowStockCount: lowStockTotalRes.rows[0]?.count || 0,
+        lowStockItems: lowStockItemsRes.rows || [],
+        nearingExpiryCount: nearingExpiryTotalRes.rows[0]?.count || 0,
+        nearingExpiryItems: nearingExpiryItemsRes.rows || [],
+        expiredCount: expiredTotalRes.rows[0]?.count || 0,
+        expiredItems: expiredItemsRes.rows || [],
+        paymentDueCount: paymentDueTotalRes.rows[0]?.count || 0,
+        paymentDueTotal: paymentDueTotalRes.rows[0]?.total || 0,
+        paymentDueItems: paymentDueItemsRes.rows || [],
+        pendingPoCount: pendingPoTotalRes.rows[0]?.count || 0,
+        pendingPoItems: pendingPoItemsRes.rows || [],
       };
     } catch (err) {
       console.warn('Could not compute alert metrics:', err.message);
       return {
         lowStockCount: 0,
+        lowStockItems: [],
         nearingExpiryCount: 0,
+        nearingExpiryItems: [],
         expiredCount: 0,
+        expiredItems: [],
         paymentDueCount: 0,
         paymentDueTotal: 0,
+        paymentDueItems: [],
         pendingPoCount: 0,
+        pendingPoItems: [],
       };
     }
   }
@@ -369,7 +428,13 @@ export class SettingsService {
       data.inAppNotifications !== undefined ? data.inAppNotifications : null,
     ]);
 
-    return res.rows[0];
+    const updatedSettings = res.rows[0];
+    const alertMetrics = await this.getAlertMetrics(updatedSettings);
+
+    return {
+      settings: updatedSettings,
+      alertMetrics,
+    };
   }
 
   /**

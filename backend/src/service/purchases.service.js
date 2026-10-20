@@ -235,17 +235,18 @@ export class PurchasesService {
                SET quantity = $1,
                    "purchaseCost" = $2,
                    "purchaseDate" = $3,
+                   "expiryDate" = COALESCE($4, "expiryDate"),
                    "updatedAt" = NOW()
-               WHERE id = $4`,
-              [newStock, unitCost, actualReceivedDate, targetMedId]
+               WHERE id = $5`,
+              [newStock, unitCost, actualReceivedDate, expiry || null, targetMedId]
             );
           } else {
             targetMedId = crypto.randomUUID();
             const defaultSelling = parseFloat((unitCost * 1.25).toFixed(2));
             await client.query(
-              `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "purchaseDate", "updatedAt")
-               VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())`,
-              [targetMedId, medName, acceptedQty, unitCost, defaultSelling, actualReceivedDate]
+              `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "purchaseDate", "expiryDate", "updatedAt")
+               VALUES ($1, $2, $3, $4, $5, $5, $6, $7, NOW())`,
+              [targetMedId, medName, acceptedQty, unitCost, defaultSelling, actualReceivedDate, expiry || null]
             );
           }
 

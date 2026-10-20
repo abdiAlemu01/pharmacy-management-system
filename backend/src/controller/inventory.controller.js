@@ -46,13 +46,14 @@ export class InventoryController {
    */
   static async addStock(req, res, next) {
     try {
-      const { name, quantity, purchaseCost, sellingPrice, purchaseDate } = req.body;
+      const { name, quantity, purchaseCost, sellingPrice, purchaseDate, expiryDate } = req.body;
       const result = await inventoryService.addStock({
         name,
         quantity: Number(quantity),
         purchaseCost: Number(purchaseCost),
         sellingPrice: Number(sellingPrice),
         purchaseDate,
+        expiryDate,
         user: req.user,
       });
       return res.status(200).json({

@@ -97,20 +97,21 @@ export const InventoryTable = ({
                 Individual Total Cost
               </th>
               <th scope="col" className="px-4 py-3.5 text-center">Purchase Date</th>
+              <th scope="col" className="px-4 py-3.5 text-center">Expiry Date</th>
               <th scope="col" className="px-6 py-3.5 text-center">Stock Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan="7" className="text-center py-12 text-slate-400">
+                <td colSpan="8" className="text-center py-12 text-slate-400">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent" />
                   <p className="mt-2 text-xs font-medium">Loading inventory records...</p>
                 </td>
               </tr>
             ) : filteredItems.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center py-12 text-slate-400">
+                <td colSpan="8" className="text-center py-12 text-slate-400">
                   <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
                   <p className="font-semibold text-slate-700">No medicines found</p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -161,6 +162,39 @@ export const InventoryTable = ({
                   {/* Purchase Date */}
                   <td className="px-4 py-4 text-center text-xs text-slate-500 whitespace-nowrap">
                     {item.purchaseDate ? formatDate(item.purchaseDate) : '—'}
+                  </td>
+
+                  {/* Expiry Date */}
+                  <td className="px-4 py-4 text-center text-xs whitespace-nowrap">
+                    {item.expiryDate ? (
+                      (() => {
+                        const exp = new Date(item.expiryDate);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+                        if (diffDays <= 0) {
+                          return (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">
+                              {formatDate(item.expiryDate)} (Expired)
+                            </span>
+                          );
+                        }
+                        if (diffDays <= 90) {
+                          return (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
+                              {formatDate(item.expiryDate)}
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="font-medium text-slate-700">
+                            {formatDate(item.expiryDate)}
+                          </span>
+                        );
+                      })()
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
                   </td>
 
                   {/* Actions: Add (+), Subtract (-), Edit */}

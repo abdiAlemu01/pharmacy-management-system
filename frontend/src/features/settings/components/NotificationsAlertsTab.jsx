@@ -11,11 +11,17 @@ import {
   AlertCircle,
   Loader2,
   Sliders,
+  ChevronDown,
+  ChevronUp,
+  X,
 } from 'lucide-react';
 import { useUpdateNotifications } from '../hooks/use-settings';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) => {
   const { t } = useTranslation();
+  const { formatDate } = useAppDate();
+  const [selectedMetric, setSelectedMetric] = useState(null);
   const [preferences, setPreferences] = useState({
     lowStockAlerts: true,
     lowStockThreshold: 10,
@@ -137,55 +143,309 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Low stock badge */}
-          <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
-              {t('settings.notifications.lowStock')}
-            </span>
-            <span className="text-xl font-extrabold text-amber-900 dark:text-amber-100 mt-1">
+          <button
+            type="button"
+            onClick={() => setSelectedMetric(selectedMetric === 'lowStock' ? null : 'lowStock')}
+            className={`p-3.5 bg-amber-50 dark:bg-amber-950/30 border rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer ${
+              selectedMetric === 'lowStock'
+                ? 'border-amber-500 ring-2 ring-amber-500/20 shadow-xs'
+                : 'border-amber-200 dark:border-amber-900/60 hover:border-amber-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                {t('settings.notifications.lowStock')}
+              </span>
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            </div>
+            <span className="text-2xl font-extrabold text-amber-900 dark:text-amber-100 mt-1">
               {alertMetrics?.lowStockCount ?? 0}
             </span>
-          </div>
+          </button>
 
           {/* Nearing expiry badge */}
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">
-              {t('settings.notifications.nearingExpiry')}
-            </span>
-            <span className="text-xl font-extrabold text-blue-900 dark:text-blue-100 mt-1">
+          <button
+            type="button"
+            onClick={() => setSelectedMetric(selectedMetric === 'nearingExpiry' ? null : 'nearingExpiry')}
+            className={`p-3.5 bg-blue-50 dark:bg-blue-950/30 border rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer ${
+              selectedMetric === 'nearingExpiry'
+                ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+                : 'border-blue-200 dark:border-blue-900/60 hover:border-blue-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">
+                {t('settings.notifications.nearingExpiry')}
+              </span>
+              <CalendarClock className="w-3.5 h-3.5 text-blue-600" />
+            </div>
+            <span className="text-2xl font-extrabold text-blue-900 dark:text-blue-100 mt-1">
               {alertMetrics?.nearingExpiryCount ?? 0}
             </span>
-          </div>
+          </button>
 
           {/* Expired medicines badge */}
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-rose-800 dark:text-rose-300">
-              {t('settings.notifications.expired')}
-            </span>
-            <span className="text-xl font-extrabold text-rose-900 dark:text-rose-100 mt-1">
+          <button
+            type="button"
+            onClick={() => setSelectedMetric(selectedMetric === 'expired' ? null : 'expired')}
+            className={`p-3.5 bg-rose-50 dark:bg-rose-950/30 border rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer ${
+              selectedMetric === 'expired'
+                ? 'border-rose-500 ring-2 ring-rose-500/20 shadow-xs'
+                : 'border-rose-200 dark:border-rose-900/60 hover:border-rose-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-rose-800 dark:text-rose-300">
+                {t('settings.notifications.expired')}
+              </span>
+              <Skull className="w-3.5 h-3.5 text-rose-600" />
+            </div>
+            <span className="text-2xl font-extrabold text-rose-900 dark:text-rose-100 mt-1">
               {alertMetrics?.expiredCount ?? 0}
             </span>
-          </div>
+          </button>
 
           {/* Supplier payment due badge */}
-          <div className="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/60 rounded-xl flex flex-col justify-between">
-            <span className="text-[11px] font-bold text-purple-800 dark:text-purple-300">
-              {t('settings.notifications.paymentDue')}
-            </span>
-            <span className="text-xl font-extrabold text-purple-900 dark:text-purple-100 mt-1">
+          <button
+            type="button"
+            onClick={() => setSelectedMetric(selectedMetric === 'paymentDue' ? null : 'paymentDue')}
+            className={`p-3.5 bg-purple-50 dark:bg-purple-950/30 border rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer ${
+              selectedMetric === 'paymentDue'
+                ? 'border-purple-500 ring-2 ring-purple-500/20 shadow-xs'
+                : 'border-purple-200 dark:border-purple-900/60 hover:border-purple-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-purple-800 dark:text-purple-300">
+                {t('settings.notifications.paymentDue')}
+              </span>
+              <CreditCard className="w-3.5 h-3.5 text-purple-600" />
+            </div>
+            <span className="text-2xl font-extrabold text-purple-900 dark:text-purple-100 mt-1">
               {alertMetrics?.paymentDueCount ?? 0}
             </span>
-          </div>
+          </button>
 
           {/* Pending purchases badge */}
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 rounded-xl flex flex-col justify-between col-span-2 sm:col-span-1">
-            <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
-              {t('settings.notifications.pendingPo')}
-            </span>
-            <span className="text-xl font-extrabold text-emerald-900 dark:text-emerald-100 mt-1">
+          <button
+            type="button"
+            onClick={() => setSelectedMetric(selectedMetric === 'pendingPo' ? null : 'pendingPo')}
+            className={`p-3.5 bg-emerald-50 dark:bg-emerald-950/30 border rounded-xl flex flex-col justify-between text-left transition-all cursor-pointer col-span-2 sm:col-span-1 ${
+              selectedMetric === 'pendingPo'
+                ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
+                : 'border-emerald-200 dark:border-emerald-900/60 hover:border-emerald-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                {t('settings.notifications.pendingPo')}
+              </span>
+              <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" />
+            </div>
+            <span className="text-2xl font-extrabold text-emerald-900 dark:text-emerald-100 mt-1">
               {alertMetrics?.pendingPoCount ?? 0}
             </span>
-          </div>
+          </button>
         </div>
+
+        {/* Live Database Items Breakdown Panel */}
+        {selectedMetric && (
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                {selectedMetric === 'lowStock' && `Live Low-Stock Medicines (${alertMetrics?.lowStockCount ?? 0})`}
+                {selectedMetric === 'nearingExpiry' && `Live Medicines Nearing Expiry (${alertMetrics?.nearingExpiryCount ?? 0})`}
+                {selectedMetric === 'expired' && `Live Expired Batches (${alertMetrics?.expiredCount ?? 0})`}
+                {selectedMetric === 'paymentDue' && `Live Supplier Payments Due (${alertMetrics?.paymentDueCount ?? 0})`}
+                {selectedMetric === 'pendingPo' && `Live Pending Purchase Orders (${alertMetrics?.pendingPoCount ?? 0})`}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setSelectedMetric(null)}
+                className="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Close</span>
+              </button>
+            </div>
+
+            {/* Low stock items table */}
+            {selectedMetric === 'lowStock' && (
+              alertMetrics?.lowStockItems?.length > 0 ? (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <tr>
+                        <th className="py-2.5 px-3">Medicine Name</th>
+                        <th className="py-2.5 px-3 text-center">Current Stock</th>
+                        <th className="py-2.5 px-3 text-center">Safety Threshold</th>
+                        <th className="py-2.5 px-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {alertMetrics.lowStockItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{item.name}</td>
+                          <td className="py-2 px-3 text-center font-extrabold text-amber-700 dark:text-amber-400">{item.quantity} units</td>
+                          <td className="py-2 px-3 text-center text-slate-500">{preferences.lowStockThreshold} units</td>
+                          <td className="py-2 px-3 text-right">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                              LOW STOCK
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  All medicines are well-stocked above the threshold of {preferences.lowStockThreshold} units.
+                </div>
+              )
+            )}
+
+            {/* Nearing expiry items table */}
+            {selectedMetric === 'nearingExpiry' && (
+              alertMetrics?.nearingExpiryItems?.length > 0 ? (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <tr>
+                        <th className="py-2.5 px-3">Medicine Name</th>
+                        <th className="py-2.5 px-3">Batch No</th>
+                        <th className="py-2.5 px-3 text-center">Remaining Stock</th>
+                        <th className="py-2.5 px-3 text-right">Expiration Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {alertMetrics.nearingExpiryItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{item.medicineName}</td>
+                          <td className="py-2 px-3 font-mono text-slate-600 dark:text-slate-400">{item.batchNo}</td>
+                          <td className="py-2 px-3 text-center font-bold text-slate-700 dark:text-slate-300">{item.quantity} units</td>
+                          <td className="py-2 px-3 text-right font-semibold text-blue-700 dark:text-blue-400">
+                            {formatDate(item.expiryDate)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  No medicine batches are nearing expiration within {preferences.expiryThresholdDays} days.
+                </div>
+              )
+            )}
+
+            {/* Expired items table */}
+            {selectedMetric === 'expired' && (
+              alertMetrics?.expiredItems?.length > 0 ? (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <tr>
+                        <th className="py-2.5 px-3">Medicine Name</th>
+                        <th className="py-2.5 px-3">Batch No</th>
+                        <th className="py-2.5 px-3 text-center">Stock To Remove</th>
+                        <th className="py-2.5 px-3 text-right">Expired Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {alertMetrics.expiredItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{item.medicineName}</td>
+                          <td className="py-2 px-3 font-mono text-slate-600 dark:text-slate-400">{item.batchNo}</td>
+                          <td className="py-2 px-3 text-center font-bold text-rose-700 dark:text-rose-400">{item.quantity} units</td>
+                          <td className="py-2 px-3 text-right font-semibold text-rose-700 dark:text-rose-400">
+                            {formatDate(item.expiryDate)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  No expired medicine batches found in stock.
+                </div>
+              )
+            )}
+
+            {/* Supplier payment due items table */}
+            {selectedMetric === 'paymentDue' && (
+              alertMetrics?.paymentDueItems?.length > 0 ? (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <tr>
+                        <th className="py-2.5 px-3">Medicine Name</th>
+                        <th className="py-2.5 px-3">Supplier</th>
+                        <th className="py-2.5 px-3 text-right">Amount Due</th>
+                        <th className="py-2.5 px-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {alertMetrics.paymentDueItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{item.medicineName || '—'}</td>
+                          <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{item.supplierName || '—'}</td>
+                          <td className="py-2 px-3 text-right font-bold text-rose-700 dark:text-rose-400">{parseFloat(item.amountDue || 0).toLocaleString()} Birr</td>
+                          <td className="py-2 px-3 text-right">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300">
+                              {item.paymentStatus}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  All supplier purchase orders are fully settled.
+                </div>
+              )
+            )}
+
+            {/* Pending POs table */}
+            {selectedMetric === 'pendingPo' && (
+              alertMetrics?.pendingPoItems?.length > 0 ? (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <tr>
+                        <th className="py-2.5 px-3">Medicine Name</th>
+                        <th className="py-2.5 px-3">Supplier</th>
+                        <th className="py-2.5 px-3 text-right">Total Amount</th>
+                        <th className="py-2.5 px-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {alertMetrics.pendingPoItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                          <td className="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{item.medicineName || '—'}</td>
+                          <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{item.supplierName || '—'}</td>
+                          <td className="py-2 px-3 text-right font-bold text-slate-800 dark:text-slate-200">{parseFloat(item.totalCost || 0).toLocaleString()} Birr</td>
+                          <td className="py-2 px-3 text-right">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  No pending purchase orders awaiting delivery.
+                </div>
+              )
+            )}
+          </div>
+        )}
       </div>
 
       {/* Main Alert Rules & Preferences */}

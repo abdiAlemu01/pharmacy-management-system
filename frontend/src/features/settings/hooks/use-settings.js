@@ -20,7 +20,18 @@ export const useSettings = () => {
   return useQuery({
     queryKey: SETTINGS_QUERY_KEY,
     queryFn: getSettingsApi,
-    select: (res) => res.data,
+    select: (res) => {
+      const data = res.data;
+      if (data?.settings) {
+        if (data.settings.logoUrl !== undefined) {
+          localStorage.setItem('pharmacy_logo_url', data.settings.logoUrl || '');
+        }
+        if (data.settings.pharmacyName) {
+          localStorage.setItem('pharmacy_name', data.settings.pharmacyName);
+        }
+      }
+      return data;
+    },
   });
 };
 
@@ -34,6 +45,25 @@ export const useUpdatePharmacy = () => {
   return useMutation({
     mutationFn: updatePharmacyApi,
     onSuccess: (res) => {
+      const updatedSettings = res?.data?.settings || res?.data;
+      if (updatedSettings) {
+        queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            settings: {
+              ...old.settings,
+              ...updatedSettings,
+            },
+          };
+        });
+        if (updatedSettings.logoUrl !== undefined) {
+          localStorage.setItem('pharmacy_logo_url', updatedSettings.logoUrl || '');
+        }
+        if (updatedSettings.pharmacyName) {
+          localStorage.setItem('pharmacy_name', updatedSettings.pharmacyName);
+        }
+      }
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
       const updatedUser = res?.data?.user;
       if (updatedUser && setAuth) {
@@ -79,7 +109,18 @@ export const useUpdateNotifications = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateNotificationsApi,
-    onSuccess: () => {
+    onSuccess: (res) => {
+      const data = res?.data;
+      if (data?.settings || data?.alertMetrics) {
+        queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            settings: data.settings || old.settings,
+            alertMetrics: data.alertMetrics || old.alertMetrics,
+          };
+        });
+      }
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
     },
   });

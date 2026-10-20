@@ -169,12 +169,12 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
           </label>
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
             {/* Logo Preview */}
-            <div className="w-24 h-24 rounded-2xl bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-400/80 dark:border-emerald-600/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative group">
+            <div className="w-24 h-24 rounded-full bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-400/80 dark:border-emerald-600/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative group">
               {logoPreview ? (
                 <img
                   src={logoPreview}
                   alt="Pharmacy Logo"
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-slate-400 text-center p-2">
@@ -214,9 +214,6 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                {t('settings.pharmacy.logoHint', 'Supported formats: PNG, JPG, WebP, or SVG. Recommended size: 256x256 or 512x512 pixels.')}
-              </p>
             </div>
           </div>
         </div>

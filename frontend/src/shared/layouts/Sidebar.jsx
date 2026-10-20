@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, Settings, LogOut } from 'lucide-react';
+import { Dialog } from '@/shared/components/ui/Dialog';
 import { useAuth } from '@/features/auth';
+import { useSettings } from '@/features/settings/hooks/use-settings';
 
 export const Sidebar = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { data: settingsData } = useSettings();
 
-  const handleLogout = () => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const settings = settingsData?.settings;
+  const logoUrl = settings?.logoUrl || localStorage.getItem('pharmacy_logo_url') || '';
+  const pharmacyName = settings?.pharmacyName || localStorage.getItem('pharmacy_name') || 'Pharmacy Care';
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
     logout();
     navigate('/login');
   };
@@ -56,12 +66,21 @@ export const Sidebar = () => {
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 h-screen sticky top-0">
       {/* Brand logo header */}
       <div className="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800 gap-3 shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-xs">
-          +
-        </div>
-        <div>
-          <span className="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight block">Pharmacy Care</span>
-          <span className="text-[11px] text-slate-400 font-medium">Management System</span>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={pharmacyName}
+            className="w-9 h-9 rounded-full object-cover bg-white dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0"
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-xs shrink-0">
+            +
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <span className="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight block truncate">
+            {pharmacyName}
+          </span>
         </div>
       </div>
 
@@ -111,7 +130,7 @@ export const Sidebar = () => {
 
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100 border border-rose-200/80 transition-all cursor-pointer shadow-2xs"
           title={t('nav.signOut', 'Sign Out')}
         >
@@ -119,6 +138,36 @@ export const Sidebar = () => {
           <span>{t('nav.signOut', 'Sign Out')}</span>
         </button>
       </div>
+
+      {/* Confirmation Dialog for Logout */}
+      <Dialog
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title={t('settings.account.confirmSignOut', 'Confirm Sign Out')}
+        className="max-w-md"
+      >
+        <div className="space-y-4 text-sm">
+          <p className="text-slate-600 dark:text-slate-300">
+            {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out ?')}
+          </p>
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setShowLogoutModal(false)}
+              className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+            >
+              {t('settings.account.cancel', 'Cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmLogout}
+              className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer"
+            >
+              {t('settings.account.yesSignOut', 'Yes, Sign Out')}
+            </button>
+          </div>
+        </div>
+      </Dialog>
     </aside>
   );
 };

@@ -14,6 +14,7 @@ export const addStockSchema = z.object({
       .number({ invalid_type_error: 'Selling price must be a number' })
       .nonnegative('Selling price cannot be negative'),
     purchaseDate: z.string().optional(),
+    expiryDate: z.string().optional().nullable(),
   }),
 });
 
@@ -49,6 +50,7 @@ export const editMedicineInventorySchema = z.object({
       .nonnegative('Selling price cannot be negative')
       .optional(),
     purchaseDate: z.string().optional(),
+    expiryDate: z.string().optional().nullable(),
   }),
 });
 

@@ -87,7 +87,7 @@ const resources = {
           updatingPasswordBtn: 'Verifying & Updating...',
           signOutBtn: 'Sign Out Now',
           confirmSignOut: 'Confirm Sign Out',
-          confirmSignOutMsg: 'Are you sure you want to sign out of the Pharmacy Management System? You will need to log back in to access the system.',
+          confirmSignOutMsg: 'Are you sure you want to sign out ?',
           cancel: 'Cancel',
           yesSignOut: 'Yes, Sign Out',
           profileSuccess: 'Account details and session settings saved.',

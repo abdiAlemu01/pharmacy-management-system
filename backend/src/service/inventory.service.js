@@ -26,6 +26,14 @@ export class InventoryService {
     const totalCost = parseFloat((quantity * purchaseCost).toFixed(2));
     const totalSellingPrice = parseFloat((quantity * sellingPrice).toFixed(2));
 
+    const purchaseDate = row.purchaseDate
+      ? (row.purchaseDate.toISOString?.().split('T')[0] || String(row.purchaseDate).split('T')[0])
+      : null;
+
+    const expiryDate = row.expiryDate
+      ? (row.expiryDate.toISOString?.().split('T')[0] || String(row.expiryDate).split('T')[0])
+      : null;
+
     return {
       id: row.id,
       name: row.name,
@@ -34,7 +42,8 @@ export class InventoryService {
       sellingPrice,
       totalCost,
       totalSellingPrice,
-      purchaseDate: row.purchaseDate ? row.purchaseDate.toISOString?.().split('T')[0] || String(row.purchaseDate).split('T')[0] : null,
+      purchaseDate,
+      expiryDate,
       stockStatus: this.getStockStatus(quantity),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -101,9 +110,15 @@ export class InventoryService {
     const queryValues = [...values, limit, offset];
 
     const dataSql = `
-      SELECT * FROM "Medicine"
+      SELECT m.*,
+             COALESCE(m."expiryDate", (
+               SELECT MIN(b."expiryDate")
+               FROM "Batch" b
+               WHERE b."medicineId" = m.id AND b.quantity > 0
+             )) as "expiryDate"
+      FROM "Medicine" m
       ${whereClause}
-      ORDER BY LOWER(name) ASC
+      ORDER BY LOWER(m.name) ASC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
@@ -126,12 +141,13 @@ export class InventoryService {
    * If medicine exists: add onto the same medicine and update inventory automatically.
    * If medicine does not exist: create new medicine and set initial stock.
    */
-  async addStock({ name, quantity, purchaseCost, sellingPrice, purchaseDate, user }) {
+  async addStock({ name, quantity, purchaseCost, sellingPrice, purchaseDate, expiryDate, user }) {
     const client = await db.connect();
     try {
       await client.query('BEGIN');
       const trimmedName = name.trim();
       const pDate = purchaseDate || new Date().toISOString().split('T')[0];
+      const expDate = expiryDate || null;
 
       // Check if medicine exists by name (case-insensitive)
       const existingRes = await client.query(
@@ -156,22 +172,34 @@ export class InventoryService {
                "sellingPrice" = $3, 
                price = $3,
                "purchaseDate" = $4,
+               "expiryDate" = COALESCE($5, "expiryDate"),
                "updatedAt" = NOW()
-           WHERE id = $5
+           WHERE id = $6
            RETURNING *`,
-          [newQty, purchaseCost, sellingPrice, pDate, existing.id]
+          [newQty, purchaseCost, sellingPrice, pDate, expDate, existing.id]
         );
         medicine = updateRes.rows[0];
       } else {
         // Does not exist: Create new medicine record
         const id = crypto.randomUUID();
         const insertRes = await client.query(
-          `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "purchaseDate", "updatedAt")
-           VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())
+          `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "purchaseDate", "expiryDate", "updatedAt")
+           VALUES ($1, $2, $3, $4, $5, $5, $6, $7, NOW())
            RETURNING *`,
-          [id, trimmedName, quantity, purchaseCost, sellingPrice, pDate]
+          [id, trimmedName, quantity, purchaseCost, sellingPrice, pDate, expDate]
         );
         medicine = insertRes.rows[0];
+      }
+
+      // If expiry date provided, also record or update Batch
+      if (expDate) {
+        const batchId = crypto.randomUUID();
+        const randBatch = `BATCH-${Math.floor(1000 + Math.random() * 9000)}`;
+        await client.query(
+          `INSERT INTO "Batch" ("id", "batchNo", "medicineId", "quantity", "expiryDate", "purchaseCost", "createdAt", "updatedAt")
+           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+          [batchId, randBatch, medicine.id, quantity, expDate, purchaseCost]
+        );
       }
 
       // Record transaction
@@ -289,7 +317,7 @@ export class InventoryService {
   /**
    * 5. Edit Medicine Information
    */
-  async editMedicine(id, { name, quantity, purchaseCost, sellingPrice, purchaseDate }) {
+  async editMedicine(id, { name, quantity, purchaseCost, sellingPrice, purchaseDate, expiryDate }) {
     const existing = await db.query(
       'SELECT * FROM "Medicine" WHERE id = $1 LIMIT 1',
       [id]
@@ -321,6 +349,7 @@ export class InventoryService {
     const newPurchaseCost = purchaseCost !== undefined ? purchaseCost : current.purchaseCost;
     const newSellingPrice = sellingPrice !== undefined ? sellingPrice : current.sellingPrice;
     const newDate = purchaseDate !== undefined ? purchaseDate : current.purchaseDate;
+    const newExpiry = expiryDate !== undefined ? (expiryDate || null) : current.expiryDate;
 
     const res = await db.query(
       `UPDATE "Medicine"
@@ -330,11 +359,19 @@ export class InventoryService {
            "sellingPrice" = $4,
            price = $4,
            "purchaseDate" = $5,
+           "expiryDate" = $6,
            "updatedAt" = NOW()
-       WHERE id = $6
+       WHERE id = $7
        RETURNING *`,
-      [newName, newQty, newPurchaseCost, newSellingPrice, newDate, id]
+      [newName, newQty, newPurchaseCost, newSellingPrice, newDate, newExpiry, id]
     );
+
+    if (newExpiry) {
+      await db.query(
+        `UPDATE "Batch" SET "expiryDate" = $1, "updatedAt" = NOW() WHERE "medicineId" = $2`,
+        [newExpiry, id]
+      );
+    }
 
     return this.formatItem(res.rows[0]);
   }

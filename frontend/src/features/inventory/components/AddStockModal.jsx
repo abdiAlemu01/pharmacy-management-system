@@ -19,6 +19,7 @@ export const AddStockModal = ({
   const [purchaseCost, setPurchaseCost] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [purchaseDate, setPurchaseDate] = useState(today);
+  const [expiryDate, setExpiryDate] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -29,12 +30,14 @@ export const AddStockModal = ({
         setPurchaseCost(initialMedicine.purchaseCost !== undefined ? String(initialMedicine.purchaseCost) : '');
         setSellingPrice(initialMedicine.sellingPrice !== undefined ? String(initialMedicine.sellingPrice) : '');
         setPurchaseDate(initialMedicine.purchaseDate || today);
+        setExpiryDate(initialMedicine.expiryDate ? String(initialMedicine.expiryDate).split('T')[0] : '');
       } else {
         setName('');
         setQuantity('');
         setPurchaseCost('');
         setSellingPrice('');
         setPurchaseDate(today);
+        setExpiryDate('');
       }
       setErrors({});
     }
@@ -53,6 +56,7 @@ export const AddStockModal = ({
     setName(med.name);
     if (!purchaseCost) setPurchaseCost(String(med.purchaseCost || ''));
     if (!sellingPrice) setSellingPrice(String(med.sellingPrice || ''));
+    if (!expiryDate && med.expiryDate) setExpiryDate(String(med.expiryDate).split('T')[0]);
   };
 
   // Live calculations
@@ -95,6 +99,7 @@ export const AddStockModal = ({
       purchaseCost: unitCostNum,
       sellingPrice: unitSellingNum,
       purchaseDate,
+      expiryDate: expiryDate || null,
     });
   };
 
@@ -149,10 +154,10 @@ export const AddStockModal = ({
           </datalist>
         </div>
 
-        {/* Quantity & Purchase Date */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Quantity to Add */}
+        <div>
           <Input
-            label="Quantity to Add "
+            label="Quantity to Add *"
             type="number"
             min="1"
             step="1"
@@ -163,16 +168,6 @@ export const AddStockModal = ({
             }}
             placeholder="e.g. 50"
             error={errors.quantity}
-          />
-          <Input
-            label="Purchase Date "
-            type="date"
-            value={purchaseDate}
-            onChange={(e) => {
-              setPurchaseDate(e.target.value);
-              if (errors.purchaseDate) setErrors((prev) => ({ ...prev, purchaseDate: null }));
-            }}
-            error={errors.purchaseDate}
           />
         </div>
 
@@ -192,7 +187,7 @@ export const AddStockModal = ({
             error={errors.purchaseCost}
           />
           <Input
-            label="Selling Price "
+            label="Selling Price"
             type="number"
             min="0"
             step="0.01"
@@ -203,6 +198,26 @@ export const AddStockModal = ({
             }}
             placeholder="0.00 Birr"
             error={errors.sellingPrice}
+          />
+        </div>
+
+        {/* Purchase Date & Expiry Date */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            label="Purchase Date *"
+            type="date"
+            value={purchaseDate}
+            onChange={(e) => {
+              setPurchaseDate(e.target.value);
+              if (errors.purchaseDate) setErrors((prev) => ({ ...prev, purchaseDate: null }));
+            }}
+            error={errors.purchaseDate}
+          />
+          <Input
+            label="Expiry Date"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
           />
         </div>
 

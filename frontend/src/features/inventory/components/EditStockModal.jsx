@@ -16,6 +16,7 @@ export const EditStockModal = ({
   const [purchaseCost, setPurchaseCost] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -24,7 +25,8 @@ export const EditStockModal = ({
       setQuantity(medicine.quantity !== undefined ? String(medicine.quantity) : '0');
       setPurchaseCost(medicine.purchaseCost !== undefined ? String(medicine.purchaseCost) : '0');
       setSellingPrice(medicine.sellingPrice !== undefined ? String(medicine.sellingPrice) : '0');
-      setPurchaseDate(medicine.purchaseDate || new Date().toISOString().split('T')[0]);
+      setPurchaseDate(medicine.purchaseDate ? String(medicine.purchaseDate).split('T')[0] : '');
+      setExpiryDate(medicine.expiryDate ? String(medicine.expiryDate).split('T')[0] : '');
       setErrors({});
     }
   }, [isOpen, medicine]);
@@ -63,6 +65,7 @@ export const EditStockModal = ({
         purchaseCost: unitCostNum,
         sellingPrice: unitSellingNum,
         purchaseDate: purchaseDate || null,
+        expiryDate: expiryDate || null,
       },
     });
   };
@@ -81,8 +84,8 @@ export const EditStockModal = ({
           error={errors.name}
         />
 
-        {/* Quantity & Purchase Date */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Quantity */}
+        <div>
           <Input
             label="Stock Quantity *"
             type="number"
@@ -95,18 +98,12 @@ export const EditStockModal = ({
             }}
             error={errors.quantity}
           />
-          <Input
-            label="Purchase Date"
-            type="date"
-            value={purchaseDate}
-            onChange={(e) => setPurchaseDate(e.target.value)}
-          />
         </div>
 
         {/* Purchase Price & Selling Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Purchase Price "
+            label="Purchase Price"
             type="number"
             min="0"
             step="0.01"
@@ -130,6 +127,22 @@ export const EditStockModal = ({
             }}
             placeholder="0.00 Birr"
             error={errors.sellingPrice}
+          />
+        </div>
+
+        {/* Purchase Date & Expiry Date */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            label="Purchase Date"
+            type="date"
+            value={purchaseDate}
+            onChange={(e) => setPurchaseDate(e.target.value)}
+          />
+          <Input
+            label="Expiry Date"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
           />
         </div>
 

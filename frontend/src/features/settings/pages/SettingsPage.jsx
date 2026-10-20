@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Settings as SettingsIcon,
   Building2,
@@ -11,7 +12,7 @@ import {
   HelpCircle,
   Globe,
 } from 'lucide-react';
-import { useSettings } from '../hooks/use-settings';
+import { useSettings, useUpdateGeneralPreferences, SETTINGS_QUERY_KEY } from '../hooks/use-settings';
 import { PharmacyInfoTab } from '../components/PharmacyInfoTab';
 import { AccountSecurityTab } from '../components/AccountSecurityTab';
 import { NotificationsAlertsTab } from '../components/NotificationsAlertsTab';
@@ -22,6 +23,29 @@ export const SettingsPage = () => {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('pharmacy');
   const { data, isLoading, error } = useSettings();
+  const queryClient = useQueryClient();
+  const updatePrefsMutation = useUpdateGeneralPreferences();
+
+  const handleQuickLanguageChange = (langCode) => {
+    const code = (langCode || 'en').slice(0, 2);
+    i18n.changeLanguage(code);
+    localStorage.setItem('pharmacy_language', code);
+
+    // Optimistically update React Query cache so all tabs reflect new language immediately
+    queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        settings: {
+          ...old.settings,
+          language: code,
+        },
+      };
+    });
+
+    // Persist to backend database
+    updatePrefsMutation.mutate({ language: code });
+  };
 
   const settings = data?.settings;
   const user = data?.user;
@@ -96,11 +120,8 @@ export const SettingsPage = () => {
                 <button
                   key={lang.code}
                   type="button"
-                  onClick={() => {
-                    i18n.changeLanguage(lang.code);
-                    localStorage.setItem('pharmacy_language', lang.code);
-                  }}
-                  className={`px-2.5 py-1 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  onClick={() => handleQuickLanguageChange(lang.code)}
+                  className={`px-2.5 py-1 text-xs font-extrabold rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500/40 ${
                     isCurrent
                       ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-xs border border-slate-200/60 dark:border-slate-700'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'

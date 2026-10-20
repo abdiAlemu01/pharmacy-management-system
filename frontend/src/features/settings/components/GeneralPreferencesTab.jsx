@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Palette,
   Sun,
@@ -9,17 +10,18 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { useUpdateGeneralPreferences } from '../hooks/use-settings';
+import { useUpdateGeneralPreferences, SETTINGS_QUERY_KEY } from '../hooks/use-settings';
 import { useTheme } from '@/shared/hooks/use-theme';
 import { SUPPORTED_LANGUAGES } from '@/shared/lib/i18n';
 
 export const GeneralPreferencesTab = ({ settings, isLoading }) => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
+  const queryClient = useQueryClient();
 
   const [preferences, setPreferences] = useState({
     theme: 'light',
-    language: i18n.language || 'en',
+    language: (i18n.language || 'en').slice(0, 2),
   });
 
   const [successMsg, setSuccessMsg] = useState('');
@@ -29,13 +31,20 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
 
   useEffect(() => {
     if (settings) {
-      const activeLang = settings.language || localStorage.getItem('pharmacy_language') || i18n.language || 'en';
+      const activeLang = (
+        localStorage.getItem('pharmacy_language') ||
+        settings.language ||
+        i18n.language ||
+        'en'
+      ).slice(0, 2);
+
       setPreferences((prev) => ({
         ...prev,
         theme: settings.theme || theme || 'light',
         language: activeLang,
       }));
-      if (activeLang && activeLang !== i18n.language) {
+
+      if (activeLang && activeLang !== (i18n.language || '').slice(0, 2)) {
         i18n.changeLanguage(activeLang);
       }
     }
@@ -43,7 +52,8 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
 
   useEffect(() => {
     const handleLangChange = (lng) => {
-      setPreferences((prev) => ({ ...prev, language: lng }));
+      const normalized = (lng || 'en').slice(0, 2);
+      setPreferences((prev) => ({ ...prev, language: normalized }));
     };
     i18n.on('languageChanged', handleLangChange);
     return () => {
@@ -56,24 +66,23 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
     setTheme(selectedTheme);
     setSuccessMsg('');
     setErrorMsg('');
-  };
 
-  const handleLanguageSelect = (selectedLang) => {
-    setPreferences((prev) => ({ ...prev, language: selectedLang }));
-    i18n.changeLanguage(selectedLang);
-    localStorage.setItem('pharmacy_language', selectedLang);
-    setSuccessMsg('');
-    setErrorMsg('');
-  };
+    // Update React Query cache so all components immediately see the change
+    queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        settings: {
+          ...old.settings,
+          theme: selectedTheme,
+        },
+      };
+    });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSuccessMsg('');
-    setErrorMsg('');
-
+    // Auto-save to backend
     updateMutation.mutate(
       {
-        theme: preferences.theme,
+        theme: selectedTheme,
         language: preferences.language,
       },
       {
@@ -91,6 +100,73 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
     );
   };
 
+  const handleLanguageSelect = (selectedLang) => {
+    const code = (selectedLang || 'en').slice(0, 2);
+    setPreferences((prev) => ({ ...prev, language: code }));
+    i18n.changeLanguage(code);
+    localStorage.setItem('pharmacy_language', code);
+    setSuccessMsg('');
+    setErrorMsg('');
+
+    // Update React Query cache so header and other tabs immediately see the change
+    queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        settings: {
+          ...old.settings,
+          language: code,
+        },
+      };
+    });
+
+    // Auto-save to backend
+    updateMutation.mutate(
+      {
+        theme: preferences.theme,
+        language: code,
+      },
+      {
+        onSuccess: () => {
+          setSuccessMsg(t('settings.preferences.successMsg', 'Preferences saved successfully.'));
+          setTimeout(() => setSuccessMsg(''), 4000);
+        },
+        onError: (err) => {
+          setErrorMsg(
+            err.response?.data?.message ||
+              t('settings.preferences.errorMsg', 'Failed to save preferences')
+          );
+        },
+      }
+    );
+  };
+
+  const handleSubmit = (e) => {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    setSuccessMsg('');
+    setErrorMsg('');
+
+    const payload = {
+      theme: preferences.theme,
+      language: (preferences.language || i18n.language || 'en').slice(0, 2),
+    };
+
+    updateMutation.mutate(payload, {
+      onSuccess: () => {
+        setSuccessMsg(t('settings.preferences.successMsg', 'Preferences saved successfully.'));
+        setTimeout(() => setSuccessMsg(''), 4000);
+      },
+      onError: (err) => {
+        setErrorMsg(
+          err.response?.data?.message ||
+            t('settings.preferences.errorMsg', 'Failed to save preferences')
+        );
+      },
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -98,6 +174,8 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
       </div>
     );
   }
+
+  const activeLanguage = (preferences.language || i18n.language || 'en').slice(0, 2);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -148,14 +226,15 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
             {SUPPORTED_LANGUAGES.map((lang) => {
-              const isSelected = preferences.language === lang.code;
+              const isSelected = activeLanguage === lang.code;
               return (
-                <div
+                <button
                   key={lang.code}
+                  type="button"
                   onClick={() => handleLanguageSelect(lang.code)}
-                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                  className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                     isSelected
-                      ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs'
+                      ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
                   }`}
                 >
@@ -164,7 +243,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                       {lang.badge}
                     </span>
                     {isSelected ? (
-                      <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                         <CheckCircle2 className="w-4 h-4" />
                       </div>
                     ) : (
@@ -180,7 +259,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                       {lang.name} • {lang.subtitle}
                     </span>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -193,12 +272,13 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Light Mode Card */}
-            <div
+            <button
+              type="button"
               onClick={() => handleThemeSelect('light')}
-              className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
+              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.theme === 'light'
-                  ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs'
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
               }`}
             >
               <div
@@ -219,19 +299,20 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                 </span>
               </div>
               {preferences.theme === 'light' && (
-                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Dark Mode Card */}
-            <div
+            <button
+              type="button"
               onClick={() => handleThemeSelect('dark')}
-              className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
+              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.theme === 'dark'
-                  ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs'
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
+                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
               }`}
             >
               <div
@@ -252,11 +333,11 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                 </span>
               </div>
               {preferences.theme === 'dark' && (
-                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
               )}
-            </div>
+            </button>
           </div>
         </div>
 
@@ -264,8 +345,9 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
           <button
             type="submit"
+            onClick={handleSubmit}
             disabled={updateMutation.isPending}
-            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           >
             {updateMutation.isPending ? (
               <>

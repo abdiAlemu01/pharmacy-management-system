@@ -95,19 +95,33 @@ export const useUpdateGeneralPreferences = () => {
   return useMutation({
     mutationFn: updateGeneralPreferencesApi,
     onSuccess: (res) => {
+      const updated = res?.data;
+      if (updated) {
+        queryClient.setQueryData(SETTINGS_QUERY_KEY, (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            settings: {
+              ...old.settings,
+              ...updated,
+            },
+          };
+        });
+      }
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
-      if (res.data?.theme) {
-        setTheme(res.data.theme);
+
+      if (updated?.theme) {
+        setTheme(updated.theme);
       }
-      if (res.data?.language) {
-        i18n.changeLanguage(res.data.language);
-        localStorage.setItem('pharmacy_language', res.data.language);
+      if (updated?.language) {
+        i18n.changeLanguage(updated.language);
+        localStorage.setItem('pharmacy_language', updated.language);
       }
-      if (res.data?.currency) {
-        localStorage.setItem('pharmacy_currency', res.data.currency);
+      if (updated?.currency) {
+        localStorage.setItem('pharmacy_currency', updated.currency);
       }
-      if (res.data?.tableRowsPerPage) {
-        localStorage.setItem('pharmacy_page_size', String(res.data.tableRowsPerPage));
+      if (updated?.tableRowsPerPage) {
+        localStorage.setItem('pharmacy_page_size', String(updated.tableRowsPerPage));
       }
     },
   });

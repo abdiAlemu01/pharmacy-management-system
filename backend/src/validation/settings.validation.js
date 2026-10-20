@@ -48,14 +48,14 @@ export const updateNotificationsSchema = z.object({
 
 export const updateGeneralPreferencesSchema = z.object({
   body: z.object({
-    currency: z.string().trim().min(1).optional().default('ETB'),
-    currencySymbol: z.string().trim().min(1).optional().default('Br'),
-    dateFormat: z.enum(['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']).optional().default('DD/MM/YYYY'),
-    timeZone: z.string().trim().min(1).optional().default('Africa/Addis_Ababa'),
-    theme: z.enum(['light', 'dark', 'system']).optional().default('light'),
-    language: z.enum(['en', 'om', 'am']).optional().default('en'),
-    defaultDashboardDateRange: z.enum(['today', 'week', 'month', 'year']).optional().default('month'),
-    tableRowsPerPage: z.number().int().min(5).max(100).optional().default(10),
+    currency: z.string().trim().min(1).optional(),
+    currencySymbol: z.string().trim().min(1).optional(),
+    dateFormat: z.enum(['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']).optional(),
+    timeZone: z.string().trim().min(1).optional(),
+    theme: z.enum(['light', 'dark', 'system']).optional(),
+    language: z.enum(['en', 'om', 'am']).optional(),
+    defaultDashboardDateRange: z.enum(['today', 'week', 'month', 'year']).optional(),
+    tableRowsPerPage: z.number().int().min(5).max(100).optional(),
   }),
 });
 

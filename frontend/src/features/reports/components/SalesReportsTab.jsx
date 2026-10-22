@@ -38,11 +38,11 @@ export const SalesReportsTab = ({
     <div className="space-y-5 animate-in fade-in duration-150">
       {/* 1. Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* Total Revenue */}
+        {/* Total Sales */}
         <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Sales Revenue</span>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Sales</span>
               <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
                 <TrendingUp className="w-4 h-4" />
               </div>

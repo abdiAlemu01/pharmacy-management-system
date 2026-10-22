@@ -70,13 +70,13 @@ export const ReportsPage = () => {
       id: 'sales',
       label: 'Sales Reports',
       icon: ShoppingCart,
-      description: 'Sales volume, revenue & transactions by date',
+      description: 'Sales volume, total sales & transactions by date',
     },
     {
       id: 'financial',
       label: 'Profit & Financials',
       icon: DollarSign,
-      description: 'Gross profit, COGS & sales revenue',
+      description: 'Profit, COGS & total sales',
     },
     {
       id: 'inventory',

@@ -304,11 +304,11 @@ export const FinancialReportsTab = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-          {/* 1. Sales Revenue */}
+          {/* 1. Total Sales */}
           <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Sales Revenue</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Sales</span>
                 <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
                   <DollarSign className="w-4 h-4" />
                 </div>
@@ -342,11 +342,11 @@ export const FinancialReportsTab = ({
             </div>
           </div>
 
-          {/* 3. Gross Profit (Revenue - Cost of Medicines) */}
+          {/* 3. Profit (Total Sales - Cost of Medicines) */}
           <div className="p-4 bg-white dark:bg-slate-900 border-2 border-emerald-500/80 dark:border-emerald-500/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none bg-emerald-50/10 dark:bg-emerald-950/20">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Gross Profit</span>
+                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Profit</span>
                 <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
                   <TrendingUp className="w-4 h-4" />
                 </div>
@@ -358,8 +358,8 @@ export const FinancialReportsTab = ({
                 <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
               </div>
               <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                <span>Revenue − Med Cost</span>
-                <span>Margin: {currentData.grossMargin || 0}%</span>
+                <span>Total Sales − Med Cost</span>
+                <span>Profit: {currentData.grossMargin || 0}%</span>
               </div>
             </div>
           </div>

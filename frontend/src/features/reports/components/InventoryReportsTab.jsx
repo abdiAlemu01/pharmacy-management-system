@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Boxes,
   AlertTriangle,
@@ -7,6 +7,8 @@ import {
   TrendingUp,
   DollarSign,
   Package,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useInventoryReports } from '../hooks/use-reports';
 import { useAppDate } from '@/shared/lib/date-utils';
@@ -22,6 +24,8 @@ export const InventoryReportsTab = ({
   const { formatDate, calendarType } = useAppDate();
   const { data: settingsData } = useSettings();
   const [activeSection, setActiveSection] = useState('low-stock'); // 'low-stock' | 'expired' | 'soon-expiring'
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const { data, isLoading } = useInventoryReports({ period, startDate, endDate });
 
@@ -29,6 +33,29 @@ export const InventoryReportsTab = ({
   const lowStockList = data?.lowStockList || [];
   const expiredList = data?.expiredList || [];
   const soonExpiringList = data?.soonExpiringList || [];
+
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [period, startDate, endDate]);
+
+  const currentList =
+    activeSection === 'low-stock'
+      ? lowStockList
+      : activeSection === 'soon-expiring'
+      ? soonExpiringList
+      : expiredList;
+
+  const totalPages = Math.max(1, Math.ceil(currentList.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedList = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return currentList.slice(start, start + PAGE_SIZE);
+  }, [currentList, safePage]);
 
   // Dynamically resolve expiry alert days from user settings (Notification & Alert configuration)
   const expiryDays =
@@ -137,7 +164,7 @@ export const InventoryReportsTab = ({
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <button
           type="button"
-          onClick={() => setActiveSection('low-stock')}
+          onClick={() => handleSectionChange('low-stock')}
           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
             activeSection === 'low-stock'
               ? 'bg-amber-600 text-white shadow-2xs'
@@ -150,7 +177,7 @@ export const InventoryReportsTab = ({
 
         <button
           type="button"
-          onClick={() => setActiveSection('soon-expiring')}
+          onClick={() => handleSectionChange('soon-expiring')}
           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
             activeSection === 'soon-expiring'
               ? 'bg-indigo-600 text-white shadow-2xs'
@@ -163,7 +190,7 @@ export const InventoryReportsTab = ({
 
         <button
           type="button"
-          onClick={() => setActiveSection('expired')}
+          onClick={() => handleSectionChange('expired')}
           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
             activeSection === 'expired'
               ? 'bg-rose-600 text-white shadow-2xs'
@@ -199,7 +226,7 @@ export const InventoryReportsTab = ({
                     </td>
                   </tr>
                 ) : (
-                  lowStockList.map((m) => (
+                  paginatedList.map((m) => (
                     <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                         {m.name}
@@ -265,7 +292,7 @@ export const InventoryReportsTab = ({
                     </td>
                   </tr>
                 ) : (
-                  soonExpiringList.map((m) => (
+                  paginatedList.map((m) => (
                     <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                         {m.name}
@@ -322,7 +349,7 @@ export const InventoryReportsTab = ({
                     </td>
                   </tr>
                 ) : (
-                  expiredList.map((m) => (
+                  paginatedList.map((m) => (
                     <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="py-2.5 px-4 font-bold text-rose-900 dark:text-rose-200">
                         {m.name}
@@ -344,6 +371,40 @@ export const InventoryReportsTab = ({
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination footer */}
+        {currentList.length > 0 && (
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">
+              Showing <strong>{(safePage - 1) * PAGE_SIZE + 1}</strong> to{' '}
+              <strong>{Math.min(safePage * PAGE_SIZE, currentList.length)}</strong> of{' '}
+              <strong>{currentList.length}</strong> medicines
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safePage <= 1}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Previous</span>
+              </button>
+              <span className="px-2 font-bold text-slate-700 dark:text-slate-300">
+                Page {safePage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage >= totalPages}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
       </div>

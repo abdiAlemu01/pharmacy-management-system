@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingBag, Truck, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ShoppingBag, Truck, AlertCircle, CheckCircle2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePurchaseReports } from '../hooks/use-reports';
 
 export const PurchaseReportsTab = ({
@@ -9,10 +9,24 @@ export const PurchaseReportsTab = ({
   currencySymbol = 'Birr',
 }) => {
   const isCustomPending = period === 'custom' && (!startDate || !endDate);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
+
   const { data, isLoading } = usePurchaseReports({ period, startDate, endDate });
 
   const summary = data?.summary || {};
   const suppliers = data?.suppliers || [];
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [period, startDate, endDate]);
+
+  const totalPages = Math.max(1, Math.ceil(suppliers.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedSuppliers = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return suppliers.slice(start, start + PAGE_SIZE);
+  }, [suppliers, safePage]);
 
   const formatAmount = (num) => {
     return parseFloat(Number(num || 0).toFixed(2)).toLocaleString(undefined, {
@@ -160,7 +174,7 @@ export const PurchaseReportsTab = ({
                   </td>
                 </tr>
               ) : (
-                suppliers.map((s) => (
+                paginatedSuppliers.map((s) => (
                   <tr key={s.supplierId} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">
                       {s.supplierName}
@@ -192,6 +206,40 @@ export const PurchaseReportsTab = ({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination footer */}
+        {suppliers.length > 0 && (
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">
+              Showing <strong>{(safePage - 1) * PAGE_SIZE + 1}</strong> to{' '}
+              <strong>{Math.min(safePage * PAGE_SIZE, suppliers.length)}</strong> of{' '}
+              <strong>{suppliers.length}</strong> suppliers
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safePage <= 1}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Previous</span>
+              </button>
+              <span className="px-2 font-bold text-slate-700 dark:text-slate-300">
+                Page {safePage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage >= totalPages}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

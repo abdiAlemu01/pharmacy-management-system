@@ -22,7 +22,7 @@ const startServer = async () => {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
   } catch (error) {
-    console.error('Fatal error starting server:', error.message);
+    console.error('Fatal error starting server:', error?.message || error?.code || error);
     process.exit(1);
   }
 };

@@ -5,7 +5,6 @@ import {
   DollarSign,
   Boxes,
   ShoppingBag,
-  Receipt,
   Award,
   TrendingUp,
   FileSpreadsheet,
@@ -20,7 +19,6 @@ import { SalesReportsTab } from '../components/SalesReportsTab';
 import { FinancialReportsTab } from '../components/FinancialReportsTab';
 import { InventoryReportsTab } from '../components/InventoryReportsTab';
 import { PurchaseReportsTab } from '../components/PurchaseReportsTab';
-import { ExpenseReportsTab } from '../components/ExpenseReportsTab';
 import { MedicinePerformanceTab } from '../components/MedicinePerformanceTab';
 
 export const ReportsPage = () => {
@@ -78,7 +76,7 @@ export const ReportsPage = () => {
       id: 'financial',
       label: 'Profit & Financials',
       icon: DollarSign,
-      description: 'Gross profit, COGS, operating expenses & net profit',
+      description: 'Gross profit, COGS & sales revenue',
     },
     {
       id: 'inventory',
@@ -91,12 +89,6 @@ export const ReportsPage = () => {
       label: 'Purchase Reports',
       icon: ShoppingBag,
       description: 'Supplier orders, payments & debts',
-    },
-    {
-      id: 'expenses',
-      label: 'Expense Reports',
-      icon: Receipt,
-      description: 'Operating bills, payments by category & date',
     },
     {
       id: 'performance',
@@ -118,9 +110,6 @@ export const ReportsPage = () => {
             <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
               Pharmacy Reports & Analytics
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Comprehensive operational, financial, and inventory intelligence
-            </p>
           </div>
         </div>
       </div>
@@ -289,6 +278,8 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
+            onPeriodChange={handlePeriodChange}
+            onDateChange={handleDateChange}
           />
         )}
 
@@ -304,15 +295,6 @@ export const ReportsPage = () => {
 
         {activeTab === 'purchases' && (
           <PurchaseReportsTab
-            period={period}
-            startDate={startDate}
-            endDate={endDate}
-            currencySymbol={currencySymbol}
-          />
-        )}
-
-        {activeTab === 'expenses' && (
-          <ExpenseReportsTab
             period={period}
             startDate={startDate}
             endDate={endDate}

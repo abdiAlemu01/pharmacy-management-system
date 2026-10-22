@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Receipt, CheckCircle2, AlertCircle, BarChart3, Filter, Search } from 'lucide-react';
+import { Receipt, CheckCircle2, AlertCircle, BarChart3, Filter, Search, Calendar } from 'lucide-react';
 import { useExpenseReports } from '../hooks/use-reports';
 import { useAppDate } from '@/shared/lib/date-utils';
 
@@ -9,6 +9,7 @@ export const ExpenseReportsTab = ({
   endDate,
   currencySymbol = 'Birr',
 }) => {
+  const isCustomPending = period === 'custom' && (!startDate || !endDate);
   const { formatDate, calendarType } = useAppDate();
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -45,6 +46,22 @@ export const ExpenseReportsTab = ({
 
     return matchesSearch && matchesCat && matchesStatus;
   });
+
+  if (isCustomPending) {
+    return (
+      <div className="p-8 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl select-none animate-in fade-in duration-150">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center">
+          <Calendar className="w-6 h-6" />
+        </div>
+        <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+          Enter Date Range to View Expense Reports
+        </h4>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+          Please select both a start date and an end date above to view expenses for that duration.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 animate-in fade-in duration-150">

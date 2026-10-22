@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Award, AlertCircle, TrendingUp, TrendingDown, Search, ArrowUpDown, Package } from 'lucide-react';
+import { Award, AlertCircle, TrendingUp, TrendingDown, Search, ArrowUpDown, Package, Calendar } from 'lucide-react';
 import { useMedicinePerformanceReports } from '../hooks/use-reports';
 
 export const MedicinePerformanceTab = ({
@@ -8,6 +8,7 @@ export const MedicinePerformanceTab = ({
   endDate,
   currencySymbol = 'Birr',
 }) => {
+  const isCustomPending = period === 'custom' && (!startDate || !endDate);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState('all'); // 'all' | 'best' | 'slow'
   const [sortBy, setSortBy] = useState('quantitySold'); // 'quantitySold' | 'totalRevenue' | 'totalProfit'
@@ -50,6 +51,22 @@ export const MedicinePerformanceTab = ({
       setSortOrder('desc');
     }
   };
+
+  if (isCustomPending) {
+    return (
+      <div className="p-8 text-center bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl select-none animate-in fade-in duration-150">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center">
+          <Calendar className="w-6 h-6" />
+        </div>
+        <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+          Enter Date Range to View Medicine Performance
+        </h4>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+          Please select both a start date and an end date above to calculate medicine sales rankings for that duration.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 animate-in fade-in duration-150">

@@ -23,12 +23,14 @@ export class ReportsService {
       };
     }
 
-    if (startDate && !endDate) {
+    // If custom is requested without complete dates, mark as pending (do not default to month)
+    if (period === 'custom') {
       return {
-        startDate,
-        endDate: todayStr,
+        startDate: null,
+        endDate: null,
         preset: 'custom',
-        label: `From ${startDate}`,
+        label: 'Custom Range (Select Dates)',
+        isPending: true,
       };
     }
 
@@ -74,6 +76,18 @@ export class ReportsService {
         };
       }
     }
+  }
+
+  /**
+   * Helper to serialize dates safely to ISO strings
+   */
+  formatDateValue(val) {
+    if (!val) return null;
+    if (val instanceof Date) {
+      return isNaN(val.getTime()) ? null : val.toISOString();
+    }
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d.toISOString();
   }
 
   /**
@@ -174,7 +188,19 @@ export class ReportsService {
   async getSalesReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // Summary totals for selected period
+    if (range.isPending) {
+      return {
+        period: range,
+        summary: {
+          totalRevenue: 0,
+          totalTransactions: 0,
+          totalUnitsSold: 0,
+          averageTransactionValue: 0,
+        },
+        salesByDate: [],
+        transactions: [],
+      };
+    }
     const summarySql = `
       SELECT
         COALESCE(COUNT(DISTINCT s.id), 0)::int as "totalTransactions",
@@ -261,41 +287,53 @@ export class ReportsService {
   async getFinancialReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // Sales Revenue and Cost of Medicines Sold (COGS) in selected period
-    const salesSql = `
-      SELECT
-        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") >= $1::date AND DATE("createdAt") <= $2::date) as revenue,
-        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric 
-         FROM "SaleItem" si 
-         JOIN "Sale" s ON s.id = si."saleId" 
-         WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date) as cogs
-    `;
-    const salesRes = await db.query(salesSql, [range.startDate, range.endDate]);
-    const revenue = parseFloat(Number(salesRes.rows[0]?.revenue || 0).toFixed(2));
-    const cogs = parseFloat(Number(salesRes.rows[0]?.cogs || 0).toFixed(2));
-    
-    // Core accounting formula: Gross Profit = Sales Revenue - Cost of Medicines Sold
-    const grossProfit = parseFloat((revenue - cogs).toFixed(2));
-    const grossMargin = revenue > 0 ? parseFloat(((grossProfit / revenue) * 100).toFixed(1)) : 0;
+    let revenue = 0;
+    let cogs = 0;
+    let grossProfit = 0;
+    let grossMargin = 0;
+    let operatingExpenses = 0;
+    let expensesPaid = 0;
+    let expensesDue = 0;
+    let estimatedNetProfit = 0;
+    let netMargin = 0;
 
-    // Operating expenses in selected period
-    const expSql = `
-      SELECT
-        COALESCE(SUM(amount), 0)::numeric as "totalExpenses",
-        COALESCE(SUM("amountPaid"), 0)::numeric as "expensesPaid",
-        COALESCE(SUM("amountDue"), 0)::numeric as "expensesDue"
-      FROM "Expense"
-      WHERE "isVoided" = FALSE
-        AND "expenseDate" >= $1::date AND "expenseDate" <= $2::date
-    `;
-    const expRes = await db.query(expSql, [range.startDate, range.endDate]);
-    const operatingExpenses = parseFloat(Number(expRes.rows[0]?.totalExpenses || 0).toFixed(2));
-    const expensesPaid = parseFloat(Number(expRes.rows[0]?.expensesPaid || 0).toFixed(2));
-    const expensesDue = parseFloat(Number(expRes.rows[0]?.expensesDue || 0).toFixed(2));
+    if (!range.isPending) {
+      // Sales Revenue and Cost of Medicines Sold (COGS) in selected period
+      const salesSql = `
+        SELECT
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") >= $1::date AND DATE("createdAt") <= $2::date) as revenue,
+          (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric 
+           FROM "SaleItem" si 
+           JOIN "Sale" s ON s.id = si."saleId" 
+           WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date) as cogs
+      `;
+      const salesRes = await db.query(salesSql, [range.startDate, range.endDate]);
+      revenue = parseFloat(Number(salesRes.rows[0]?.revenue || 0).toFixed(2));
+      cogs = parseFloat(Number(salesRes.rows[0]?.cogs || 0).toFixed(2));
+      
+      // Core accounting formula: Gross Profit = Sales Revenue - Cost of Medicines Sold
+      grossProfit = parseFloat((revenue - cogs).toFixed(2));
+      grossMargin = revenue > 0 ? parseFloat(((grossProfit / revenue) * 100).toFixed(1)) : 0;
 
-    // Core accounting formula: Estimated Net Profit = Gross Profit - Operating Expenses
-    const estimatedNetProfit = parseFloat((grossProfit - operatingExpenses).toFixed(2));
-    const netMargin = revenue > 0 ? parseFloat(((estimatedNetProfit / revenue) * 100).toFixed(1)) : 0;
+      // Operating expenses in selected period
+      const expSql = `
+        SELECT
+          COALESCE(SUM(amount), 0)::numeric as "totalExpenses",
+          COALESCE(SUM("amountPaid"), 0)::numeric as "expensesPaid",
+          COALESCE(SUM("amountDue"), 0)::numeric as "expensesDue"
+        FROM "Expense"
+        WHERE "isVoided" = FALSE
+          AND "expenseDate" >= $1::date AND "expenseDate" <= $2::date
+      `;
+      const expRes = await db.query(expSql, [range.startDate, range.endDate]);
+      operatingExpenses = parseFloat(Number(expRes.rows[0]?.totalExpenses || 0).toFixed(2));
+      expensesPaid = parseFloat(Number(expRes.rows[0]?.expensesPaid || 0).toFixed(2));
+      expensesDue = parseFloat(Number(expRes.rows[0]?.expensesDue || 0).toFixed(2));
+
+      // Core accounting formula: Estimated Net Profit = Gross Profit - Operating Expenses
+      estimatedNetProfit = parseFloat((grossProfit - operatingExpenses).toFixed(2));
+      netMargin = revenue > 0 ? parseFloat(((estimatedNetProfit / revenue) * 100).toFixed(1)) : 0;
+    }
 
     // Quick comparisons across timeframes (Today, This Week, This Month)
     const comparisonsSql = `
@@ -368,45 +406,56 @@ export class ReportsService {
     };
 
     // Financial performance daily breakdown for the selected period
-    const dailyBreakdownSql = `
-      WITH sales_by_day AS (
+    let dailyBreakdown = [];
+    if (!range.isPending) {
+      const dailyBreakdownSql = `
+        WITH sales_by_day AS (
+          SELECT
+            TO_CHAR(s."createdAt", 'YYYY-MM-DD') as day,
+            COALESCE(SUM(s.total), 0)::numeric as day_revenue,
+            COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric as day_cogs,
+            COALESCE(SUM(si.quantity * (si."unitPrice" - si."purchaseCost")), 0)::numeric as day_gross
+          FROM "Sale" s
+          LEFT JOIN "SaleItem" si ON s.id = si."saleId"
+          WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date
+          GROUP BY TO_CHAR(s."createdAt", 'YYYY-MM-DD')
+        ),
+        expenses_by_day AS (
+          SELECT
+            TO_CHAR("expenseDate", 'YYYY-MM-DD') as day,
+            COALESCE(SUM(amount), 0)::numeric as day_expenses
+          FROM "Expense"
+          WHERE "isVoided" = FALSE
+            AND "expenseDate" >= $1::date AND "expenseDate" <= $2::date
+          GROUP BY TO_CHAR("expenseDate", 'YYYY-MM-DD')
+        ),
+        all_days AS (
+          SELECT day FROM sales_by_day
+          UNION
+          SELECT day FROM expenses_by_day
+        )
         SELECT
-          TO_CHAR(s."createdAt", 'YYYY-MM-DD') as day,
-          COALESCE(SUM(s.total), 0)::numeric as day_revenue,
-          COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric as day_cogs,
-          COALESCE(SUM(si.quantity * (si."unitPrice" - si."purchaseCost")), 0)::numeric as day_gross
-        FROM "Sale" s
-        LEFT JOIN "SaleItem" si ON s.id = si."saleId"
-        WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date
-        GROUP BY TO_CHAR(s."createdAt", 'YYYY-MM-DD')
-      ),
-      expenses_by_day AS (
-        SELECT
-          TO_CHAR("expenseDate", 'YYYY-MM-DD') as day,
-          COALESCE(SUM(amount), 0)::numeric as day_expenses
-        FROM "Expense"
-        WHERE "isVoided" = FALSE
-          AND "expenseDate" >= $1::date AND "expenseDate" <= $2::date
-        GROUP BY TO_CHAR("expenseDate", 'YYYY-MM-DD')
-      ),
-      all_days AS (
-        SELECT day FROM sales_by_day
-        UNION
-        SELECT day FROM expenses_by_day
-      )
-      SELECT
-        d.day as date,
-        COALESCE(s.day_revenue, 0)::numeric as revenue,
-        COALESCE(s.day_cogs, 0)::numeric as cogs,
-        COALESCE(s.day_gross, 0)::numeric as "grossProfit",
-        COALESCE(e.day_expenses, 0)::numeric as expenses,
-        (COALESCE(s.day_gross, 0) - COALESCE(e.day_expenses, 0))::numeric as "netProfit"
-      FROM all_days d
-      LEFT JOIN sales_by_day s ON d.day = s.day
-      LEFT JOIN expenses_by_day e ON d.day = e.day
-      ORDER BY d.day DESC
-    `;
-    const dailyRes = await db.query(dailyBreakdownSql, [range.startDate, range.endDate]);
+          d.day as date,
+          COALESCE(s.day_revenue, 0)::numeric as revenue,
+          COALESCE(s.day_cogs, 0)::numeric as cogs,
+          COALESCE(s.day_gross, 0)::numeric as "grossProfit",
+          COALESCE(e.day_expenses, 0)::numeric as expenses,
+          (COALESCE(s.day_gross, 0) - COALESCE(e.day_expenses, 0))::numeric as "netProfit"
+        FROM all_days d
+        LEFT JOIN sales_by_day s ON d.day = s.day
+        LEFT JOIN expenses_by_day e ON d.day = e.day
+        ORDER BY d.day DESC
+      `;
+      const dailyRes = await db.query(dailyBreakdownSql, [range.startDate, range.endDate]);
+      dailyBreakdown = dailyRes.rows.map((r) => ({
+        date: r.date,
+        revenue: parseFloat(Number(r.revenue || 0).toFixed(2)),
+        cogs: parseFloat(Number(r.cogs || 0).toFixed(2)),
+        grossProfit: parseFloat(Number(r.grossProfit || 0).toFixed(2)),
+        expenses: parseFloat(Number(r.expenses || 0).toFixed(2)),
+        netProfit: parseFloat(Number(r.netProfit || 0).toFixed(2)),
+      }));
+    }
 
     return {
       period: range,
@@ -423,14 +472,7 @@ export class ReportsService {
         netMargin,
       },
       comparisons,
-      dailyBreakdown: dailyRes.rows.map((r) => ({
-        date: r.date,
-        revenue: parseFloat(Number(r.revenue || 0).toFixed(2)),
-        cogs: parseFloat(Number(r.cogs || 0).toFixed(2)),
-        grossProfit: parseFloat(Number(r.grossProfit || 0).toFixed(2)),
-        expenses: parseFloat(Number(r.expenses || 0).toFixed(2)),
-        netProfit: parseFloat(Number(r.netProfit || 0).toFixed(2)),
-      })),
+      dailyBreakdown,
     };
   }
 
@@ -522,27 +564,42 @@ export class ReportsService {
     const soonExpiringRes = await db.query(soonExpiringSql, [expiryDays]);
 
     // Stock adjustments and damaged medicines in date range
-    const adjustmentsSql = `
-      SELECT
-        it.id,
-        it.type,
-        it."medicineId",
-        m.name as "medicineName",
-        it.quantity,
-        it."previousQuantity",
-        it."newQuantity",
-        it."purchaseCost",
-        it.reason,
-        it."userName",
-        it."createdAt"
-      FROM "InventoryTransaction" it
-      JOIN "Medicine" m ON it."medicineId" = m.id
-      WHERE DATE(it."createdAt") >= $1::date AND DATE(it."createdAt") <= $2::date
-        AND it.type IN ('ADJUSTMENT', 'DAMAGE', 'EXPIRY', 'CORRECTION')
-      ORDER BY it."createdAt" DESC
-      LIMIT 100
-    `;
-    const adjRes = await db.query(adjustmentsSql, [range.startDate, range.endDate]);
+    let adjustments = [];
+    if (!range.isPending) {
+      const adjustmentsSql = `
+        SELECT
+          it.id,
+          it.type,
+          it."medicineId",
+          m.name as "medicineName",
+          it.quantity,
+          it."previousQuantity",
+          it."newQuantity",
+          it."purchaseCost",
+          it.reason,
+          it."userName",
+          it."createdAt"
+        FROM "InventoryTransaction" it
+        JOIN "Medicine" m ON it."medicineId" = m.id
+        WHERE DATE(it."createdAt") >= $1::date AND DATE(it."createdAt") <= $2::date
+          AND it.type IN ('ADJUSTMENT', 'DAMAGE', 'EXPIRY', 'CORRECTION')
+        ORDER BY it."createdAt" DESC
+        LIMIT 100
+      `;
+      const adjRes = await db.query(adjustmentsSql, [range.startDate, range.endDate]);
+      adjustments = adjRes.rows.map((r) => ({
+        id: r.id,
+        type: r.type,
+        medicineName: r.medicineName,
+        quantity: parseInt(r.quantity, 10) || 0,
+        previousQuantity: parseInt(r.previousQuantity, 10) || 0,
+        newQuantity: parseInt(r.newQuantity, 10) || 0,
+        purchaseCost: parseFloat(r.purchaseCost || 0),
+        reason: r.reason || 'Manual inventory adjustment',
+        userName: r.userName || 'System',
+        createdAt: r.createdAt,
+      }));
+    }
 
     return {
       period: range,
@@ -565,7 +622,7 @@ export class ReportsService {
         quantity: parseInt(r.quantity, 10) || 0,
         purchaseCost: parseFloat(r.purchaseCost || 0),
         sellingPrice: parseFloat(r.sellingPrice || 0),
-        expiryDate: r.expiryDate ? String(r.expiryDate).split('T')[0] : null,
+        expiryDate: this.formatDateValue(r.expiryDate),
         status: r.status,
       })),
       expiredList: expiredRes.rows.map((r) => ({
@@ -574,7 +631,7 @@ export class ReportsService {
         quantity: parseInt(r.quantity, 10) || 0,
         purchaseCost: parseFloat(r.purchaseCost || 0),
         lossValue: parseFloat(Number(r.lossValue || 0).toFixed(2)),
-        expiryDate: r.expiryDate ? String(r.expiryDate).split('T')[0] : null,
+        expiryDate: this.formatDateValue(r.expiryDate),
       })),
       soonExpiringList: soonExpiringRes.rows.map((r) => ({
         id: r.id,
@@ -583,21 +640,10 @@ export class ReportsService {
         purchaseCost: parseFloat(r.purchaseCost || 0),
         sellingPrice: parseFloat(r.sellingPrice || 0),
         costAtRisk: parseFloat(Number(r.costAtRisk || 0).toFixed(2)),
-        expiryDate: r.expiryDate ? String(r.expiryDate).split('T')[0] : null,
+        expiryDate: this.formatDateValue(r.expiryDate),
         daysUntilExpiry: parseInt(r.daysUntilExpiry, 10) || 0,
       })),
-      adjustments: adjRes.rows.map((r) => ({
-        id: r.id,
-        type: r.type,
-        medicineName: r.medicineName,
-        quantity: parseInt(r.quantity, 10) || 0,
-        previousQuantity: parseInt(r.previousQuantity, 10) || 0,
-        newQuantity: parseInt(r.newQuantity, 10) || 0,
-        purchaseCost: parseFloat(r.purchaseCost || 0),
-        reason: r.reason || 'Manual inventory adjustment',
-        userName: r.userName || 'System',
-        createdAt: r.createdAt,
-      })),
+      adjustments,
     };
   }
 
@@ -612,7 +658,23 @@ export class ReportsService {
   async getPurchaseReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // Period summary
+    if (range.isPending) {
+      return {
+        period: range,
+        summary: {
+          totalOrders: 0,
+          totalPurchaseCost: 0,
+          totalAmountPaid: 0,
+          totalAmountDue: 0,
+          fullyPaidCount: 0,
+          partiallyPaidCount: 0,
+          unpaidCount: 0,
+        },
+        suppliers: [],
+        purchasedMedicines: [],
+        orders: [],
+      };
+    }
     const summarySql = `
       SELECT
         COUNT(*)::int as "totalOrders",
@@ -715,7 +777,7 @@ export class ReportsService {
       orders: ordersRes.rows.map((r) => ({
         id: r.id,
         purchaseOrderNo: r.purchaseOrderNo,
-        orderDate: r.orderDate ? String(r.orderDate).split('T')[0] : null,
+        orderDate: this.formatDateValue(r.orderDate),
         totalCost: parseFloat(Number(r.totalCost || 0).toFixed(2)),
         amountPaid: parseFloat(Number(r.amountPaid || 0).toFixed(2)),
         amountDue: parseFloat(Number(r.amountDue || 0).toFixed(2)),
@@ -734,7 +796,22 @@ export class ReportsService {
   async getExpenseReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // Summary
+    if (range.isPending) {
+      return {
+        period: range,
+        summary: {
+          totalRecords: 0,
+          totalAmount: 0,
+          totalPaid: 0,
+          totalDue: 0,
+          paidCount: 0,
+          partiallyPaidCount: 0,
+          unpaidCount: 0,
+        },
+        byCategory: [],
+        expenses: [],
+      };
+    }
     const summarySql = `
       SELECT
         COUNT(*)::int as "totalRecords",
@@ -825,7 +902,7 @@ export class ReportsService {
         amountDue: parseFloat(Number(r.amountDue || 0).toFixed(2)),
         paymentStatus: r.paymentStatus,
         payee: r.payee,
-        expenseDate: r.expenseDate ? String(r.expenseDate).split('T')[0] : null,
+        expenseDate: this.formatDateValue(r.expenseDate),
       })),
     };
   }
@@ -839,7 +916,14 @@ export class ReportsService {
   async getMedicinePerformanceReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // All medicines performance in the period
+    if (range.isPending) {
+      return {
+        period: range,
+        performance: [],
+        topSelling: [],
+        slowMoving: [],
+      };
+    }
     const perfSql = `
       SELECT
         m.id as "medicineId",

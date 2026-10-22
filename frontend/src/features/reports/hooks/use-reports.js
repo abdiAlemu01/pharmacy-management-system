@@ -17,6 +17,8 @@ export const REPORTS_PURCHASES_KEY = ['reports-purchases'];
 export const REPORTS_EXPENSES_KEY = ['reports-expenses'];
 export const REPORTS_PERFORMANCE_KEY = ['reports-performance'];
 
+const isCustomPending = (params = {}) => params.period === 'custom' && (!params.startDate || !params.endDate);
+
 export const useReportsOverview = () => {
   return useQuery({
     queryKey: REPORTS_OVERVIEW_KEY,
@@ -29,6 +31,7 @@ export const useSalesReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_SALES_KEY, params],
     queryFn: () => getSalesReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };
@@ -37,6 +40,7 @@ export const useFinancialReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_FINANCIAL_KEY, params],
     queryFn: () => getFinancialReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };
@@ -45,6 +49,7 @@ export const useInventoryReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_INVENTORY_KEY, params],
     queryFn: () => getInventoryReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };
@@ -53,6 +58,7 @@ export const usePurchaseReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_PURCHASES_KEY, params],
     queryFn: () => getPurchaseReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };
@@ -61,6 +67,7 @@ export const useExpenseReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_EXPENSES_KEY, params],
     queryFn: () => getExpenseReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };
@@ -69,6 +76,7 @@ export const useMedicinePerformanceReports = (params = {}) => {
   return useQuery({
     queryKey: [...REPORTS_PERFORMANCE_KEY, params],
     queryFn: () => getMedicinePerformanceReportsApi(params),
+    enabled: !isCustomPending(params),
     staleTime: 30 * 1000,
   });
 };

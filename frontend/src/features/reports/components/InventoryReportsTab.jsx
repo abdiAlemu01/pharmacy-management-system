@@ -280,12 +280,18 @@ export const InventoryReportsTab = ({
                         {formatAmount(m.costAtRisk)}
                       </td>
                       <td className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
-                        {formatDate(m.expiryDate, { showMonthName: true })}
+                        {m.expiryDate ? formatDate(m.expiryDate) : '—'}
                       </td>
                       <td className="py-2.5 px-4 text-center">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                          {m.daysUntilExpiry} days left
-                        </span>
+                        {m.daysUntilExpiry <= 0 ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                            {m.daysUntilExpiry === 1 ? '1 day left' : `${m.daysUntilExpiry} days left`}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -306,13 +312,12 @@ export const InventoryReportsTab = ({
                   <th className="py-2.5 px-4 text-right">Cost Price ({currencySymbol})</th>
                   <th className="py-2.5 px-4 text-right">Expired Loss Value ({currencySymbol})</th>
                   <th className="py-2.5 px-4">Expired On ({calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})</th>
-                  <th className="py-2.5 px-4 text-center">Action Required</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {expiredList.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
                       Great news! There are zero expired medicines in inventory.
                     </td>
                   </tr>
@@ -332,12 +337,7 @@ export const InventoryReportsTab = ({
                         {formatAmount(m.lossValue)}
                       </td>
                       <td className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300">
-                        {formatDate(m.expiryDate, { showMonthName: true })}
-                      </td>
-                      <td className="py-2.5 px-4 text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
-                          QUARANTINE / DISPOSE
-                        </span>
+                        {m.expiryDate ? formatDate(m.expiryDate) : '—'}
                       </td>
                     </tr>
                   ))

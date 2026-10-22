@@ -13,6 +13,7 @@ import { SuppliersPage, CreateSupplierPage, SupplierDetailsPage } from '@/featur
 import { PurchasesPage } from '@/features/purchases';
 import { ExpensesPage } from '@/features/expenses';
 import { SettingsPage } from '@/features/settings';
+import { ReportsPage } from '@/features/reports';
 
 export const AppRouter = () => {
   return (
@@ -40,6 +41,7 @@ export const AppRouter = () => {
             <Route path="/purchases" element={<PurchasesPage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
             <Route path="/sales" element={<SalesPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>

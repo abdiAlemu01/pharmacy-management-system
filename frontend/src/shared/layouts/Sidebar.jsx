@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, Receipt, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag, Receipt, BarChart3, Settings, LogOut } from 'lucide-react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { useAuth } from '@/features/auth';
 import { useSettings } from '@/features/settings/hooks/use-settings';
@@ -59,6 +59,11 @@ export const Sidebar = () => {
       to: '/sales',
       label: t('nav.sales', 'Sales / POS'),
       icon: ShoppingCart,
+    },
+    {
+      to: '/reports',
+      label: t('nav.reports', 'Reports'),
+      icon: BarChart3,
     },
     {
       to: '/settings',

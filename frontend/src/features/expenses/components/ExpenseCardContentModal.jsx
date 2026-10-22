@@ -18,7 +18,7 @@ import { useAppDate, gregorianToEthiopian } from '@/shared/lib/date-utils';
 export const ExpenseCardContentModal = ({
   isOpen,
   onClose,
-  cardType, // 'YEAR' | 'MONTH' | 'TODAY' | 'UNPAID' | 'RECORDS'
+  cardType, // 'YEAR' | 'MONTH' | 'TODAY' | 'UNPAID' | 'RECORDS'  
   onViewExpense,
   onApplyFilterToTable,
   currencySymbol = 'Birr',

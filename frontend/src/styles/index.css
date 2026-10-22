@@ -171,3 +171,93 @@ html.dark .border-amber-200,
 html.dark .border-amber-200\/80 {
   border-color: #78350f66 !important;
 }
+
+/* ============================================================
+   Official Print Styles
+   Applies when window.print() or Ctrl+P is triggered
+   ============================================================ */
+@media print {
+  /* 1. Hide web navigation, sidebar, app header, and control buttons */
+  aside,
+  header,
+  nav,
+  .no-print,
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* 2. Paper canvas reset */
+  html,
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 3. Expand main area to 100% full width */
+  main,
+  .max-w-7xl,
+  .max-w-5xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 4. Crisp borders for paper */
+  .border,
+  .border-b,
+  .border-t,
+  .border-slate-200,
+  .border-slate-300,
+  .border-slate-400 {
+    border-color: #94a3b8 !important;
+  }
+
+  /* 5. Clean table formatting and avoid awkward page splits */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 5px 8px !important;
+    color: #0f172a !important;
+  }
+
+  tr,
+  .break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 6. High contrast typography on paper */
+  .text-white,
+  .dark\:text-slate-100,
+  .text-slate-900,
+  .text-slate-800,
+  .text-slate-700 {
+    color: #0f172a !important;
+  }
+
+  .text-slate-500,
+  .text-slate-400 {
+    color: #475569 !important;
+  }
+
+  .bg-white,
+  .dark\:bg-slate-900,
+  .dark\:bg-slate-950,
+  .bg-slate-50,
+  .bg-slate-100 {
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+  }
+}
+

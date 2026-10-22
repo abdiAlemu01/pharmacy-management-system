@@ -7,6 +7,7 @@ import suppliersRoutes from './suppliers.routes.js';
 import purchasesRoutes from './purchases.routes.js';
 import expensesRoutes from './expenses.routes.js';
 import settingsRoutes from './settings.routes.js';
+import reportsRoutes from './reports.routes.js';
 
 const router = Router();
 
@@ -33,5 +34,8 @@ router.use('/expenses', expensesRoutes);
 
 // Mount Settings routes
 router.use('/settings', settingsRoutes);
+
+// Mount Reports routes
+router.use('/reports', reportsRoutes);
 
 export default router;

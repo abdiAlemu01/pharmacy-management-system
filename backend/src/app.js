@@ -22,6 +22,16 @@ app.use(morgan('dev'));
 app.use(requestId);
 app.use('/api', rateLimiter);
 
+// Root API welcome endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'Pharmacy Management System API is running',
+    version: appConfig.version,
+    health: '/health',
+  });
+});
+
 // Health check endpoint (checks server & PostgreSQL connection)
 app.get('/health', async (req, res) => {
   try {
@@ -51,8 +61,9 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// API Routes Mounting
+// API Routes Mounting (support both /api/v1 and /api)
 app.use(appConfig.prefix, rootRouter);
+app.use('/api', rootRouter);
 
 // Centralized Error Handling
 app.use(errorHandler);

@@ -74,112 +74,160 @@ export class SettingsService {
    */
   async getAlertMetrics(settings) {
     try {
-      const lowStockThresh = settings?.lowStockThreshold || 10;
-      const expiryDays = settings?.expiryThresholdDays || 90;
+      let currentSettings = settings;
+      if (!currentSettings) {
+        currentSettings = await this.ensureDefaultSettings();
+      }
+
+      const lowStockThresh = currentSettings?.lowStockThreshold || 10;
+      const expiryDays = currentSettings?.expiryThresholdDays || 90;
+
+      const isLowStockEnabled = currentSettings?.lowStockAlerts !== false;
+      const isNearingExpiryEnabled = currentSettings?.nearingExpiryAlerts !== false;
+      const isExpiredEnabled = currentSettings?.expiredAlerts !== false;
+      const isPaymentDueEnabled = currentSettings?.supplierPaymentDueReminders !== false;
+      const isPendingPoEnabled = currentSettings?.pendingPurchaseAlerts !== false;
 
       // 1. Low stock count: Real medicines whose available stock <= threshold
-      const lowStockTotalRes = await db.query(`
-        SELECT COUNT(*)::int as count
-        FROM "Medicine"
-        WHERE COALESCE(quantity, 0) <= $1
-      `, [lowStockThresh]);
+      let lowStockCount = 0;
+      let lowStockItems = [];
+      if (isLowStockEnabled) {
+        const lowStockTotalRes = await db.query(`
+          SELECT COUNT(*)::int as count
+          FROM "Medicine"
+          WHERE COALESCE(quantity, 0) <= $1
+        `, [lowStockThresh]);
 
-      const lowStockItemsRes = await db.query(`
-        SELECT id, name, quantity, "reorderLevel"
-        FROM "Medicine"
-        WHERE COALESCE(quantity, 0) <= $1
-        ORDER BY quantity ASC
-        LIMIT 10
-      `, [lowStockThresh]);
+        const lowStockItemsRes = await db.query(`
+          SELECT id, name, quantity, "reorderLevel"
+          FROM "Medicine"
+          WHERE COALESCE(quantity, 0) <= $1
+          ORDER BY quantity ASC
+          LIMIT 10
+        `, [lowStockThresh]);
+
+        lowStockCount = lowStockTotalRes.rows[0]?.count || 0;
+        lowStockItems = lowStockItemsRes.rows || [];
+      }
 
       // 2. Nearing expiry batches: Real in-stock batches expiring within threshold days
-      const nearingExpiryTotalRes = await db.query(`
-        SELECT COUNT(*)::int as count
-        FROM "Batch"
-        WHERE "expiryDate" > NOW() 
-          AND "expiryDate" <= NOW() + ($1 || ' days')::INTERVAL
-          AND quantity > 0
-      `, [expiryDays]);
+      let nearingExpiryCount = 0;
+      let nearingExpiryItems = [];
+      if (isNearingExpiryEnabled) {
+        const nearingExpiryTotalRes = await db.query(`
+          SELECT COUNT(*)::int as count
+          FROM "Batch"
+          WHERE "expiryDate" > NOW() 
+            AND "expiryDate" <= NOW() + ($1 || ' days')::INTERVAL
+            AND quantity > 0
+        `, [expiryDays]);
 
-      const nearingExpiryItemsRes = await db.query(`
-        SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
-        FROM "Batch" b
-        LEFT JOIN "Medicine" m ON m.id = b."medicineId"
-        WHERE b."expiryDate" > NOW() 
-          AND b."expiryDate" <= NOW() + ($1 || ' days')::INTERVAL
-          AND b.quantity > 0
-        ORDER BY b."expiryDate" ASC
-        LIMIT 10
-      `, [expiryDays]);
+        const nearingExpiryItemsRes = await db.query(`
+          SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
+          FROM "Batch" b
+          LEFT JOIN "Medicine" m ON m.id = b."medicineId"
+          WHERE b."expiryDate" > NOW() 
+            AND b."expiryDate" <= NOW() + ($1 || ' days')::INTERVAL
+            AND b.quantity > 0
+          ORDER BY b."expiryDate" ASC
+          LIMIT 10
+        `, [expiryDays]);
+
+        nearingExpiryCount = nearingExpiryTotalRes.rows[0]?.count || 0;
+        nearingExpiryItems = nearingExpiryItemsRes.rows || [];
+      }
 
       // 3. Expired batches: Real in-stock batches with expiryDate <= NOW()
-      const expiredTotalRes = await db.query(`
-        SELECT COUNT(*)::int as count
-        FROM "Batch"
-        WHERE "expiryDate" <= NOW() AND quantity > 0
-      `);
+      let expiredCount = 0;
+      let expiredItems = [];
+      if (isExpiredEnabled) {
+        const expiredTotalRes = await db.query(`
+          SELECT COUNT(*)::int as count
+          FROM "Batch"
+          WHERE "expiryDate" <= NOW() AND quantity > 0
+        `);
 
-      const expiredItemsRes = await db.query(`
-        SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
-        FROM "Batch" b
-        LEFT JOIN "Medicine" m ON m.id = b."medicineId"
-        WHERE b."expiryDate" <= NOW() AND b.quantity > 0
-        ORDER BY b."expiryDate" DESC
-        LIMIT 10
-      `);
+        const expiredItemsRes = await db.query(`
+          SELECT b.id, b."batchNo", b.quantity, b."expiryDate", COALESCE(m.name, 'Medicine') as "medicineName"
+          FROM "Batch" b
+          LEFT JOIN "Medicine" m ON m.id = b."medicineId"
+          WHERE b."expiryDate" <= NOW() AND b.quantity > 0
+          ORDER BY b."expiryDate" DESC
+          LIMIT 10
+        `);
+
+        expiredCount = expiredTotalRes.rows[0]?.count || 0;
+        expiredItems = expiredItemsRes.rows || [];
+      }
 
       // 4. Supplier payments due: Real purchases with UNPAID or PARTIAL status
-      const paymentDueTotalRes = await db.query(`
-        SELECT COUNT(*)::int as count, COALESCE(SUM("amountDue"), 0)::numeric as total
-        FROM "Purchase"
-        WHERE "paymentStatus" IN ('UNPAID', 'PARTIAL')
-      `);
+      let paymentDueCount = 0;
+      let paymentDueTotal = 0;
+      let paymentDueItems = [];
+      if (isPaymentDueEnabled) {
+        const paymentDueTotalRes = await db.query(`
+          SELECT COUNT(*)::int as count, COALESCE(SUM("amountDue"), 0)::numeric as total
+          FROM "Purchase"
+          WHERE "paymentStatus" IN ('UNPAID', 'PARTIAL')
+        `);
 
-      const paymentDueItemsRes = await db.query(`
-        SELECT p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name as "supplierName",
-               COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
-        FROM "Purchase" p
-        LEFT JOIN "Supplier" s ON s.id = p."supplierId"
-        LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
-        LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
-        WHERE p."paymentStatus" IN ('UNPAID', 'PARTIAL')
-        GROUP BY p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name, p."createdAt"
-        ORDER BY p."createdAt" DESC
-        LIMIT 10
-      `);
+        const paymentDueItemsRes = await db.query(`
+          SELECT p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name as "supplierName",
+                 COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
+          FROM "Purchase" p
+          LEFT JOIN "Supplier" s ON s.id = p."supplierId"
+          LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
+          LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
+          WHERE p."paymentStatus" IN ('UNPAID', 'PARTIAL')
+          GROUP BY p.id, p."purchaseOrderNo", p."amountDue", p."totalCost", p."paymentStatus", s.name, p."createdAt"
+          ORDER BY p."createdAt" DESC
+          LIMIT 10
+        `);
+
+        paymentDueCount = paymentDueTotalRes.rows[0]?.count || 0;
+        paymentDueTotal = paymentDueTotalRes.rows[0]?.total || 0;
+        paymentDueItems = paymentDueItemsRes.rows || [];
+      }
 
       // 5. Pending purchase orders: Real purchases with ORDERED or PENDING status
-      const pendingPoTotalRes = await db.query(`
-        SELECT COUNT(*)::int as count
-        FROM "Purchase"
-        WHERE status IN ('ORDERED', 'PENDING')
-      `);
+      let pendingPoCount = 0;
+      let pendingPoItems = [];
+      if (isPendingPoEnabled) {
+        const pendingPoTotalRes = await db.query(`
+          SELECT COUNT(*)::int as count
+          FROM "Purchase"
+          WHERE status IN ('ORDERED', 'PENDING')
+        `);
 
-      const pendingPoItemsRes = await db.query(`
-        SELECT p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name as "supplierName",
-               COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
-        FROM "Purchase" p
-        LEFT JOIN "Supplier" s ON s.id = p."supplierId"
-        LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
-        LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
-        WHERE p.status IN ('ORDERED', 'PENDING')
-        GROUP BY p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name, p."createdAt"
-        ORDER BY p."createdAt" DESC
-        LIMIT 10
-      `);
+        const pendingPoItemsRes = await db.query(`
+          SELECT p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name as "supplierName",
+                 COALESCE(string_agg(DISTINCT COALESCE(NULLIF(pi."medicineName", ''), m.name), ', '), '') as "medicineName"
+          FROM "Purchase" p
+          LEFT JOIN "Supplier" s ON s.id = p."supplierId"
+          LEFT JOIN "PurchaseItem" pi ON pi."purchaseId" = p.id
+          LEFT JOIN "Medicine" m ON m.id = pi."medicineId"
+          WHERE p.status IN ('ORDERED', 'PENDING')
+          GROUP BY p.id, p."purchaseOrderNo", p."totalCost", p.status, s.name, p."createdAt"
+          ORDER BY p."createdAt" DESC
+          LIMIT 10
+        `);
+
+        pendingPoCount = pendingPoTotalRes.rows[0]?.count || 0;
+        pendingPoItems = pendingPoItemsRes.rows || [];
+      }
 
       return {
-        lowStockCount: lowStockTotalRes.rows[0]?.count || 0,
-        lowStockItems: lowStockItemsRes.rows || [],
-        nearingExpiryCount: nearingExpiryTotalRes.rows[0]?.count || 0,
-        nearingExpiryItems: nearingExpiryItemsRes.rows || [],
-        expiredCount: expiredTotalRes.rows[0]?.count || 0,
-        expiredItems: expiredItemsRes.rows || [],
-        paymentDueCount: paymentDueTotalRes.rows[0]?.count || 0,
-        paymentDueTotal: paymentDueTotalRes.rows[0]?.total || 0,
-        paymentDueItems: paymentDueItemsRes.rows || [],
-        pendingPoCount: pendingPoTotalRes.rows[0]?.count || 0,
-        pendingPoItems: pendingPoItemsRes.rows || [],
+        lowStockCount,
+        lowStockItems,
+        nearingExpiryCount,
+        nearingExpiryItems,
+        expiredCount,
+        expiredItems,
+        paymentDueCount,
+        paymentDueTotal,
+        paymentDueItems,
+        pendingPoCount,
+        pendingPoItems,
       };
     } catch (err) {
       console.warn('Could not compute alert metrics:', err.message);

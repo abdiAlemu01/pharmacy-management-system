@@ -37,6 +37,7 @@ import { RecordPaymentModal } from '../components/RecordPaymentModal';
 import { ReturnMedicinesModal } from '../components/ReturnMedicinesModal';
 import { PurchaseDetailsModal } from '../components/PurchaseDetailsModal';
 import { PurchasesSummaryCards } from '../components/PurchasesSummaryCards';
+import { PurchaseCardContentModal } from '../components/PurchaseCardContentModal';
 
 const DropdownSelect = ({
   value,
@@ -132,6 +133,49 @@ export const PurchasesPage = () => {
   const [paymentPurchase, setPaymentPurchase] = useState(null);
   const [returnPurchase, setReturnPurchase] = useState(null);
   const [deletingPurchase, setDeletingPurchase] = useState(null);
+  const [selectedCardModal, setSelectedCardModal] = useState({ isOpen: false, cardType: 'TODAY' });
+  const [activeCardFilter, setActiveCardFilter] = useState(null);
+
+  const handleCardClick = (cardKey) => {
+    setSelectedCardModal({ isOpen: true, cardType: cardKey });
+  };
+
+  const handleApplyCardFilter = (cardKey, config) => {
+    setActiveCardFilter(cardKey);
+    setSearchTerm('');
+    setSupplierFilter('');
+    setStatusFilter('');
+    setPage(1);
+
+    if (cardKey === 'TODAY' || cardKey === 'MONTH' || cardKey === 'YEAR') {
+      setStartDate(config.startDate);
+      setEndDate(config.endDate);
+      setPaymentStatusFilter('');
+    } else if (cardKey === 'PAID') {
+      setStartDate('');
+      setEndDate('');
+      setPaymentStatusFilter('PAID');
+    } else if (cardKey === 'OUTSTANDING') {
+      setStartDate('');
+      setEndDate('');
+      setPaymentStatusFilter('OUTSTANDING');
+    } else {
+      setStartDate('');
+      setEndDate('');
+      setPaymentStatusFilter('');
+    }
+  };
+
+  const handleClearCardFilter = () => {
+    setActiveCardFilter(null);
+    setStartDate('');
+    setEndDate('');
+    setPaymentStatusFilter('');
+    setStatusFilter('');
+    setSupplierFilter('');
+    setSearchTerm('');
+    setPage(1);
+  };
 
   // Alert
   const [alertMessage, setAlertMessage] = useState(null);
@@ -354,7 +398,56 @@ export const PurchasesPage = () => {
       )}
 
       {/* 2. Purchase Summary KPI Cards and Activity Reports */}
-      <PurchasesSummaryCards summary={summary} />
+      <PurchasesSummaryCards
+        summary={summary}
+        onCardClick={handleCardClick}
+        activeFilter={activeCardFilter}
+      />
+
+      {/* Active Card Filter Banner */}
+      {activeCardFilter && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 px-4 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-xs shadow-2xs animate-in fade-in duration-150">
+          <div className="flex items-center gap-2.5 text-emerald-900 dark:text-emerald-200 font-medium">
+            <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+              <Filter className="w-4 h-4" />
+            </div>
+            <div>
+              <span>Filtered by card: </span>
+              <strong className="font-bold underline decoration-emerald-500">
+                {activeCardFilter === 'TODAY'
+                  ? 'Purchases Today'
+                  : activeCardFilter === 'MONTH'
+                  ? 'Purchases This Month'
+                  : activeCardFilter === 'YEAR'
+                  ? 'Purchases This Year'
+                  : activeCardFilter === 'PAID'
+                  ? 'Paid to Suppliers'
+                  : 'Outstanding Balance Due'}
+              </strong>
+              <span className="text-emerald-700 dark:text-emerald-300 font-semibold ml-2">
+                ({pagination.total} {pagination.total === 1 ? 'order' : 'orders'} found)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedCardModal({ isOpen: true, cardType: activeCardFilter })}
+              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 font-bold hover:bg-emerald-100 dark:hover:bg-slate-700 transition-colors cursor-pointer shadow-2xs"
+            >
+              View Content Modal
+            </button>
+            <button
+              type="button"
+              onClick={handleClearCardFilter}
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors cursor-pointer shadow-2xs"
+            >
+              Clear Filter / Show All
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 3. Search & Filter Bar */}
       <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5">
@@ -837,6 +930,20 @@ export const PurchasesPage = () => {
           </div>
         )}
       </Dialog>
+
+      {/* 7. Modal: Card Content Breakdown */}
+      <PurchaseCardContentModal
+        isOpen={selectedCardModal.isOpen}
+        cardType={selectedCardModal.cardType}
+        onClose={() => setSelectedCardModal({ isOpen: false, cardType: 'TODAY' })}
+        onViewDetails={(p) => {
+          setSelectedCardModal({ isOpen: false, cardType: 'TODAY' });
+          setDetailsPurchase(p);
+        }}
+        onApplyFilterToTable={(cardKey, config) => {
+          handleApplyCardFilter(cardKey, config);
+        }}
+      />
     </div>
   );
 };

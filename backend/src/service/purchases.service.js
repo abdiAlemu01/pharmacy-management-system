@@ -587,8 +587,19 @@ export class PurchasesService {
     }
 
     if (paymentStatus && paymentStatus.trim()) {
-      params.push(paymentStatus.trim().toUpperCase());
-      conditions.push(`p."paymentStatus" = $${params.length}`);
+      const ps = paymentStatus.trim().toUpperCase();
+      if (ps === 'OUTSTANDING' || ps === 'UNPAID_BALANCE' || ps === 'DUE') {
+        conditions.push(`p."amountDue" > 0`);
+      } else if (ps === 'PAID') {
+        conditions.push(`p."paymentStatus" = 'PAID'`);
+      } else if (ps === 'PARTIAL' || ps === 'PARTIALLY_PAID') {
+        conditions.push(`p."paymentStatus" IN ('PARTIAL', 'PARTIALLY_PAID')`);
+      } else if (ps === 'UNPAID') {
+        conditions.push(`p."paymentStatus" = 'UNPAID'`);
+      } else {
+        params.push(ps);
+        conditions.push(`p."paymentStatus" = $${params.length}`);
+      }
     }
 
     if (startDate && startDate.trim()) {

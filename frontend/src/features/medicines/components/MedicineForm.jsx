@@ -13,6 +13,7 @@ export const MedicineForm = ({
     quantity: '',
     purchaseCost: '',
     sellingPrice: '',
+    expiryDate: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -25,6 +26,7 @@ export const MedicineForm = ({
         quantity: initialData.quantity !== undefined ? String(initialData.quantity) : '',
         purchaseCost: initialData.purchaseCost !== undefined ? String(initialData.purchaseCost) : '',
         sellingPrice: initialData.sellingPrice !== undefined ? String(initialData.sellingPrice) : '',
+        expiryDate: initialData.expiryDate ? String(initialData.expiryDate).slice(0, 10) : '',
       });
     } else {
       setFormData({
@@ -32,6 +34,7 @@ export const MedicineForm = ({
         quantity: '',
         purchaseCost: '',
         sellingPrice: '',
+        expiryDate: '',
       });
     }
     setErrors({});
@@ -86,7 +89,6 @@ export const MedicineForm = ({
     e.preventDefault();
     if (!validate()) return;
 
-    // For editing an existing medicine, prompt for confirmation before saving changes
     if (initialData) {
       setShowConfirm(true);
     } else {
@@ -100,6 +102,7 @@ export const MedicineForm = ({
       quantity: parseInt(formData.quantity, 10),
       purchaseCost: parseFloat(Number(formData.purchaseCost).toFixed(2)),
       sellingPrice: parseFloat(Number(formData.sellingPrice).toFixed(2)),
+      expiryDate: formData.expiryDate && formData.expiryDate.trim() !== '' ? formData.expiryDate : null,
     };
     onSubmit(payload);
   };
@@ -117,9 +120,6 @@ export const MedicineForm = ({
             <span className="text-xl">⚠️</span>
             <div>
               <h4 className="font-semibold text-amber-900">Confirm Medicine Update</h4>
-              <p className="text-xs text-amber-700 mt-1">
-                You are updating critical medicine information (pricing & stock). Are you sure you want to proceed?
-              </p>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2 border-t border-amber-200">
@@ -191,6 +191,16 @@ export const MedicineForm = ({
             />
           </div>
 
+          <Input
+            label="Expiry Date"
+            name="expiryDate"
+            type="date"
+            placeholder="YYYY-MM-DD"
+            value={formData.expiryDate}
+            onChange={handleChange}
+            error={errors.expiryDate}
+          />
+
           {calculatedProfit !== null && (
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center text-sm">
               <span className="text-slate-600 font-medium">Estimated Profit per Unit:</span>
@@ -238,4 +248,3 @@ export const MedicineForm = ({
     </div>
   );
 };
-

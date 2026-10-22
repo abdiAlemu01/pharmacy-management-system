@@ -40,6 +40,15 @@ export const MedicineDetails = ({ medicine, onEdit, onClose }) => {
         </div>
       </div>
 
+      {medicine.expiryDate && (
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+          <span className="text-xs font-medium text-slate-500 uppercase">Expiry Date</span>
+          <span className="text-sm font-bold text-slate-800">
+            {String(medicine.expiryDate).slice(0, 10)}
+          </span>
+        </div>
+      )}
+
       <div className="text-xs text-slate-400 space-y-1 pt-2 border-t border-slate-100">
        
       </div>

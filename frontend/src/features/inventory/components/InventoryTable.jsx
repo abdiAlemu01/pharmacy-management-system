@@ -1,6 +1,5 @@
 import React from 'react';
-import { Plus, Minus, Edit, Search, X, AlertCircle } from 'lucide-react';
-import { Button } from '@/shared/components/ui/Button';
+import { Search, X, AlertCircle } from 'lucide-react';
 import { StockStatusBadge } from './StockStatusBadge';
 import { useAppDate } from '@/shared/lib/date-utils';
 
@@ -11,21 +10,17 @@ export const InventoryTable = ({
   onSearchChange,
   statusFilter = 'ALL',
   onStatusFilterChange,
-  onAddStock,
-  onReduceStock,
-  onEditMedicine,
 }) => {
   const { formatDate } = useAppDate();
-  const formatBirr = (val) => {
+  const formatAmount = (val) => {
     const num = parseFloat(val || 0);
-    return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const statusTabs = [
     { id: 'ALL', label: 'All Items' },
     { id: 'LOW_STOCK', label: 'Low Stock (1-10)' },
     { id: 'EXCESS_STOCK', label: 'Excess Stock (≥ 100)' },
-    { id: 'OUT_OF_STOCK', label: 'Out of Stock (0)' },
     { id: 'NORMAL', label: 'Normal' },
   ];
 
@@ -91,27 +86,26 @@ export const InventoryTable = ({
             <tr>
               <th scope="col" className="px-6 py-3.5">Medicine Name</th>
               <th scope="col" className="px-4 py-3.5 text-center">Stock Level & Status</th>
-              <th scope="col" className="px-4 py-3.5 text-right">Purchase Price </th>
-              <th scope="col" className="px-4 py-3.5 text-right">Selling Price </th>
+              <th scope="col" className="px-4 py-3.5 text-right">Purchase Price (Birr)</th>
+              <th scope="col" className="px-4 py-3.5 text-right">Selling Price (Birr)</th>
               <th scope="col" className="px-5 py-3.5 text-right bg-emerald-50/50 text-emerald-800">
-                Individual Total Cost
+                Individual Total Cost (Birr)
               </th>
               <th scope="col" className="px-4 py-3.5 text-center">Purchase Date</th>
               <th scope="col" className="px-4 py-3.5 text-center">Expiry Date</th>
-              <th scope="col" className="px-6 py-3.5 text-center">Stock Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan="8" className="text-center py-12 text-slate-400">
+                <td colSpan="7" className="text-center py-12 text-slate-400">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent" />
                   <p className="mt-2 text-xs font-medium">Loading inventory records...</p>
                 </td>
               </tr>
             ) : filteredItems.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center py-12 text-slate-400">
+                <td colSpan="7" className="text-center py-12 text-slate-400">
                   <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
                   <p className="font-semibold text-slate-700">No medicines found</p>
                   <p className="text-xs text-slate-500 mt-1">
@@ -125,7 +119,7 @@ export const InventoryTable = ({
               filteredItems.map((item) => (
                 <tr
                   key={item.id}
-                  className="hover:bg-slate-50/60 transition-colors group"
+                  className="hover:bg-slate-50/60 transition-colors"
                 >
                   {/* Medicine Name */}
                   <td className="px-6 py-4">
@@ -141,21 +135,18 @@ export const InventoryTable = ({
 
                   {/* Unit Purchase Price */}
                   <td className="px-4 py-4 text-right font-medium text-slate-700 whitespace-nowrap">
-                    {formatBirr(item.purchaseCost)}
+                    {formatAmount(item.purchaseCost)}
                   </td>
 
                   {/* Unit Selling Price */}
                   <td className="px-4 py-4 text-right font-medium text-slate-700 whitespace-nowrap">
-                    {formatBirr(item.sellingPrice)}
+                    {formatAmount(item.sellingPrice)}
                   </td>
 
                   {/* Individual Total Cost */}
                   <td className="px-5 py-4 text-right whitespace-nowrap bg-emerald-50/30">
                     <span className="font-extrabold text-emerald-900 text-sm block">
-                      {formatBirr(item.totalCost)}
-                    </span>
-                    <span className="text-[10px] text-emerald-700 font-medium">
-                      {item.quantity} × {item.purchaseCost.toFixed(2)} Birr
+                      {formatAmount(item.totalCost)}
                     </span>
                   </td>
 
@@ -196,45 +187,6 @@ export const InventoryTable = ({
                       <span className="text-slate-400">—</span>
                     )}
                   </td>
-
-                  {/* Actions: Add (+), Subtract (-), Edit */}
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      {/* Add (+) Button */}
-                      <button
-                        type="button"
-                        onClick={() => onAddStock(item)}
-                        title={`Add stock to ${item.name}`}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border border-emerald-200 transition-colors cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>Add</span>
-                      </button>
-
-                      {/* Subtract (-) Button */}
-                      <button
-                        type="button"
-                        onClick={() => onReduceStock(item)}
-                        title={`Reduce stock from ${item.name}`}
-                        disabled={item.quantity <= 0}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                      >
-                        <Minus className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>Reduce</span>
-                      </button>
-
-                      {/* Edit Button */}
-                      <button
-                        type="button"
-                        onClick={() => onEditMedicine(item)}
-                        title={`Edit ${item.name}`}
-                        className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-                    </div>
-                  </td>
                 </tr>
               ))
             )}
@@ -244,4 +196,3 @@ export const InventoryTable = ({
     </div>
   );
 };
-

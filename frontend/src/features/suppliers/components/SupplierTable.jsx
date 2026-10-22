@@ -124,8 +124,8 @@ export const SupplierTable = ({
         </div>
 
         {/* Selection Banner / Status */}
-        <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
-          {selectedSupplier ? (
+        {selectedSupplier && (
+          <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
             <div className="inline-flex items-center gap-2 bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 px-3.5 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm font-bold shadow-2xs">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span className="truncate max-w-[220px]">
@@ -141,12 +141,8 @@ export const SupplierTable = ({
                 ✕
               </button>
             </div>
-          ) : (
-            <span className="text-slate-500 dark:text-slate-400 text-xs font-medium italic">
-              Click any circle below to select a supplier
-            </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Helpful prompt when an action is clicked without a selection */}

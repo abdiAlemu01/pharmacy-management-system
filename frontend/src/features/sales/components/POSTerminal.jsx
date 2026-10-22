@@ -228,9 +228,7 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                         <Package className="w-8 h-8" />
                       </div>
                       <p className="font-bold text-slate-700 text-base">Your POS cart is empty</p>
-                      <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                        Click the &quot;Sell Medicine from Stock&quot; button above to scroll through available pharmacy stock and select items for sale.
-                      </p>
+                     
                       <div className="mt-4">
                         <Button
                           type="button"

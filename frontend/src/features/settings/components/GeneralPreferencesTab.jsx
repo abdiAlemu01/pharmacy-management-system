@@ -304,8 +304,11 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
   };
 
   const handleTimeZoneSelect = (tz) => {
-    setPreferences((prev) => ({ ...prev, timeZone: tz }));
+    const isEth = tz.includes('Addis_Ababa') || tz.toLowerCase().includes('ethiopia');
+    const newCal = isEth ? 'ethiopian' : 'gregorian';
+    setPreferences((prev) => ({ ...prev, timeZone: tz, calendarType: newCal }));
     localStorage.setItem('pharmacy_timezone', tz);
+    localStorage.setItem('pharmacy_calendar_type', newCal);
     window.dispatchEvent(new Event('pharmacy_preferences_changed'));
     setShowTzDropdown(false);
     setSuccessMsg('');
@@ -318,6 +321,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
         settings: {
           ...old.settings,
           timeZone: tz,
+          calendarType: newCal,
         },
       };
     });
@@ -326,7 +330,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
       {
         theme: preferences.theme,
         language: preferences.language,
-        calendarType: preferences.calendarType,
+        calendarType: newCal,
         dateFormat: preferences.dateFormat,
         timeZone: tz,
       },
@@ -672,105 +676,14 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
           </div>
         </div>
 
-        {/* 5. Time Zone Selection */}
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-600" />
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              {t('settings.preferences.timeZoneTitle', 'Time Zone')}
-            </label>
-          </div>
 
-          <div className="relative">
-            {/* Active Time Zone Card / Dropdown Trigger */}
-            <div
-              onClick={() => setShowTzDropdown(!showTzDropdown)}
-              className="w-full p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-all hover:border-emerald-600 select-none"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-5 h-5 rounded-full border-2 border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <div>
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
-                    {selectedTzObj.label}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">
-                    {t('settings.preferences.timeZoneDesc', 'Illustrative local sale time in Ethiopia')}
-                  </span>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-3 self-start sm:self-auto">
-                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                  <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                    {localTime || '10:00 AM'}
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {selectedTzObj.abbr}
-                  </span>
-                </div>
-                <div className="p-1 rounded-lg text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showTzDropdown ? 'rotate-180' : ''}`} />
-                </div>
-              </div>
-            </div>
 
-            {/* Time Zone Dropdown Menu */}
-            {showTzDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
-                {TIME_ZONE_OPTIONS.map((opt) => {
-                  const isCurrent = opt.tz === preferences.timeZone;
-                  let optTime = '';
-                  try {
-                    optTime = new Intl.DateTimeFormat('en-US', {
-                      timeZone: opt.tz,
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    }).format(today);
-                  } catch {
-                    optTime = '10:00 AM';
-                  }
 
-                  return (
-                    <button
-                      key={opt.tz}
-                      type="button"
-                      onClick={() => handleTimeZoneSelect(opt.tz)}
-                      className={`w-full p-3.5 flex items-center justify-between text-left transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
-                        isCurrent
-                          ? 'bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200'
-                          : 'text-slate-800 dark:text-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {isCurrent ? (
-                          <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          </div>
-                        ) : (
-                          <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-700" />
-                        )}
-                        <div>
-                          <span className="text-xs font-bold block">{opt.label}</span>
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block">{opt.city}</span>
-                        </div>
-                      </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">{optTime}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                          {opt.abbr}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
+
+
+
 
         {/* Action Button */}
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">

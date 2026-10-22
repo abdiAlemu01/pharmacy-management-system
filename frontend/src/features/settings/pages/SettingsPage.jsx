@@ -52,10 +52,11 @@ export const SettingsPage = () => {
   const alertMetrics = data?.alertMetrics;
 
   const totalActiveAlerts =
-    (alertMetrics?.lowStockCount || 0) +
-    (alertMetrics?.nearingExpiryCount || 0) +
-    (alertMetrics?.expiredCount || 0) +
-    (alertMetrics?.paymentDueCount || 0);
+    (settings?.lowStockAlerts !== false ? (alertMetrics?.lowStockCount || 0) : 0) +
+    (settings?.nearingExpiryAlerts !== false ? (alertMetrics?.nearingExpiryCount || 0) : 0) +
+    (settings?.expiredAlerts !== false ? (alertMetrics?.expiredCount || 0) : 0) +
+    (settings?.supplierPaymentDueReminders !== false ? (alertMetrics?.paymentDueCount || 0) : 0) +
+    (settings?.pendingPurchaseAlerts !== false ? (alertMetrics?.pendingPoCount || 0) : 0);
 
   const tabs = [
     {

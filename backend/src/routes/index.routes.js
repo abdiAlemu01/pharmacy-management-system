@@ -5,6 +5,7 @@ import inventoryRoutes from './inventory.routes.js';
 import salesRoutes from './sales.routes.js';
 import suppliersRoutes from './suppliers.routes.js';
 import purchasesRoutes from './purchases.routes.js';
+import expensesRoutes from './expenses.routes.js';
 import settingsRoutes from './settings.routes.js';
 
 const router = Router();
@@ -27,10 +28,10 @@ router.use('/suppliers', suppliersRoutes);
 // Mount Purchases routes
 router.use('/purchases', purchasesRoutes);
 
+// Mount Expenses routes
+router.use('/expenses', expensesRoutes);
+
 // Mount Settings routes
 router.use('/settings', settingsRoutes);
 
 export default router;
-
-
-

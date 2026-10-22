@@ -13,6 +13,7 @@ export const createMedicineSchema = z.object({
     sellingPrice: z
       .number({ invalid_type_error: 'Selling price must be a number' })
       .nonnegative('Selling price cannot be negative'),
+    expiryDate: z.string().optional().nullable().or(z.literal('')),
   }),
 });
 
@@ -35,6 +36,7 @@ export const updateMedicineSchema = z.object({
       .number({ invalid_type_error: 'Selling price must be a number' })
       .nonnegative('Selling price cannot be negative')
       .optional(),
+    expiryDate: z.string().optional().nullable().or(z.literal('')),
   }),
 });
 

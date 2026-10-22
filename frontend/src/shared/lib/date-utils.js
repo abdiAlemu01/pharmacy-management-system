@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { SETTINGS_QUERY_KEY } from '@/features/settings/hooks/use-settings';
 
 /**
  * Ethiopian Calendar Month Names
@@ -162,15 +160,28 @@ export function gregorianToEthiopian(dateInput) {
 }
 
 /**
+ * Helper to check if a timezone is an Ethiopian timezone
+ */
+export function isEthiopianTimeZone(tz) {
+  if (!tz) return true;
+  return tz.includes('Addis_Ababa') || tz.toLowerCase().includes('ethiopia');
+}
+
+/**
  * Read active system preferences from localStorage
  */
 export function getStoredPreferences() {
   const dateFormat = localStorage.getItem('pharmacy_date_format') || 'DD/MM/YYYY';
-  const calendarType = localStorage.getItem('pharmacy_calendar_type') || 'ethiopian';
   const timeZone = localStorage.getItem('pharmacy_timezone') || 'Africa/Addis_Ababa';
+  const isEthTz = isEthiopianTimeZone(timeZone);
+
+  // Time-zone selection based:
+  // If timeZone is Ethiopia (Africa/Addis_Ababa) -> 'ethiopian' (E.C.), otherwise 'gregorian'
+  const explicitCalendar = localStorage.getItem('pharmacy_calendar_type');
+  const calendarType = explicitCalendar || (isEthTz ? 'ethiopian' : 'gregorian');
   const language = (localStorage.getItem('pharmacy_language') || 'en').slice(0, 2);
 
-  return { dateFormat, calendarType, timeZone, language };
+  return { dateFormat, calendarType, timeZone, language, isEthiopianTz: isEthTz };
 }
 
 /**
@@ -238,9 +249,13 @@ export function formatAppDate(dateInput, options = {}) {
   if (!dateInput) return '—';
 
   const prefs = getStoredPreferences();
-  const calendarType = options.calendarType || options.calendar || prefs.calendarType;
-  const dateFormat = options.dateFormat || options.format || prefs.dateFormat;
   const timeZone = options.timeZone || prefs.timeZone;
+  const isEthTz = isEthiopianTimeZone(timeZone);
+  const calendarType =
+    options.calendarType ||
+    options.calendar ||
+    (options.timeZone ? (isEthTz ? 'ethiopian' : 'gregorian') : prefs.calendarType);
+  const dateFormat = options.dateFormat || options.format || prefs.dateFormat;
   const language = options.language || prefs.language;
 
   const parts = getDateParts(dateInput, timeZone);

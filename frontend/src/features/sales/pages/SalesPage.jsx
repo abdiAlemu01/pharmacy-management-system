@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, BarChart3, Receipt, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShoppingCart, BarChart3, Receipt, RefreshCw, AlertCircle, CheckCircle2, Filter } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { SalesAnalyticsCards } from '../components/SalesAnalyticsCards';
@@ -7,6 +7,7 @@ import { TopAndLessSellingSection } from '../components/TopAndLessSellingSection
 import { POSTerminal } from '../components/POSTerminal';
 import { SalesHistoryTable } from '../components/SalesHistoryTable';
 import { ReceiptModal } from '../components/ReceiptModal';
+import { SaleCardContentModal } from '../components/SaleCardContentModal';
 import {
   useSalesAnalytics,
   usePOSMedicines,
@@ -27,6 +28,31 @@ export const SalesPage = () => {
   // Completed sale receipt modal
   const [completedSale, setCompletedSale] = useState(null);
   const [notification, setNotification] = useState(null);
+
+  // Summary Card Modal & Active Filter
+  const [selectedCardModal, setSelectedCardModal] = useState({ isOpen: false, cardType: 'DAILY_SELL' });
+  const [activeCardFilter, setActiveCardFilter] = useState(null);
+
+  const handleCardClick = (cardKey) => {
+    setSelectedCardModal({ isOpen: true, cardType: cardKey });
+  };
+
+  const handleApplyCardFilter = (cardKey, config) => {
+    setActiveTab('history');
+    setActiveCardFilter(cardKey);
+    setHistorySearch('');
+    setHistoryStartDate(config.startDate);
+    setHistoryEndDate(config.endDate);
+    setHistoryPage(1);
+  };
+
+  const handleClearCardFilter = () => {
+    setActiveCardFilter(null);
+    setHistoryStartDate('');
+    setHistoryEndDate('');
+    setHistorySearch('');
+    setHistoryPage(1);
+  };
 
   // Queries
   const {
@@ -140,7 +166,64 @@ export const SalesPage = () => {
       )}
 
       {/* Key Financial Analytics Cards (Daily & Monthly Sell & Profit) */}
-      <SalesAnalyticsCards analytics={analytics} isLoading={isAnalyticsLoading} />
+      <SalesAnalyticsCards
+        analytics={analytics}
+        isLoading={isAnalyticsLoading}
+        onCardClick={handleCardClick}
+        activeFilter={activeCardFilter}
+      />
+
+      {/* Active Card Filter Banner */}
+      {activeCardFilter && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 px-4 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-xs shadow-2xs animate-in fade-in duration-150 mb-2">
+          <div className="flex items-center gap-2.5 text-emerald-900 dark:text-emerald-200 font-medium">
+            <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300">
+              <Filter className="w-4 h-4" />
+            </div>
+            <div>
+              <span>Filtered by card: </span>
+              <strong className="font-bold underline decoration-emerald-500">
+                {activeCardFilter === 'DAILY_SELL'
+                  ? 'Total Daily Sell'
+                  : activeCardFilter === 'DAILY_PROFIT'
+                  ? 'Total Daily Profit'
+                  : activeCardFilter === 'MONTHLY_SELL'
+                  ? 'Total Monthly Sell'
+                  : 'Total Monthly Profit'}
+              </strong>
+              <span className="text-emerald-700 dark:text-emerald-300 font-semibold ml-2">
+                ({historyPagination.total} {historyPagination.total === 1 ? 'sale' : 'sales'} found)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {activeTab !== 'history' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('history')}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors cursor-pointer shadow-2xs"
+              >
+                Go to Sales History
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setSelectedCardModal({ isOpen: true, cardType: activeCardFilter })}
+              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 font-bold hover:bg-emerald-100 dark:hover:bg-slate-700 transition-colors cursor-pointer shadow-2xs"
+            >
+              View Content Modal
+            </button>
+            <button
+              type="button"
+              onClick={handleClearCardFilter}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 transition-colors cursor-pointer shadow-2xs"
+            >
+              Clear Filter / Show All
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <div className="flex border-b border-slate-200 gap-1 overflow-x-auto">
@@ -167,7 +250,7 @@ export const SalesPage = () => {
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>Most Selling Medicines (Analytics)</span>
+          <span>Most Selling Medicines Analytics</span>
         </button>
 
         <button
@@ -244,6 +327,20 @@ export const SalesPage = () => {
         isOpen={Boolean(completedSale)}
         onClose={() => setCompletedSale(null)}
         sale={completedSale}
+      />
+
+      {/* Sale Card Content Breakdown Modal */}
+      <SaleCardContentModal
+        isOpen={selectedCardModal.isOpen}
+        cardType={selectedCardModal.cardType}
+        onClose={() => setSelectedCardModal({ isOpen: false, cardType: 'DAILY_SELL' })}
+        onViewReceipt={(sale) => {
+          setSelectedCardModal({ isOpen: false, cardType: 'DAILY_SELL' });
+          setCompletedSale(sale);
+        }}
+        onApplyFilterToHistory={(cardKey, config) => {
+          handleApplyCardFilter(cardKey, config);
+        }}
       />
     </div>
   );

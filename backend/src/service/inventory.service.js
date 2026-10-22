@@ -17,6 +17,21 @@ export class InventoryService {
   }
 
   /**
+   * Helper to format date without timezone shift
+   */
+  formatDateOnly(dateVal) {
+    if (!dateVal) return null;
+    if (typeof dateVal === 'string') return dateVal.split('T')[0];
+    if (dateVal instanceof Date) {
+      const year = dateVal.getFullYear();
+      const month = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const day = String(dateVal.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return String(dateVal).split('T')[0];
+  }
+
+  /**
    * Format individual medicine record with computed individual total cost
    */
   formatItem(row) {
@@ -26,13 +41,8 @@ export class InventoryService {
     const totalCost = parseFloat((quantity * purchaseCost).toFixed(2));
     const totalSellingPrice = parseFloat((quantity * sellingPrice).toFixed(2));
 
-    const purchaseDate = row.purchaseDate
-      ? (row.purchaseDate.toISOString?.().split('T')[0] || String(row.purchaseDate).split('T')[0])
-      : null;
-
-    const expiryDate = row.expiryDate
-      ? (row.expiryDate.toISOString?.().split('T')[0] || String(row.expiryDate).split('T')[0])
-      : null;
+    const purchaseDate = this.formatDateOnly(row.purchaseDate);
+    const expiryDate = this.formatDateOnly(row.expiryDate);
 
     return {
       id: row.id,

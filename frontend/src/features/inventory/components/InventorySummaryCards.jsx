@@ -35,10 +35,6 @@ export const InventorySummaryCards = ({ summary = {}, isLoading = false }) => {
             <span>Excess Stock (≥ 100 units)</span>
             <span className="font-bold">{summary.excessStockCount || 0}</span>
           </div>
-          <div className="flex items-center justify-between text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 font-medium">
-            <span>Out of Stock (0 units)</span>
-            <span className="font-bold">{summary.outOfStockCount || 0}</span>
-          </div>
         </div>
       ),
       borderAccent: 'border-slate-200 bg-white',

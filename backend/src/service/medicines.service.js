@@ -12,6 +12,21 @@ export class MedicinesService {
   }
 
   /**
+   * Helper to format date without timezone shift
+   */
+  formatDateOnly(dateVal) {
+    if (!dateVal) return null;
+    if (typeof dateVal === 'string') return dateVal.split('T')[0];
+    if (dateVal instanceof Date) {
+      const year = dateVal.getFullYear();
+      const month = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const day = String(dateVal.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return String(dateVal).split('T')[0];
+  }
+
+  /**
    * Format numeric fields properly
    */
   formatMedicine(row, threshold = 10) {
@@ -19,6 +34,7 @@ export class MedicinesService {
     const sellingPrice = parseFloat(row.sellingPrice || 0);
     const profitPerUnit = parseFloat((sellingPrice - purchaseCost).toFixed(2));
     const quantity = parseInt(row.quantity, 10) || 0;
+    const expiryDate = this.formatDateOnly(row.expiryDate);
 
     return {
       id: row.id,
@@ -27,6 +43,7 @@ export class MedicinesService {
       purchaseCost,
       sellingPrice,
       profitPerUnit,
+      expiryDate,
       status: this.calculateStatus(quantity, threshold),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -36,8 +53,9 @@ export class MedicinesService {
   /**
    * Create a new medicine
    */
-  async createMedicine({ name, quantity, purchaseCost, sellingPrice }) {
+  async createMedicine({ name, quantity, purchaseCost, sellingPrice, expiryDate }) {
     const trimmedName = name.trim();
+    const expDate = expiryDate && expiryDate.trim() !== '' ? expiryDate : null;
 
     // Check for duplicate medicine name (case-insensitive)
     const existing = await db.query(
@@ -53,11 +71,22 @@ export class MedicinesService {
 
     const id = crypto.randomUUID();
     const result = await db.query(
-      `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $5, NOW())
+      `INSERT INTO "Medicine" ("id", "name", "quantity", "purchaseCost", "sellingPrice", "price", "expiryDate", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())
        RETURNING *`,
-      [id, trimmedName, quantity, purchaseCost, sellingPrice]
+      [id, trimmedName, quantity, purchaseCost, sellingPrice, expDate]
     );
+
+    // If expiry date provided, also create a Batch record so that Inventory and Notifications & Alerts work seamlessly
+    if (expDate) {
+      const batchId = crypto.randomUUID();
+      const randBatch = `BATCH-${Math.floor(1000 + Math.random() * 9000)}`;
+      await db.query(
+        `INSERT INTO "Batch" ("id", "batchNo", "medicineId", "quantity", "expiryDate", "purchaseCost", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+        [batchId, randBatch, id, quantity, expDate, purchaseCost]
+      );
+    }
 
     return this.formatMedicine(result.rows[0]);
   }
@@ -124,7 +153,13 @@ export class MedicinesService {
     const queryValues = [...values, limit, offset];
 
     const dataResult = await db.query(
-      `SELECT * FROM "Medicine" 
+      `SELECT m.*,
+              COALESCE(m."expiryDate", (
+                SELECT MIN(b."expiryDate")
+                FROM "Batch" b
+                WHERE b."medicineId" = m.id AND b.quantity > 0
+              )) as "expiryDate"
+       FROM "Medicine" m 
        ${whereClause} 
        ORDER BY ${sortColumn} ${direction} 
        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
@@ -149,7 +184,14 @@ export class MedicinesService {
    */
   async getMedicineById(id, lowStockThreshold = 10) {
     const result = await db.query(
-      'SELECT * FROM "Medicine" WHERE "id" = $1 LIMIT 1',
+      `SELECT m.*,
+              COALESCE(m."expiryDate", (
+                SELECT MIN(b."expiryDate")
+                FROM "Batch" b
+                WHERE b."medicineId" = m.id AND b.quantity > 0
+              )) as "expiryDate"
+       FROM "Medicine" m 
+       WHERE m."id" = $1 LIMIT 1`,
       [id]
     );
 
@@ -197,6 +239,7 @@ export class MedicinesService {
     const newQuantity = updates.quantity !== undefined ? updates.quantity : currentMedicine.quantity;
     const newPurchaseCost = updates.purchaseCost !== undefined ? updates.purchaseCost : currentMedicine.purchaseCost;
     const newSellingPrice = updates.sellingPrice !== undefined ? updates.sellingPrice : currentMedicine.sellingPrice;
+    const newExpiryDate = updates.expiryDate !== undefined ? (updates.expiryDate && updates.expiryDate.trim() !== '' ? updates.expiryDate : null) : currentMedicine.expiryDate;
 
     const result = await db.query(
       `UPDATE "Medicine"
@@ -205,11 +248,36 @@ export class MedicinesService {
            "purchaseCost" = $3,
            "sellingPrice" = $4,
            "price" = $4,
+           "expiryDate" = $5,
            "updatedAt" = NOW()
-       WHERE "id" = $5
+       WHERE "id" = $6
        RETURNING *`,
-      [newName, newQuantity, newPurchaseCost, newSellingPrice, id]
+      [newName, newQuantity, newPurchaseCost, newSellingPrice, newExpiryDate, id]
     );
+
+    // If newExpiryDate is provided, update or create Batch record
+    if (newExpiryDate) {
+      const existingBatch = await db.query(
+        'SELECT id FROM "Batch" WHERE "medicineId" = $1 ORDER BY "createdAt" DESC LIMIT 1',
+        [id]
+      );
+      if (existingBatch.rows.length > 0) {
+        await db.query(
+          `UPDATE "Batch"
+           SET "expiryDate" = $1, "quantity" = $2, "purchaseCost" = $3, "updatedAt" = NOW()
+           WHERE id = $4`,
+          [newExpiryDate, newQuantity, newPurchaseCost, existingBatch.rows[0].id]
+        );
+      } else {
+        const batchId = crypto.randomUUID();
+        const randBatch = `BATCH-${Math.floor(1000 + Math.random() * 9000)}`;
+        await db.query(
+          `INSERT INTO "Batch" ("id", "batchNo", "medicineId", "quantity", "expiryDate", "purchaseCost", "createdAt", "updatedAt")
+           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+          [batchId, randBatch, id, newQuantity, newExpiryDate, newPurchaseCost]
+        );
+      }
+    }
 
     return this.formatMedicine(result.rows[0]);
   }

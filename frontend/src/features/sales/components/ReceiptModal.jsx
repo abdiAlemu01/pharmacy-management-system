@@ -25,7 +25,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <div>
             <p className="font-bold">Transaction Confirmed!</p>
-            <p className="text-emerald-700">Inventory updated and stock automatically decremented.</p>
+            
           </div>
         </div>
 
@@ -36,8 +36,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
             <h3 className="font-black text-base text-slate-900 tracking-tight">Pharmacy Care Management</h3>
             <p className="text-slate-500 text-[11px]">Official Pharmacy POS Sales Receipt</p>
             <p className="text-[10px] text-slate-400">Date: {formatDateTime(sale.createdAt || Date.now())}</p>
-            <p className="text-[10px] text-slate-400">Receipt ID: {sale.id}</p>
-            <p className="text-[10px] text-slate-400">Dispensed By: {sale.cashierName || 'Staff'}</p>
+            
           </div>
 
           {/* Items Table */}
@@ -80,9 +79,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
             </div>
           </div>
 
-          <div className="text-center pt-2 text-[10px] text-slate-400">
-            Thank you for trusting Pharmacy Care!
-          </div>
+
         </div>
 
         {/* Modal Buttons */}

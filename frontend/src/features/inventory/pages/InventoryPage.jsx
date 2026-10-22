@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { InventorySummaryCards } from '../components/InventorySummaryCards';
@@ -150,7 +150,7 @@ export const InventoryPage = () => {
           
         </div>
 
-        {/* Global Action Buttons */}
+        {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="outline"
@@ -160,24 +160,6 @@ export const InventoryPage = () => {
           >
             <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
             Refresh
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => handleOpenReduce(null)}
-            className="flex items-center gap-1.5 text-sm py-2 px-4 border-rose-200 text-rose-700 hover:bg-rose-50"
-          >
-            <Minus className="w-4 h-4 stroke-[3] text-rose-600" />
-            Reduce Stock (-)
-          </Button>
-
-          <Button
-            variant="primary"
-            onClick={() => handleOpenAdd(null)}
-            className="flex items-center gap-1.5 text-sm py-2 px-4 shadow-xs"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            Add Stock (+)
           </Button>
         </div>
       </div>
@@ -212,7 +194,7 @@ export const InventoryPage = () => {
       {/* Whole Investment & Stock Health Summary Cards */}
       <InventorySummaryCards summary={summary} isLoading={isSummaryLoading} />
 
-      {/* Inventory Table with compact search, status pills, and action buttons */}
+      {/* Inventory Table with compact search and status pills */}
       <InventoryTable
         items={items}
         isLoading={isInventoryLoading}
@@ -220,9 +202,6 @@ export const InventoryPage = () => {
         onSearchChange={handleSearchChange}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
-        onAddStock={handleOpenAdd}
-        onReduceStock={handleOpenReduce}
-        onEditMedicine={handleOpenEdit}
       />
 
       {/* Pagination Controls */}

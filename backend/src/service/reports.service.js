@@ -80,6 +80,14 @@ export class ReportsService {
    * 1. Overview KPIs across the entire pharmacy system
    */
   async getOverview() {
+    // Read user notification threshold settings
+    const settingRes = await db.query(
+      'SELECT "expiryThresholdDays", "lowStockThreshold" FROM "PharmacySetting" WHERE id = $1',
+      ['default']
+    );
+    const expiryDays = Math.max(1, parseInt(settingRes.rows[0]?.expiryThresholdDays, 10) || 90);
+    const lowStockThreshold = Math.max(1, parseInt(settingRes.rows[0]?.lowStockThreshold, 10) || 10);
+
     const [salesRes, inventoryRes, purchasesRes, expensesRes] = await Promise.all([
       // Sales & Profit for current month & today
       db.query(`
@@ -99,11 +107,11 @@ export class ReportsService {
           COALESCE(SUM(quantity), 0)::int as "totalUnitsInStock",
           COALESCE(SUM(quantity * "purchaseCost"), 0)::numeric as "stockCostValue",
           COALESCE(SUM(quantity * "sellingPrice"), 0)::numeric as "stockRetailValue",
-          COALESCE(SUM(CASE WHEN quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
+          COALESCE(SUM(CASE WHEN quantity <= $1 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
           COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" < CURRENT_DATE THEN 1 ELSE 0 END), 0)::int as "expiredCount",
-          COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" >= CURRENT_DATE AND "expiryDate" <= CURRENT_DATE + INTERVAL '90 days' THEN 1 ELSE 0 END), 0)::int as "soonExpiringCount"
+          COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" >= CURRENT_DATE AND "expiryDate" <= CURRENT_DATE + ($2 || ' days')::interval THEN 1 ELSE 0 END), 0)::int as "soonExpiringCount"
         FROM "Medicine"
-      `),
+      `, [lowStockThreshold, expiryDays]),
 
       // Purchases & outstanding debts
       db.query(`
@@ -147,6 +155,8 @@ export class ReportsService {
       lowStockCount: parseInt(inv.lowStockCount || 0, 10),
       expiredCount: parseInt(inv.expiredCount || 0, 10),
       soonExpiringCount: parseInt(inv.soonExpiringCount || 0, 10),
+      expiryThresholdDays: expiryDays,
+      lowStockThreshold,
       totalSupplierDebt: parseFloat(Number(p.totalSupplierDebt || 0).toFixed(2)),
       unpaidPurchasesCount: parseInt(p.unpaidPurchasesCount || 0, 10),
       totalUnpaidExpenses: parseFloat(Number(exp.totalUnpaidExpenses || 0).toFixed(2)),
@@ -416,6 +426,14 @@ export class ReportsService {
   async getInventoryReports(params = {}) {
     const range = this.resolveDateRange(params);
 
+    // Read user notification threshold settings
+    const settingRes = await db.query(
+      'SELECT "expiryThresholdDays", "lowStockThreshold" FROM "PharmacySetting" WHERE id = $1',
+      ['default']
+    );
+    const expiryDays = Math.max(1, parseInt(settingRes.rows[0]?.expiryThresholdDays, 10) || 90);
+    const lowStockThreshold = Math.max(1, parseInt(settingRes.rows[0]?.lowStockThreshold, 10) || 10);
+
     // Current stock snapshot
     const snapshotSql = `
       SELECT
@@ -424,18 +442,18 @@ export class ReportsService {
         COALESCE(SUM(quantity * "purchaseCost"), 0)::numeric as "totalCostValue",
         COALESCE(SUM(quantity * "sellingPrice"), 0)::numeric as "totalRetailValue",
         COALESCE(SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END), 0)::int as "outOfStockCount",
-        COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
+        COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= $1 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
         COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" < CURRENT_DATE THEN 1 ELSE 0 END), 0)::int as "expiredCount",
-        COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" >= CURRENT_DATE AND "expiryDate" <= CURRENT_DATE + INTERVAL '90 days' THEN 1 ELSE 0 END), 0)::int as "soonExpiringCount"
+        COALESCE(SUM(CASE WHEN "expiryDate" IS NOT NULL AND "expiryDate" >= CURRENT_DATE AND "expiryDate" <= CURRENT_DATE + ($2 || ' days')::interval THEN 1 ELSE 0 END), 0)::int as "soonExpiringCount"
       FROM "Medicine"
     `;
-    const snapshotRes = await db.query(snapshotSql);
+    const snapshotRes = await db.query(snapshotSql, [lowStockThreshold, expiryDays]);
     const snap = snapshotRes.rows[0] || {};
     const totalCostValue = parseFloat(Number(snap.totalCostValue || 0).toFixed(2));
     const totalRetailValue = parseFloat(Number(snap.totalRetailValue || 0).toFixed(2));
     const potentialProfit = parseFloat((totalRetailValue - totalCostValue).toFixed(2));
 
-    // Low stock medicines (quantity <= 10)
+    // Low stock medicines (quantity <= lowStockThreshold)
     const lowStockSql = `
       SELECT
         id,
@@ -446,10 +464,10 @@ export class ReportsService {
         "expiryDate",
         CASE WHEN quantity = 0 THEN 'OUT_OF_STOCK' ELSE 'LOW_STOCK' END as status
       FROM "Medicine"
-      WHERE quantity <= 10
+      WHERE quantity <= $1
       ORDER BY quantity ASC, name ASC
     `;
-    const lowStockRes = await db.query(lowStockSql);
+    const lowStockRes = await db.query(lowStockSql, [lowStockThreshold]);
 
     // Expired medicines
     const expiredSql = `
@@ -466,7 +484,7 @@ export class ReportsService {
     `;
     const expiredRes = await db.query(expiredSql);
 
-    // Soon-to-expire medicines (Next 90 days)
+    // Soon-to-expire medicines based on user-configured expiryThresholdDays
     const soonExpiringSql = `
       SELECT
         id,
@@ -480,10 +498,10 @@ export class ReportsService {
       FROM "Medicine"
       WHERE "expiryDate" IS NOT NULL
         AND "expiryDate" >= CURRENT_DATE
-        AND "expiryDate" <= CURRENT_DATE + INTERVAL '90 days'
+        AND "expiryDate" <= CURRENT_DATE + ($1 || ' days')::interval
       ORDER BY "expiryDate" ASC
     `;
-    const soonExpiringRes = await db.query(soonExpiringSql);
+    const soonExpiringRes = await db.query(soonExpiringSql, [expiryDays]);
 
     // Stock adjustments and damaged medicines in date range
     const adjustmentsSql = `
@@ -520,6 +538,8 @@ export class ReportsService {
         lowStockCount: parseInt(snap.lowStockCount || 0, 10),
         expiredCount: parseInt(snap.expiredCount || 0, 10),
         soonExpiringCount: parseInt(snap.soonExpiringCount || 0, 10),
+        expiryThresholdDays: expiryDays,
+        lowStockThreshold,
       },
       lowStockList: lowStockRes.rows.map((r) => ({
         id: r.id,

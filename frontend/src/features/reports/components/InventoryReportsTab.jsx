@@ -5,23 +5,23 @@ import {
   Clock,
   Ban,
   TrendingUp,
-  Sliders,
   DollarSign,
-  Search,
   Package,
 } from 'lucide-react';
 import { useInventoryReports } from '../hooks/use-reports';
 import { useAppDate } from '@/shared/lib/date-utils';
+import { useSettings } from '@/features/settings';
 
 export const InventoryReportsTab = ({
   period,
   startDate,
   endDate,
   currencySymbol = 'Birr',
+  expiryThresholdDays: propExpiryDays,
 }) => {
   const { formatDate, calendarType } = useAppDate();
-  const [activeSection, setActiveSection] = useState('low-stock'); // 'low-stock' | 'expired' | 'soon-expiring' | 'adjustments'
-  const [search, setSearch] = useState('');
+  const { data: settingsData } = useSettings();
+  const [activeSection, setActiveSection] = useState('low-stock'); // 'low-stock' | 'expired' | 'soon-expiring'
 
   const { data, isLoading } = useInventoryReports({ period, startDate, endDate });
 
@@ -29,7 +29,13 @@ export const InventoryReportsTab = ({
   const lowStockList = data?.lowStockList || [];
   const expiredList = data?.expiredList || [];
   const soonExpiringList = data?.soonExpiringList || [];
-  const adjustments = data?.adjustments || [];
+
+  // Dynamically resolve expiry alert days from user settings (Notification & Alert configuration)
+  const expiryDays =
+    propExpiryDays ??
+    settingsData?.settings?.expiryThresholdDays ??
+    summary.expiryThresholdDays ??
+    90;
 
   const formatAmount = (num) => {
     return parseFloat(Number(num || 0).toFixed(2)).toLocaleString(undefined, {
@@ -152,7 +158,7 @@ export const InventoryReportsTab = ({
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
-          <span>Expiring in Next 90 Days ({soonExpiringList.length})</span>
+          <span>Expiring in Next {expiryDays} Days ({soonExpiringList.length})</span>
         </button>
 
         <button
@@ -166,19 +172,6 @@ export const InventoryReportsTab = ({
         >
           <Ban className="w-3.5 h-3.5" />
           <span>Expired Medicines ({expiredList.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSection('adjustments')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-            activeSection === 'adjustments'
-              ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-2xs'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
-          }`}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Adjustments & Damaged ({adjustments.length})</span>
         </button>
       </div>
 
@@ -268,7 +261,7 @@ export const InventoryReportsTab = ({
                 {soonExpiringList.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No medicines expiring within the next 90 days.
+                      No medicines expiring within the next {expiryDays} days.
                     </td>
                   </tr>
                 ) : (
@@ -345,59 +338,6 @@ export const InventoryReportsTab = ({
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
                           QUARANTINE / DISPOSE
                         </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Stock Adjustments & Damaged Medicines Audit Log */}
-        {activeSection === 'adjustments' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
-                <tr>
-                  <th className="py-2.5 px-4">Date & Time</th>
-                  <th className="py-2.5 px-4">Medicine</th>
-                  <th className="py-2.5 px-4 text-center">Type</th>
-                  <th className="py-2.5 px-4 text-center">Stock Shift</th>
-                  <th className="py-2.5 px-4">Reason / Notes</th>
-                  <th className="py-2.5 px-4 text-right">Recorded By</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {adjustments.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400">
-                      No stock adjustments or damaged goods recorded in this period.
-                    </td>
-                  </tr>
-                ) : (
-                  adjustments.map((a) => (
-                    <tr key={a.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                        {formatDate(a.createdAt)}
-                      </td>
-                      <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">
-                        {a.medicineName}
-                      </td>
-                      <td className="py-2.5 px-4 text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                          {a.type}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-4 text-center font-mono font-semibold">
-                        <span className="text-slate-400">{a.previousQuantity}</span> &rarr;{' '}
-                        <strong className="text-slate-800 dark:text-slate-200">{a.newQuantity}</strong>
-                      </td>
-                      <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">
-                        {a.reason}
-                      </td>
-                      <td className="py-2.5 px-4 text-right font-medium text-slate-700 dark:text-slate-300">
-                        {a.userName}
                       </td>
                     </tr>
                   ))

@@ -298,6 +298,7 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
+            expiryThresholdDays={settings?.expiryThresholdDays}
           />
         )}
 

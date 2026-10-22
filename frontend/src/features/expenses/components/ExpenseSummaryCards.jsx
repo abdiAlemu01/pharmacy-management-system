@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, DollarSign, Clock, AlertCircle, FileText, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { useAppDate, gregorianToEthiopian } from '@/shared/lib/date-utils';
 
 export const ExpenseSummaryCards = ({
   summary = {},
@@ -8,6 +9,11 @@ export const ExpenseSummaryCards = ({
   onCardClick,
   activeFilter = null,
 }) => {
+  const { formatDate, calendarType } = useAppDate();
+  const now = new Date();
+  const todayDateStr = now.toISOString().split('T')[0];
+  const ethYear = gregorianToEthiopian(now)?.year;
+
   const formatAmount = (num) => {
     return parseFloat(Number(num || 0).toFixed(2)).toLocaleString(undefined, {
       minimumFractionDigits: 2,
@@ -19,6 +25,7 @@ export const ExpenseSummaryCards = ({
     {
       key: 'YEAR',
       title: 'Expenses This Year',
+      subtitle: calendarType === 'ethiopian' ? (ethYear ? `${ethYear} E.C.` : 'E.C.') : `${now.getFullYear()} G.C.`,
       value: formatAmount(summary.totalExpensesYear),
       unit: currencySymbol,
       icon: Calendar,
@@ -27,11 +34,12 @@ export const ExpenseSummaryCards = ({
       iconColor: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40',
       hoverBorder: 'hover:border-blue-400 dark:hover:border-blue-600',
       activeRing: 'ring-2 ring-blue-500 shadow-md ring-offset-1 dark:ring-offset-slate-900',
-      hint: 'Click to view this year',
+      hint: calendarType === 'ethiopian' ? `View expenses for ${ethYear || ''} E.C.` : `View expenses for ${now.getFullYear()} G.C.`,
     },
     {
       key: 'MONTH',
       title: 'Expenses This Month',
+      subtitle: calendarType === 'ethiopian' ? formatDate(todayDateStr, { showMonthName: true }) : now.toLocaleString('default', { month: 'short', year: 'numeric' }),
       value: formatAmount(summary.totalExpensesMonth),
       unit: currencySymbol,
       icon: DollarSign,
@@ -40,11 +48,12 @@ export const ExpenseSummaryCards = ({
       iconColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40',
       hoverBorder: 'hover:border-emerald-400 dark:hover:border-emerald-600',
       activeRing: 'ring-2 ring-emerald-500 shadow-md ring-offset-1 dark:ring-offset-slate-900',
-      hint: 'Click to view this month',
+      hint: `View expenses for this month (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`,
     },
     {
       key: 'TODAY',
       title: 'Expenses Today',
+      subtitle: formatDate(todayDateStr),
       value: formatAmount(summary.totalExpensesToday),
       unit: currencySymbol,
       icon: Clock,
@@ -53,7 +62,7 @@ export const ExpenseSummaryCards = ({
       iconColor: 'text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40',
       hoverBorder: 'hover:border-indigo-400 dark:hover:border-indigo-600',
       activeRing: 'ring-2 ring-indigo-500 shadow-md ring-offset-1 dark:ring-offset-slate-900',
-      hint: 'Click to view today',
+      hint: `View expenses for today (${formatDate(todayDateStr, { showMonthName: true })})`,
     },
     {
       key: 'UNPAID',
@@ -109,9 +118,16 @@ export const ExpenseSummaryCards = ({
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {card.title}
-                </span>
+                <div>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">
+                    {card.title}
+                  </span>
+                  {card.subtitle && (
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
+                      {card.subtitle}
+                    </span>
+                  )}
+                </div>
                 <div className={`p-2 rounded-xl ${card.iconColor} transition-transform group-hover:scale-110`}>
                   <Icon className="w-4 h-4" />
                 </div>

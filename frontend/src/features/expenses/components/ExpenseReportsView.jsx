@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Calendar, BarChart3, CheckCircle2, AlertCircle, DollarSign, Filter, RefreshCw } from 'lucide-react';
 import { useExpenseReports } from '../hooks/use-expenses';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const ExpenseReportsView = ({ currencySymbol = 'Birr' }) => {
+  const { formatDate, calendarType } = useAppDate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -31,6 +33,9 @@ export const ExpenseReportsView = ({ currencySymbol = 'Birr' }) => {
         <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
           <Filter className="w-4 h-4 text-emerald-600" />
           <span>Report Period Filter:</span>
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            {calendarType === 'ethiopian' ? 'Ethiopian (E.C.)' : 'Gregorian (G.C.)'}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
@@ -41,6 +46,7 @@ export const ExpenseReportsView = ({ currencySymbol = 'Birr' }) => {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              title={`From Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
             />
           </div>
 
@@ -51,8 +57,15 @@ export const ExpenseReportsView = ({ currencySymbol = 'Birr' }) => {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              title={`To Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
             />
           </div>
+
+          {(startDate || endDate) && (
+            <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+              ({startDate ? formatDate(startDate) : '...'} &rarr; {endDate ? formatDate(endDate) : '...'})
+            </span>
+          )}
 
           {(startDate || endDate) && (
             <button
@@ -157,7 +170,14 @@ export const ExpenseReportsView = ({ currencySymbol = 'Birr' }) => {
                 return (
                   <div key={i} className="space-y-1 text-xs">
                     <div className="flex items-center justify-between font-semibold">
-                      <span className="text-slate-800 dark:text-slate-200">{m.monthLabel}</span>
+                      <span className="text-slate-800 dark:text-slate-200">
+                        {m.monthLabel}
+                        {calendarType === 'ethiopian' && m.month && (
+                          <span className="ml-1.5 text-[10px] text-slate-400 font-normal">
+                            ({formatDate(`${m.month}-01`, { showMonthName: true })})
+                          </span>
+                        )}
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900 dark:text-slate-100">
                           {formatAmount(m.total)} {currencySymbol}

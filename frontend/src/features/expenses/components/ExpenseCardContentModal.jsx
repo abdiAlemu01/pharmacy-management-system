@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useExpenses } from '../hooks/use-expenses';
+import { useAppDate, gregorianToEthiopian } from '@/shared/lib/date-utils';
 
 export const ExpenseCardContentModal = ({
   isOpen,
@@ -22,6 +23,7 @@ export const ExpenseCardContentModal = ({
   onApplyFilterToTable,
   currencySymbol = 'Birr',
 }) => {
+  const { formatDate, calendarType } = useAppDate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
 
@@ -43,20 +45,30 @@ export const ExpenseCardContentModal = ({
     const yearEnd = `${currentYear}-12-31`;
 
     switch (cardType) {
-      case 'YEAR':
+      case 'YEAR': {
+        const ethYear = gregorianToEthiopian(now)?.year;
         return {
-          title: `Expenses This Year (${currentYear})`,
-          subtitle: `Operating expenses incurred from Jan 01, ${currentYear} to Dec 31, ${currentYear}`,
+          title:
+            calendarType === 'ethiopian'
+              ? `Expenses This Year (${ethYear || currentYear} E.C.)`
+              : `Expenses This Year (${currentYear} G.C.)`,
+          subtitle: `Operating expenses incurred in ${
+            calendarType === 'ethiopian' ? `${ethYear || currentYear} E.C.` : currentYear
+          } (${formatDate(yearStart)} to ${formatDate(yearEnd)})`,
           icon: Calendar,
           iconColor: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40',
           startDate: yearStart,
           endDate: yearEnd,
           status: 'ALL',
         };
+      }
       case 'MONTH':
         return {
-          title: `Expenses This Month (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
-          subtitle: `Operating expenses incurred this month (${monthStart} to ${monthEnd})`,
+          title:
+            calendarType === 'ethiopian'
+              ? `Expenses This Month (${formatDate(todayStr, { showMonthName: true })})`
+              : `Expenses This Month (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
+          subtitle: `Operating expenses incurred this month (${formatDate(monthStart)} to ${formatDate(monthEnd)})`,
           icon: DollarSign,
           iconColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40',
           startDate: monthStart,
@@ -65,8 +77,8 @@ export const ExpenseCardContentModal = ({
         };
       case 'TODAY':
         return {
-          title: `Expenses Today (${todayStr})`,
-          subtitle: `Operating expenses recorded for today (${todayStr})`,
+          title: `Expenses Today (${formatDate(todayStr, { showMonthName: true })})`,
+          subtitle: `Operating expenses recorded for today (${formatDate(todayStr)})`,
           icon: Clock,
           iconColor: 'text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40',
           startDate: todayStr,
@@ -95,7 +107,7 @@ export const ExpenseCardContentModal = ({
           status: 'ALL',
         };
     }
-  }, [cardType]);
+  }, [cardType, calendarType, formatDate]);
 
   // Fetch items for this card's scope
   const { data: expensesData, isLoading } = useExpenses({
@@ -182,6 +194,9 @@ export const ExpenseCardContentModal = ({
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                   {stats.count} {stats.count === 1 ? 'Record' : 'Records'}
                 </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  {calendarType === 'ethiopian' ? 'Ethiopian (E.C.)' : 'Gregorian (G.C.)'}
+                </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {cardConfig.subtitle}
@@ -264,7 +279,12 @@ export const ExpenseCardContentModal = ({
                 <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-2.5 px-3">Expense ID</th>
-                    <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3">
+                      Date
+                      <span className="ml-1 text-[10px] font-normal text-slate-400">
+                        ({calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})
+                      </span>
+                    </th>
                     <th className="py-2.5 px-3">Title & Payee</th>
                     <th className="py-2.5 px-3">Category</th>
                     <th className="py-2.5 px-3 text-right">Amount ({currencySymbol})</th>
@@ -287,7 +307,7 @@ export const ExpenseCardContentModal = ({
                           {item.expenseNumber}
                         </td>
                         <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                          {item.expenseDate}
+                          {item.expenseDate ? formatDate(item.expenseDate) : '—'}
                         </td>
                         <td className="py-2.5 px-3">
                           <span className="font-bold text-slate-900 dark:text-slate-100 block">

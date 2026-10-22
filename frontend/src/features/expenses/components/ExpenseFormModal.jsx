@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Loader2, Calendar } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { useSuppliers } from '@/features/suppliers';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const EXPENSE_CATEGORIES = [
   'Rent',
@@ -27,6 +28,7 @@ export const ExpenseFormModal = ({
   isPending = false,
   currencySymbol = 'Birr',
 }) => {
+  const { formatDate, calendarType } = useAppDate();
   const isEditing = Boolean(initialData);
 
   // Optional supplier payee autocomplete
@@ -277,13 +279,27 @@ export const ExpenseFormModal = ({
 
               <div>
                 <Input
-                  label="Expense Date *"
+                  label={`Expense Date * (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
                   name="expenseDate"
                   type="date"
                   value={formData.expenseDate}
                   onChange={handleChange}
                   error={errors.expenseDate}
                 />
+                {formData.expenseDate && (
+                  <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Calendar Date:</span>
+                      <strong className="text-slate-800 dark:text-slate-200">
+                        {formatDate(formData.expenseDate, { showMonthName: true })}
+                      </strong>
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      {calendarType === 'ethiopian' ? 'Ethiopian (E.C.)' : 'Gregorian (G.C.)'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

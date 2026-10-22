@@ -25,6 +25,7 @@ import {
   useVoidExpense,
 } from '../hooks/use-expenses';
 import { useSettings } from '@/features/settings';
+import { useAppDate } from '@/shared/lib/date-utils';
 import { ExpenseSummaryCards } from '../components/ExpenseSummaryCards';
 import { ExpenseFormModal, EXPENSE_CATEGORIES } from '../components/ExpenseFormModal';
 import { RecordPaymentModal } from '../components/RecordPaymentModal';
@@ -34,6 +35,7 @@ import { ExpenseReportsView } from '../components/ExpenseReportsView';
 import { ExpenseCardContentModal } from '../components/ExpenseCardContentModal';
 
 export const ExpensesPage = () => {
+  const { formatDate, calendarType } = useAppDate();
   const { data: settingsData } = useSettings();
   const settings = settingsData?.settings;
   const currencySymbol = settings?.currencySymbol || 'Birr';
@@ -319,11 +321,11 @@ export const ExpensesPage = () => {
                   <span>Filtered by card: </span>
                   <strong className="font-bold underline decoration-emerald-500">
                     {activeCardFilter === 'YEAR'
-                      ? 'Expenses This Year'
+                      ? `Expenses This Year (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`
                       : activeCardFilter === 'MONTH'
-                      ? 'Expenses This Month'
+                      ? `Expenses This Month (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`
                       : activeCardFilter === 'TODAY'
-                      ? 'Expenses Today'
+                      ? `Expenses Today (${formatDate(startDate || new Date().toISOString().split('T')[0], { showMonthName: true })})`
                       : activeCardFilter === 'UNPAID'
                       ? 'Total Unpaid Expenses'
                       : 'All Expense Records'}
@@ -391,28 +393,38 @@ export const ExpensesPage = () => {
               </div>
 
               {/* Date Filters */}
-              <div className="flex items-center gap-1.5 text-xs">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    setPage(1);
-                  }}
-                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
-                  title="From Date"
-                />
-                <span className="text-slate-400">to</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    setPage(1);
-                  }}
-                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
-                  title="To Date"
-                />
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setPage(1);
+                    }}
+                    className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                    title={`From Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
+                  />
+                  <span className="text-slate-400">to</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setPage(1);
+                    }}
+                    className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                    title={`To Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
+                  />
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
+                  </span>
+                </div>
+                {(startDate || endDate) && (
+                  <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                    ({startDate ? formatDate(startDate) : '...'} &rarr; {endDate ? formatDate(endDate) : '...'})
+                  </span>
+                )}
               </div>
 
               {/* Clear Filters Button */}
@@ -463,7 +475,12 @@ export const ExpensesPage = () => {
                 <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-3 px-4">Expense ID</th>
-                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">
+                      Date
+                      <span className="ml-1 text-[10px] font-normal text-slate-400">
+                        ({calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})
+                      </span>
+                    </th>
                     <th className="py-3 px-4">Title & Payee</th>
                     <th className="py-3 px-4">Category</th>
                     <th className="py-3 px-4 text-right">Amount ({currencySymbol})</th>
@@ -502,7 +519,7 @@ export const ExpensesPage = () => {
 
                           {/* Date */}
                           <td className="py-3 px-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                            {item.expenseDate}
+                            {item.expenseDate ? formatDate(item.expenseDate) : '—'}
                           </td>
 
                           {/* Title & Payee */}

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, CreditCard, Loader2, CheckCircle2 } from 'lucide-react';
+import { X, CreditCard, Loader2, CheckCircle2, Calendar } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const RecordPaymentModal = ({
   expense,
@@ -11,6 +12,7 @@ export const RecordPaymentModal = ({
   isPending = false,
   currencySymbol = 'Birr',
 }) => {
+  const { formatDate, calendarType } = useAppDate();
   const [amountPaid, setAmountPaid] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
@@ -121,11 +123,25 @@ export const RecordPaymentModal = ({
           {/* Payment Date */}
           <div>
             <Input
-              label="Payment Date *"
+              label={`Payment Date * (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
               type="date"
               value={paymentDate}
               onChange={(e) => setPaymentDate(e.target.value)}
             />
+            {paymentDate && (
+              <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-medium">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Calendar Date:</span>
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {formatDate(paymentDate, { showMonthName: true })}
+                  </strong>
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  {calendarType === 'ethiopian' ? 'Ethiopian (E.C.)' : 'Gregorian (G.C.)'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Notes */}

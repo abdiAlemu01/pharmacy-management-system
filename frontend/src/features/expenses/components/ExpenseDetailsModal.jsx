@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, CreditCard, Edit2, Ban, Calendar, User, FileText, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useExpenseDetails } from '../hooks/use-expenses';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const ExpenseDetailsModal = ({
   expenseId,
@@ -11,6 +12,7 @@ export const ExpenseDetailsModal = ({
   onVoid,
   currencySymbol = 'Birr',
 }) => {
+  const { formatDate, calendarType } = useAppDate();
   const { data: expense, isLoading } = useExpenseDetails(expenseId);
 
   if (!isOpen) return null;
@@ -112,8 +114,10 @@ export const ExpenseDetailsModal = ({
                 <span className="font-semibold text-slate-800 dark:text-slate-200">{expense.category}</span>
               </div>
               <div>
-                <span className="text-slate-400 block">Expense Date:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">{expense.expenseDate}</span>
+                <span className="text-slate-400 block">Expense Date ({calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}):</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  {expense.expenseDate ? formatDate(expense.expenseDate, { showMonthName: true }) : '—'}
+                </span>
               </div>
               <div>
                 <span className="text-slate-400 block">Paid To (Payee):</span>
@@ -147,7 +151,7 @@ export const ExpenseDetailsModal = ({
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-bold">
                       <tr>
-                        <th className="py-2 px-3">Date</th>
+                        <th className="py-2 px-3">Date ({calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})</th>
                         <th className="py-2 px-3 text-right">Amount</th>
                         <th className="py-2 px-3">Method</th>
                         <th className="py-2 px-3">Notes</th>
@@ -156,7 +160,9 @@ export const ExpenseDetailsModal = ({
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {expense.payments.map((p) => (
                         <tr key={p.id}>
-                          <td className="py-2 px-3 font-semibold text-slate-800 dark:text-slate-200">{p.paymentDate}</td>
+                          <td className="py-2 px-3 font-semibold text-slate-800 dark:text-slate-200">
+                            {p.paymentDate ? formatDate(p.paymentDate) : '—'}
+                          </td>
                           <td className="py-2 px-3 text-right font-black text-emerald-700 dark:text-emerald-400">
                             {formatAmount(p.amountPaid)} {currencySymbol}
                           </td>

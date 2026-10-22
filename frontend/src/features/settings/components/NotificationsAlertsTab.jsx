@@ -238,7 +238,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -297,7 +297,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -356,7 +356,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -415,7 +415,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -474,7 +474,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-70 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}

@@ -75,9 +75,7 @@ export const MedicinePerformanceTab = ({
         <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
           Enter Date Range to View Medicine Performance
         </h4>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-          Please select both a start date and an end date above to calculate medicine sales rankings for that duration.
-        </p>
+        
       </div>
     );
   }
@@ -85,77 +83,77 @@ export const MedicinePerformanceTab = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-150">
       {/* 1. Performance Overview KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Sold Units */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:shadow-md transition-all select-none">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Total Units Dispensed</span>
-            <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
-              <Package className="w-4 h-4" />
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">Total Units Dispensed</span>
+            <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
+              <Package className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
               {isLoading ? '...' : summary.totalSoldUnits || 0}
             </span>
             <span className="text-xs font-bold text-slate-500">Packs / Bottles</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">Dispensed across all sales</span>
+          <span className="text-xs text-slate-400 mt-1.5 block">Dispensed across all sales</span>
         </div>
 
         {/* Total Sales Generated */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-xs hover:shadow-md transition-all select-none">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Total Sales</span>
-            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
-              <TrendingUp className="w-4 h-4" />
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">Total Sales</span>
+            <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
+              <TrendingUp className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-300">
               {isLoading ? '...' : formatAmount(summary.totalRevenueGenerated)}
             </span>
             <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
           </div>
-          <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1 block">
+          <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mt-1.5 block">
             Total sales
           </span>
         </div>
 
         {/* Profit Generated */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-xs hover:shadow-md transition-all select-none">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Profit</span>
-            <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
-              <Award className="w-4 h-4" />
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">Profit</span>
+            <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
+              <Award className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-blue-800 dark:text-blue-200">
+            <span className="text-2xl sm:text-3xl font-black text-blue-800 dark:text-blue-200">
               {isLoading ? '...' : formatAmount(summary.totalProfitGenerated)}
             </span>
             <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
           </div>
-          <span className="text-[11px] text-blue-700 dark:text-blue-400 font-semibold mt-1 block">
+          <span className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1.5 block">
             Direct sales profit (Total Sales - Cost)
           </span>
         </div>
 
         {/* Active Products Ratio */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 rounded-2xl shadow-2xs transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 rounded-2xl shadow-xs hover:shadow-md transition-all select-none">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Active Turnover Ratio</span>
-            <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110">
-              <TrendingUp className="w-4 h-4" />
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">Active Turnover Ratio</span>
+            <div className="p-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110">
+              <TrendingUp className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
               {summary.activeSellingMedicinesCount || 0}
             </span>
             <span className="text-xs font-bold text-slate-500">/ {summary.totalCatalogMedicines || 0}</span>
           </div>
-          <span className="text-[11px] text-indigo-700 dark:text-indigo-400 font-semibold mt-1 block">
+          <span className="text-xs text-indigo-700 dark:text-indigo-400 font-semibold mt-1.5 block">
             {summary.totalCatalogMedicines > 0
               ? Math.round((summary.activeSellingMedicinesCount / summary.totalCatalogMedicines) * 100)
               : 0}

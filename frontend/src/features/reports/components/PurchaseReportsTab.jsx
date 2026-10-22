@@ -44,9 +44,7 @@ export const PurchaseReportsTab = ({
         <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
           Enter Date Range to View Purchase Reports
         </h4>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-          Please select both a start date and an end date above to view purchases for that duration.
-        </p>
+        
       </div>
     );
   }
@@ -54,86 +52,86 @@ export const PurchaseReportsTab = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-150">
       {/* 1. Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Purchase Cost */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Total Purchase Cost</span>
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
-                <ShoppingBag className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Total Purchase Cost</span>
+              <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
+                <ShoppingBag className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
                 {isLoading ? '...' : formatAmount(summary.totalPurchaseCost)}
               </span>
               <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
+            <span className="text-xs text-slate-400 mt-1.5 block">
               Across {summary.totalOrders || 0} purchase orders
             </span>
           </div>
         </div>
 
         {/* Total Amount Paid */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Settled to Suppliers</span>
-              <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
-                <CheckCircle2 className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Settled to Suppliers</span>
+              <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+              <span className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-300">
                 {isLoading ? '...' : formatAmount(summary.totalAmountPaid)}
               </span>
               <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
             </div>
-            <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1 block">
+            <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mt-1.5 block">
               {summary.fullyPaidCount || 0} fully paid bills
             </span>
           </div>
         </div>
 
         {/* Outstanding Supplier Balances Due */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Supplier Debt (Due)</span>
-              <div className="p-2 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110">
-                <AlertCircle className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Supplier Debt (Due)</span>
+              <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110">
+                <AlertCircle className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-rose-700 dark:text-rose-400">
+              <span className="text-2xl sm:text-3xl font-black text-rose-700 dark:text-rose-400">
                 {isLoading ? '...' : formatAmount(summary.totalAmountDue)}
               </span>
               <span className="text-xs font-bold text-rose-600">{currencySymbol}</span>
             </div>
-            <span className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 block">
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1.5 block">
               {summary.unpaidCount || 0} completely unpaid bills
             </span>
           </div>
         </div>
 
         {/* Suppliers Involved */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Active Suppliers</span>
-              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
-                <Truck className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Active Suppliers</span>
+              <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
+                <Truck className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
                 {isLoading ? '...' : suppliers.length}
               </span>
               <span className="text-xs font-bold text-slate-500">Vendors</span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
+            <span className="text-xs text-slate-400 mt-1.5 block">
               Supplied stock in this period
             </span>
           </div>

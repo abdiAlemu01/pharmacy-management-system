@@ -1,16 +1,16 @@
-FROM node:22-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-COPY prisma ./prisma/
-RUN npm ci
-COPY . .
-RUN npm run build
+FROM node:22-alpine
 
-FROM node:22-alpine AS runner
 WORKDIR /app
+
+# Copy dependency manifests
 COPY package*.json ./
-RUN npm ci --only=production
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+
+# Install production dependencies
+RUN npm ci --omit=dev
+
+# Copy application source code
+COPY . .
+
 EXPOSE 5000
+
 CMD ["npm", "start"]

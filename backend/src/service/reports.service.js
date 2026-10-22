@@ -351,7 +351,12 @@ export class ReportsService {
         -- This Month
         (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE_TRUNC('month', "createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthRevenue",
         (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric FROM "SaleItem" si JOIN "Sale" s ON s.id = si."saleId" WHERE DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthCogs",
-        (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND DATE_TRUNC('month', "expenseDate") = DATE_TRUNC('month', CURRENT_DATE)) as "monthExpenses"
+        (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND DATE_TRUNC('month', "expenseDate") = DATE_TRUNC('month', CURRENT_DATE)) as "monthExpenses",
+
+        -- This Year
+        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE_TRUNC('year', "createdAt") = DATE_TRUNC('year', CURRENT_DATE)) as "yearRevenue",
+        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric FROM "SaleItem" si JOIN "Sale" s ON s.id = si."saleId" WHERE DATE_TRUNC('year', s."createdAt") = DATE_TRUNC('year', CURRENT_DATE)) as "yearCogs",
+        (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND DATE_TRUNC('year', "expenseDate") = DATE_TRUNC('year', CURRENT_DATE)) as "yearExpenses"
     `;
     const compRes = await db.query(comparisonsSql);
     const cr = compRes.rows[0] || {};
@@ -374,6 +379,12 @@ export class ReportsService {
     const monthExp = parseFloat(Number(cr.monthExpenses || 0).toFixed(2));
     const monthNet = parseFloat((monthGross - monthExp).toFixed(2));
 
+    const yearRev = parseFloat(Number(cr.yearRevenue || 0).toFixed(2));
+    const yearCogs = parseFloat(Number(cr.yearCogs || 0).toFixed(2));
+    const yearGross = parseFloat((yearRev - yearCogs).toFixed(2));
+    const yearExp = parseFloat(Number(cr.yearExpenses || 0).toFixed(2));
+    const yearNet = parseFloat((yearGross - yearExp).toFixed(2));
+
     const comparisons = {
       today: {
         revenue: todayRev,
@@ -395,6 +406,13 @@ export class ReportsService {
         grossProfit: monthGross,
         expenses: monthExp,
         netProfit: monthNet,
+      },
+      thisYear: {
+        revenue: yearRev,
+        cogs: yearCogs,
+        grossProfit: yearGross,
+        expenses: yearExp,
+        netProfit: yearNet,
       },
       selectedPeriod: {
         revenue,

@@ -116,24 +116,29 @@ export const ReportsPage = () => {
 
       {/* 2. Top Overview Pulse Banner */}
       {overview && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl text-xs">
           <div
             onClick={() => {
               setActiveTab('sales');
               handlePeriodChange('today');
             }}
-            className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
+            className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.99] select-none flex flex-col justify-between"
           >
-            <span className="text-[11px] text-slate-500 block font-medium">Today's Sales</span>
-            <strong className="text-sm font-black text-emerald-700 dark:text-emerald-400 block mt-0.5">
-              {formatAmount(overview.todaySales)} {currencySymbol}
-            </strong>
-            <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
-              <span className="text-slate-500 group-hover:text-primary transition-colors flex items-center gap-0.5 font-semibold">
+            <div>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 block font-semibold">Today's Sales</span>
+              <div className="mt-2 flex items-baseline gap-1">
+                <strong className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
+                  {formatAmount(overview.todaySales)}
+                </strong>
+                <span className="text-xs font-bold text-slate-400">{currencySymbol}</span>
+              </div>
+            </div>
+            <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <span className="text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1 font-semibold">
                 View content
-                <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
-              <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to open
               </span>
             </div>
@@ -144,18 +149,23 @@ export const ReportsPage = () => {
               setActiveTab('sales');
               handlePeriodChange('month');
             }}
-            className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
+            className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.99] select-none flex flex-col justify-between"
           >
-            <span className="text-[11px] text-slate-500 block font-medium">This Month Sales</span>
-            <strong className="text-sm font-black text-slate-900 dark:text-slate-100 block mt-0.5">
-              {formatAmount(overview.monthSales)} {currencySymbol}
-            </strong>
-            <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
-              <span className="text-slate-500 group-hover:text-primary transition-colors flex items-center gap-0.5 font-semibold">
+            <div>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 block font-semibold">This Month Sales</span>
+              <div className="mt-2 flex items-baseline gap-1">
+                <strong className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                  {formatAmount(overview.monthSales)}
+                </strong>
+                <span className="text-xs font-bold text-slate-400">{currencySymbol}</span>
+              </div>
+            </div>
+            <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <span className="text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1 font-semibold">
                 View content
-                <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
-              <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to open
               </span>
             </div>
@@ -165,18 +175,23 @@ export const ReportsPage = () => {
             onClick={() => {
               setActiveTab('inventory');
             }}
-            className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
+            className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.99] select-none flex flex-col justify-between"
           >
-            <span className="text-[11px] text-slate-500 block font-medium">Capital in Stock</span>
-            <strong className="text-sm font-black text-blue-700 dark:text-blue-400 block mt-0.5">
-              {formatAmount(overview.stockCostValue)} {currencySymbol}
-            </strong>
-            <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
-              <span className="text-slate-500 group-hover:text-primary transition-colors flex items-center gap-0.5 font-semibold">
+            <div>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 block font-semibold">Capital in Stock</span>
+              <div className="mt-2 flex items-baseline gap-1">
+                <strong className="text-xl sm:text-2xl font-black text-blue-700 dark:text-blue-400 tracking-tight">
+                  {formatAmount(overview.stockCostValue)}
+                </strong>
+                <span className="text-xs font-bold text-slate-400">{currencySymbol}</span>
+              </div>
+            </div>
+            <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <span className="text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1 font-semibold">
                 View content
-                <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
-              <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to open
               </span>
             </div>
@@ -186,18 +201,23 @@ export const ReportsPage = () => {
             onClick={() => {
               setActiveTab('purchases');
             }}
-            className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
+            className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.99] select-none flex flex-col justify-between"
           >
-            <span className="text-[11px] text-slate-500 block font-medium">Supplier Debt</span>
-            <strong className="text-sm font-black text-rose-700 dark:text-rose-400 block mt-0.5">
-              {formatAmount(overview.totalSupplierDebt)} {currencySymbol}
-            </strong>
-            <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
-              <span className="text-slate-500 group-hover:text-primary transition-colors flex items-center gap-0.5 font-semibold">
+            <div>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 block font-semibold">Supplier Debt</span>
+              <div className="mt-2 flex items-baseline gap-1">
+                <strong className="text-xl sm:text-2xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
+                  {formatAmount(overview.totalSupplierDebt)}
+                </strong>
+                <span className="text-xs font-bold text-slate-400">{currencySymbol}</span>
+              </div>
+            </div>
+            <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <span className="text-slate-500 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors flex items-center gap-1 font-semibold">
                 View content
-                <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
-              <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to open
               </span>
             </div>
@@ -207,18 +227,26 @@ export const ReportsPage = () => {
             onClick={() => {
               setActiveTab('inventory');
             }}
-            className="col-span-2 lg:col-span-1 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
+            className="col-span-2 lg:col-span-1 p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.99] select-none flex flex-col justify-between"
           >
-            <span className="text-[11px] text-slate-500 block font-medium">Stock Risks</span>
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-400 block mt-0.5">
-              {overview.lowStockCount || 0} Low &bull; {overview.expiredCount || 0} Expired
-            </span>
-            <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
-              <span className="text-slate-500 group-hover:text-primary transition-colors flex items-center gap-0.5 font-semibold">
+            <div>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 block font-semibold">Stock Risks</span>
+              <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+                <strong className="text-base sm:text-lg font-black text-amber-700 dark:text-amber-400">
+                  {overview.lowStockCount || 0} Low
+                </strong>
+                <span className="text-slate-400 font-bold">&bull;</span>
+                <strong className="text-base sm:text-lg font-black text-rose-700 dark:text-rose-400">
+                  {overview.expiredCount || 0} Expired
+                </strong>
+              </div>
+            </div>
+            <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <span className="text-slate-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex items-center gap-1 font-semibold">
                 View content
-                <ArrowUpRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </span>
-              <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to open
               </span>
             </div>

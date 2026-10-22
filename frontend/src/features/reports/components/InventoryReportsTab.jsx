@@ -74,86 +74,86 @@ export const InventoryReportsTab = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-150">
       {/* 1. Inventory Valuation Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Cost Value (Capital invested) */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Capital in Stock (Cost)</span>
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
-                <Boxes className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Capital in Stock (Cost)</span>
+              <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
+                <Boxes className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
                 {isLoading ? '...' : formatAmount(summary.totalCostValue)}
               </span>
               <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
+            <span className="text-xs text-slate-400 mt-1.5 block">
               {summary.totalUnitsInStock || 0} units across {summary.totalMedicines || 0} medicines
             </span>
           </div>
         </div>
 
         {/* Potential Retail Value */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Retail Sales Value</span>
-              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
-                <DollarSign className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Retail Sales Value</span>
+              <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
+                <DollarSign className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
                 {isLoading ? '...' : formatAmount(summary.totalRetailValue)}
               </span>
               <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
             </div>
-            <span className="text-[11px] text-blue-700 dark:text-blue-400 font-semibold mt-1 block">
+            <span className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1.5 block">
               Potential Profit: {formatAmount(summary.potentialProfit)} {currencySymbol}
             </span>
           </div>
         </div>
 
         {/* Low Stock Alerts */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Low & Out-of-Stock</span>
-              <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 transition-transform group-hover:scale-110">
-                <AlertTriangle className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Low & Out-of-Stock</span>
+              <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 transition-transform group-hover:scale-110">
+                <AlertTriangle className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-amber-800 dark:text-amber-300">
+              <span className="text-2xl sm:text-3xl font-black text-amber-800 dark:text-amber-300">
                 {isLoading ? '...' : summary.lowStockCount || 0}
               </span>
               <span className="text-xs font-bold text-slate-500">Medicines</span>
             </div>
-            <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium mt-1 block">
+            <span className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1.5 block">
               {summary.outOfStockCount || 0} completely out of stock
             </span>
           </div>
         </div>
 
         {/* Expiration Risk */}
-        <div className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Expiry Vulnerability</span>
-              <div className="p-2 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110">
-                <Clock className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-semibold text-slate-500">Expiry Vulnerability</span>
+              <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110">
+                <Clock className="w-5 h-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-rose-700 dark:text-rose-400">
+              <span className="text-2xl sm:text-3xl font-black text-rose-700 dark:text-rose-400">
                 {isLoading ? '...' : (summary.expiredCount || 0) + (summary.soonExpiringCount || 0)}
               </span>
               <span className="text-xs font-bold text-slate-500">Items</span>
             </div>
-            <span className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1 block">
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium mt-1.5 block">
               {summary.expiredCount || 0} expired &bull; {summary.soonExpiringCount || 0} expiring soon
             </span>
           </div>

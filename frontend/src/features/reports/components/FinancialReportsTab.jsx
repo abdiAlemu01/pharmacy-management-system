@@ -15,9 +15,9 @@ export const FinancialReportsTab = ({
   const summary = data?.summary || {};
   const comparisons = data?.comparisons || {};
 
-  // Active Timeframe selection state: 'today' | 'week' | 'month' | 'custom'
+  // Active Timeframe selection state: 'today' | 'week' | 'month' | 'year' | 'custom'
   const [activeTimeframe, setActiveTimeframe] = useState(() => {
-    if (period === 'today' || period === 'week' || period === 'month' || period === 'custom') {
+    if (period === 'today' || period === 'week' || period === 'month' || period === 'year' || period === 'custom') {
       return period;
     }
     return 'month';
@@ -25,7 +25,7 @@ export const FinancialReportsTab = ({
 
   // Sync when parent period changes
   useEffect(() => {
-    if (period && ['today', 'week', 'month', 'custom'].includes(period)) {
+    if (period && ['today', 'week', 'month', 'year', 'custom'].includes(period)) {
       setActiveTimeframe(period);
     }
   }, [period]);
@@ -89,6 +89,23 @@ export const FinancialReportsTab = ({
       return {
         label: "Monthly Financial Performance",
         periodBadge: "This Month",
+        hasDates: true,
+        revenue: rev,
+        cogs,
+        grossProfit: gross,
+        grossMargin: margin,
+        expenses: exp,
+      };
+    }
+    if (activeTimeframe === 'year') {
+      const rev = comparisons.thisYear?.revenue ?? (period === 'year' ? summary.totalRevenue : 0);
+      const cogs = comparisons.thisYear?.cogs ?? (period === 'year' ? (summary.costOfMedicinesSold ?? summary.cogs) : 0);
+      const gross = comparisons.thisYear?.grossProfit ?? (period === 'year' ? summary.grossProfit : 0);
+      const exp = comparisons.thisYear?.expenses ?? (period === 'year' ? summary.operatingExpenses : 0);
+      const margin = rev > 0 ? parseFloat(((gross / rev) * 100).toFixed(1)) : 0;
+      return {
+        label: "Annual Financial Performance",
+        periodBadge: "This Year",
         hasDates: true,
         revenue: rev,
         cogs,
@@ -218,6 +235,19 @@ export const FinancialReportsTab = ({
 
           <button
             type="button"
+            onClick={() => handleSelectTimeframe('year')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeTimeframe === 'year'
+                ? 'bg-purple-600 text-white shadow-2xs'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>This Year</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => handleSelectTimeframe('custom')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeTimeframe === 'custom'
@@ -303,61 +333,61 @@ export const FinancialReportsTab = ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {/* 1. Total Sales */}
-          <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+          <div className="p-5 sm:p-6 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Sales</span>
-                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
-                  <DollarSign className="w-4 h-4" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Total Sales</span>
+                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                  <DollarSign className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
                   {isLoading ? '...' : formatAmount(currentData.revenue)}
                 </span>
                 <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
               </div>
-              <span className="text-[11px] text-slate-400 mt-1 block">Total sales turnover</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">Total sales turnover</span>
             </div>
           </div>
 
           {/* 2. Cost of Medicines Sold (COGS) */}
-          <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
+          <div className="p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Cost of Meds (COGS)</span>
-                <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                  <Package className="w-4 h-4" />
+                <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Cost of Meds (COGS)</span>
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  <Package className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
                   {isLoading ? '...' : formatAmount(currentData.cogs)}
                 </span>
                 <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
               </div>
-              <span className="text-[11px] text-slate-400 mt-1 block">Purchase cost of sold medicines</span>
+              <span className="text-xs text-slate-400 mt-1.5 block">Purchase cost of sold medicines</span>
             </div>
           </div>
 
           {/* 3. Profit (Total Sales - Cost of Medicines) */}
-          <div className="p-4 bg-white dark:bg-slate-900 border-2 border-emerald-500/80 dark:border-emerald-500/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none bg-emerald-50/10 dark:bg-emerald-950/20">
+          <div className="p-5 sm:p-6 bg-white dark:bg-slate-900 border-2 border-emerald-500/80 dark:border-emerald-500/60 rounded-2xl shadow-xs hover:shadow-md flex flex-col justify-between transition-all select-none bg-emerald-50/10 dark:bg-emerald-950/20">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Profit</span>
-                <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
-                  <TrendingUp className="w-4 h-4" />
+                <span className="text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300">Profit</span>
+                <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+                  <TrendingUp className="w-5 h-5" />
                 </div>
               </div>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                <span className="text-3xl font-black text-emerald-700 dark:text-emerald-400">
                   {isLoading ? '...' : formatAmount(currentData.grossProfit)}
                 </span>
                 <span className="text-xs font-bold text-slate-500">{currencySymbol}</span>
               </div>
-              <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+              <div className="mt-2 flex items-center justify-between text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 <span>Total Sales − Med Cost</span>
                 <span>Profit: {currentData.grossMargin || 0}%</span>
               </div>

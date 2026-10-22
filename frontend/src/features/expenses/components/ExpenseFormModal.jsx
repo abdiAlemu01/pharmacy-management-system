@@ -36,6 +36,7 @@ export const ExpenseFormModal = ({
   const [formData, setFormData] = useState({
     title: '',
     category: EXPENSE_CATEGORIES[0],
+    customCategory: '',
     amount: '',
     expenseDate: new Date().toISOString().split('T')[0],
     payee: '',
@@ -50,9 +51,29 @@ export const ExpenseFormModal = ({
 
   useEffect(() => {
     if (initialData) {
+      const isOther =
+        initialData.category === 'Other pharmacy expenses' ||
+        initialData.category?.startsWith('Other:') ||
+        (!EXPENSE_CATEGORIES.includes(initialData.category) && initialData.category);
+
+      let catValue = initialData.category || EXPENSE_CATEGORIES[0];
+      let customVal = '';
+
+      if (isOther) {
+        catValue = 'Other pharmacy expenses';
+        if (initialData.category?.startsWith('Other: ')) {
+          customVal = initialData.category.slice(7);
+        } else if (initialData.category?.startsWith('Other:')) {
+          customVal = initialData.category.slice(6);
+        } else if (initialData.category !== 'Other pharmacy expenses') {
+          customVal = initialData.category;
+        }
+      }
+
       setFormData({
         title: initialData.title || '',
-        category: initialData.category || EXPENSE_CATEGORIES[0],
+        category: catValue,
+        customCategory: customVal,
         amount: String(initialData.amount || ''),
         expenseDate: initialData.expenseDate || new Date().toISOString().split('T')[0],
         payee: initialData.payee || '',
@@ -66,6 +87,7 @@ export const ExpenseFormModal = ({
       setFormData({
         title: '',
         category: EXPENSE_CATEGORIES[0],
+        customCategory: '',
         amount: '',
         expenseDate: new Date().toISOString().split('T')[0],
         payee: '',
@@ -126,9 +148,14 @@ export const ExpenseFormModal = ({
     e.preventDefault();
     if (!validate()) return;
 
+    let finalCategory = formData.category;
+    if (formData.category === 'Other pharmacy expenses' && formData.customCategory?.trim()) {
+      finalCategory = `Other: ${formData.customCategory.trim()}`;
+    }
+
     const payload = {
       title: formData.title.trim(),
-      category: formData.category,
+      category: finalCategory,
       amount: parseFloat(formData.amount),
       expenseDate: formData.expenseDate,
       payee: formData.payee.trim() || undefined,
@@ -211,6 +238,20 @@ export const ExpenseFormModal = ({
                   </option>
                 ))}
               </select>
+
+              {/* Dynamic input with placeholder when user chooses "Other pharmacy expenses" */}
+              {formData.category === 'Other pharmacy expenses' && (
+                <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <Input
+                    label="Specify Other Expense / Your Idea"
+                    name="customCategory"
+                    placeholder="Put your idea here (e.g. Marketing, Packaging, Security service...)"
+                    value={formData.customCategory}
+                    onChange={handleChange}
+                    autoFocus
+                  />
+                </div>
+              )}
             </div>
 
             {/* Amount & Date in 2 columns */}

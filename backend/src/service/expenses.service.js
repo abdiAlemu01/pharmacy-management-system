@@ -127,8 +127,13 @@ export class ExpensesService {
 
     // Filter by Category
     if (category && category !== 'ALL') {
-      conditions.push(`"category" = $${pIdx}`);
-      values.push(category);
+      if (category === 'Other pharmacy expenses' || category === 'Other pharmacy expense') {
+        conditions.push(`("category" = $${pIdx} OR "category" LIKE 'Other:%' OR "category" LIKE 'Other pharmacy%')`);
+        values.push(category);
+      } else {
+        conditions.push(`"category" = $${pIdx}`);
+        values.push(category);
+      }
       pIdx++;
     }
 

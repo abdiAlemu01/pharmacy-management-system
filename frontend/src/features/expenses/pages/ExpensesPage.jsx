@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Receipt,
-  Plus,
-  BarChart3,
+  Receipt,Plus,BarChart3,
   List,
   Search,
   Filter,

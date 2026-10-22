@@ -118,7 +118,9 @@ export const ExpenseCardContentModal = ({
         (item.payee && item.payee.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesCat =
-        selectedCategory === 'ALL' || item.category === selectedCategory;
+        selectedCategory === 'ALL' ||
+        item.category === selectedCategory ||
+        (selectedCategory === 'Other pharmacy expenses' && (item.category?.startsWith('Other:') || item.category?.startsWith('Other pharmacy')));
 
       return matchesSearch && matchesCat;
     });

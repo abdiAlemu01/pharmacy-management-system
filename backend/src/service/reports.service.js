@@ -92,12 +92,13 @@ export class ReportsService {
       // Sales & Profit for current month & today
       db.query(`
         SELECT
-          COALESCE(SUM(CASE WHEN DATE(s."createdAt") = CURRENT_DATE THEN s.total ELSE 0 END), 0)::numeric as "todaySales",
-          COALESCE(SUM(CASE WHEN DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE) THEN s.total ELSE 0 END), 0)::numeric as "monthSales",
-          COALESCE(COUNT(CASE WHEN DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE) THEN s.id END), 0)::int as "monthTransactions",
-          COALESCE(SUM(CASE WHEN DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE) THEN si.quantity * (si."unitPrice" - si."purchaseCost") ELSE 0 END), 0)::numeric as "monthGrossProfit"
-        FROM "Sale" s
-        LEFT JOIN "SaleItem" si ON s.id = si."saleId"
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") = CURRENT_DATE) as "todaySales",
+          (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE_TRUNC('month', "createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthSales",
+          (SELECT COALESCE(COUNT(id), 0)::int FROM "Sale" WHERE DATE_TRUNC('month', "createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthTransactions",
+          (SELECT COALESCE(SUM(si.quantity * (si."unitPrice" - si."purchaseCost")), 0)::numeric 
+           FROM "SaleItem" si 
+           JOIN "Sale" s ON s.id = si."saleId" 
+           WHERE DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthGrossProfit"
       `),
 
       // Inventory valuation & health
@@ -260,18 +261,20 @@ export class ReportsService {
   async getFinancialReports(params = {}) {
     const range = this.resolveDateRange(params);
 
-    // Sales Revenue and COGS in selected period
+    // Sales Revenue and Cost of Medicines Sold (COGS) in selected period
     const salesSql = `
       SELECT
-        COALESCE(SUM(s.total), 0)::numeric as revenue,
-        COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric as "cogs"
-      FROM "Sale" s
-      LEFT JOIN "SaleItem" si ON s.id = si."saleId"
-      WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date
+        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") >= $1::date AND DATE("createdAt") <= $2::date) as revenue,
+        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric 
+         FROM "SaleItem" si 
+         JOIN "Sale" s ON s.id = si."saleId" 
+         WHERE DATE(s."createdAt") >= $1::date AND DATE(s."createdAt") <= $2::date) as cogs
     `;
     const salesRes = await db.query(salesSql, [range.startDate, range.endDate]);
     const revenue = parseFloat(Number(salesRes.rows[0]?.revenue || 0).toFixed(2));
     const cogs = parseFloat(Number(salesRes.rows[0]?.cogs || 0).toFixed(2));
+    
+    // Core accounting formula: Gross Profit = Sales Revenue - Cost of Medicines Sold
     const grossProfit = parseFloat((revenue - cogs).toFixed(2));
     const grossMargin = revenue > 0 ? parseFloat(((grossProfit / revenue) * 100).toFixed(1)) : 0;
 
@@ -290,60 +293,74 @@ export class ReportsService {
     const expensesPaid = parseFloat(Number(expRes.rows[0]?.expensesPaid || 0).toFixed(2));
     const expensesDue = parseFloat(Number(expRes.rows[0]?.expensesDue || 0).toFixed(2));
 
+    // Core accounting formula: Estimated Net Profit = Gross Profit - Operating Expenses
     const estimatedNetProfit = parseFloat((grossProfit - operatingExpenses).toFixed(2));
     const netMargin = revenue > 0 ? parseFloat(((estimatedNetProfit / revenue) * 100).toFixed(1)) : 0;
 
-    // Quick comparisons: Today, This Week (Last 7 Days), This Month, This Year
+    // Quick comparisons across timeframes (Today, This Week, This Month)
     const comparisonsSql = `
       SELECT
         -- Today
-        COALESCE(SUM(CASE WHEN DATE(s."createdAt") = CURRENT_DATE THEN s.total ELSE 0 END), 0)::numeric as "todayRevenue",
-        COALESCE(SUM(CASE WHEN DATE(s."createdAt") = CURRENT_DATE THEN si.quantity * (si."unitPrice" - si."purchaseCost") ELSE 0 END), 0)::numeric as "todayGrossProfit",
+        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") = CURRENT_DATE) as "todayRevenue",
+        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric FROM "SaleItem" si JOIN "Sale" s ON s.id = si."saleId" WHERE DATE(s."createdAt") = CURRENT_DATE) as "todayCogs",
         (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND "expenseDate" = CURRENT_DATE) as "todayExpenses",
 
         -- This Week (last 7 days)
-        COALESCE(SUM(CASE WHEN DATE(s."createdAt") >= CURRENT_DATE - INTERVAL '6 days' THEN s.total ELSE 0 END), 0)::numeric as "weekRevenue",
-        COALESCE(SUM(CASE WHEN DATE(s."createdAt") >= CURRENT_DATE - INTERVAL '6 days' THEN si.quantity * (si."unitPrice" - si."purchaseCost") ELSE 0 END), 0)::numeric as "weekGrossProfit",
+        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE("createdAt") >= CURRENT_DATE - INTERVAL '6 days') as "weekRevenue",
+        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric FROM "SaleItem" si JOIN "Sale" s ON s.id = si."saleId" WHERE DATE(s."createdAt") >= CURRENT_DATE - INTERVAL '6 days') as "weekCogs",
         (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND "expenseDate" >= CURRENT_DATE - INTERVAL '6 days') as "weekExpenses",
 
         -- This Month
-        COALESCE(SUM(CASE WHEN DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE) THEN s.total ELSE 0 END), 0)::numeric as "monthRevenue",
-        COALESCE(SUM(CASE WHEN DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE) THEN si.quantity * (si."unitPrice" - si."purchaseCost") ELSE 0 END), 0)::numeric as "monthGrossProfit",
+        (SELECT COALESCE(SUM(total), 0)::numeric FROM "Sale" WHERE DATE_TRUNC('month', "createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthRevenue",
+        (SELECT COALESCE(SUM(si.quantity * si."purchaseCost"), 0)::numeric FROM "SaleItem" si JOIN "Sale" s ON s.id = si."saleId" WHERE DATE_TRUNC('month', s."createdAt") = DATE_TRUNC('month', CURRENT_DATE)) as "monthCogs",
         (SELECT COALESCE(SUM(amount), 0)::numeric FROM "Expense" WHERE "isVoided" = FALSE AND DATE_TRUNC('month', "expenseDate") = DATE_TRUNC('month', CURRENT_DATE)) as "monthExpenses"
-      FROM "Sale" s
-      LEFT JOIN "SaleItem" si ON s.id = si."saleId"
     `;
     const compRes = await db.query(comparisonsSql);
     const cr = compRes.rows[0] || {};
 
-    const todayGross = parseFloat(Number(cr.todayGrossProfit || 0).toFixed(2));
+    const todayRev = parseFloat(Number(cr.todayRevenue || 0).toFixed(2));
+    const todayCogs = parseFloat(Number(cr.todayCogs || 0).toFixed(2));
+    const todayGross = parseFloat((todayRev - todayCogs).toFixed(2));
     const todayExp = parseFloat(Number(cr.todayExpenses || 0).toFixed(2));
-    const weekGross = parseFloat(Number(cr.weekGrossProfit || 0).toFixed(2));
+    const todayNet = parseFloat((todayGross - todayExp).toFixed(2));
+
+    const weekRev = parseFloat(Number(cr.weekRevenue || 0).toFixed(2));
+    const weekCogs = parseFloat(Number(cr.weekCogs || 0).toFixed(2));
+    const weekGross = parseFloat((weekRev - weekCogs).toFixed(2));
     const weekExp = parseFloat(Number(cr.weekExpenses || 0).toFixed(2));
-    const monthGross = parseFloat(Number(cr.monthGrossProfit || 0).toFixed(2));
+    const weekNet = parseFloat((weekGross - weekExp).toFixed(2));
+
+    const monthRev = parseFloat(Number(cr.monthRevenue || 0).toFixed(2));
+    const monthCogs = parseFloat(Number(cr.monthCogs || 0).toFixed(2));
+    const monthGross = parseFloat((monthRev - monthCogs).toFixed(2));
     const monthExp = parseFloat(Number(cr.monthExpenses || 0).toFixed(2));
+    const monthNet = parseFloat((monthGross - monthExp).toFixed(2));
 
     const comparisons = {
       today: {
-        revenue: parseFloat(Number(cr.todayRevenue || 0).toFixed(2)),
+        revenue: todayRev,
+        cogs: todayCogs,
         grossProfit: todayGross,
         expenses: todayExp,
-        netProfit: parseFloat((todayGross - todayExp).toFixed(2)),
+        netProfit: todayNet,
       },
       thisWeek: {
-        revenue: parseFloat(Number(cr.weekRevenue || 0).toFixed(2)),
+        revenue: weekRev,
+        cogs: weekCogs,
         grossProfit: weekGross,
         expenses: weekExp,
-        netProfit: parseFloat((weekGross - weekExp).toFixed(2)),
+        netProfit: weekNet,
       },
       thisMonth: {
-        revenue: parseFloat(Number(cr.monthRevenue || 0).toFixed(2)),
+        revenue: monthRev,
+        cogs: monthCogs,
         grossProfit: monthGross,
         expenses: monthExp,
-        netProfit: parseFloat((monthGross - monthExp).toFixed(2)),
+        netProfit: monthNet,
       },
       selectedPeriod: {
         revenue,
+        cogs,
         grossProfit,
         expenses: operatingExpenses,
         netProfit: estimatedNetProfit,
@@ -395,6 +412,7 @@ export class ReportsService {
       period: range,
       summary: {
         totalRevenue: revenue,
+        costOfMedicinesSold: cogs,
         cogs,
         grossProfit,
         grossMargin,

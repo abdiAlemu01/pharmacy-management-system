@@ -8,7 +8,6 @@ export const ExpenseReportsTab = ({
   startDate,
   endDate,
   currencySymbol = 'Birr',
-  onCardClick,
 }) => {
   const { formatDate, calendarType } = useAppDate();
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -52,10 +51,7 @@ export const ExpenseReportsTab = ({
       {/* 1. Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Expenses */}
-        <div
-          onClick={() => onCardClick?.('EXP_TOTAL', { summary, byCategory, expenses })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Total Operating Expenses</span>
@@ -76,10 +72,7 @@ export const ExpenseReportsTab = ({
         </div>
 
         {/* Paid Expenses */}
-        <div
-          onClick={() => onCardClick?.('EXP_PAID', { summary, byCategory, expenses })}
-          className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Paid Expenses</span>
@@ -100,10 +93,7 @@ export const ExpenseReportsTab = ({
         </div>
 
         {/* Unpaid / Due Expenses */}
-        <div
-          onClick={() => onCardClick?.('EXP_DUE', { summary, byCategory, expenses })}
-          className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Outstanding Expenses Due</span>
@@ -124,10 +114,7 @@ export const ExpenseReportsTab = ({
         </div>
 
         {/* Settled Ratio / Categories */}
-        <div
-          onClick={() => onCardClick?.('EXP_CATEGORIES', { summary, byCategory, expenses })}
-          className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Payment Clearance</span>

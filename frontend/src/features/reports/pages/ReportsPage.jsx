@@ -22,7 +22,6 @@ import { InventoryReportsTab } from '../components/InventoryReportsTab';
 import { PurchaseReportsTab } from '../components/PurchaseReportsTab';
 import { ExpenseReportsTab } from '../components/ExpenseReportsTab';
 import { MedicinePerformanceTab } from '../components/MedicinePerformanceTab';
-import { ReportCardContentModal } from '../components/ReportCardContentModal';
 
 export const ReportsPage = () => {
   const { data: settingsData } = useSettings();
@@ -37,25 +36,6 @@ export const ReportsPage = () => {
   const [period, setPeriod] = useState('month');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-
-  // Modal State for card click details
-  const [modalConfig, setModalConfig] = useState({
-    isOpen: false,
-    cardKey: null,
-    cardData: {},
-  });
-
-  const handleOpenModal = (cardKey, cardData) => {
-    setModalConfig({
-      isOpen: true,
-      cardKey,
-      cardData: cardData || {},
-    });
-  };
-
-  const handleCloseModal = () => {
-    setModalConfig((prev) => ({ ...prev, isOpen: false }));
-  };
 
   // Overview quick KPIs
   const { data: overview, isLoading: isOverviewLoading } = useReportsOverview();
@@ -300,7 +280,6 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
 
@@ -310,7 +289,6 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
 
@@ -320,7 +298,6 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
 
@@ -330,7 +307,6 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
 
@@ -340,7 +316,6 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
 
@@ -350,19 +325,9 @@ export const ReportsPage = () => {
             startDate={startDate}
             endDate={endDate}
             currencySymbol={currencySymbol}
-            onCardClick={handleOpenModal}
           />
         )}
       </div>
-
-      {/* 6. Card Detailed Content Modal */}
-      <ReportCardContentModal
-        isOpen={modalConfig.isOpen}
-        onClose={handleCloseModal}
-        cardKey={modalConfig.cardKey}
-        cardData={modalConfig.cardData}
-        currencySymbol={currencySymbol}
-      />
     </div>
   );
 };

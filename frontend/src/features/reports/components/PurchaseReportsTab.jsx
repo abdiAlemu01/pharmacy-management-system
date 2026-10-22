@@ -17,7 +17,6 @@ export const PurchaseReportsTab = ({
   startDate,
   endDate,
   currencySymbol = 'Birr',
-  onCardClick,
 }) => {
   const { formatDate, calendarType } = useAppDate();
   const [subView, setSubView] = useState('suppliers'); // 'suppliers' | 'medicines' | 'orders'
@@ -42,10 +41,7 @@ export const PurchaseReportsTab = ({
       {/* 1. Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Purchase Cost */}
-        <div
-          onClick={() => onCardClick?.('PUR_TOTAL', { summary, suppliers, medicinesPurchased, orders })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Total Purchase Cost</span>
@@ -66,10 +62,7 @@ export const PurchaseReportsTab = ({
         </div>
 
         {/* Total Amount Paid */}
-        <div
-          onClick={() => onCardClick?.('PUR_PAID', { summary, suppliers, medicinesPurchased, orders })}
-          className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Settled to Suppliers</span>
@@ -90,10 +83,7 @@ export const PurchaseReportsTab = ({
         </div>
 
         {/* Outstanding Supplier Balances Due */}
-        <div
-          onClick={() => onCardClick?.('PUR_DEBT', { summary, suppliers, medicinesPurchased, orders })}
-          className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Supplier Debt (Due)</span>
@@ -114,10 +104,7 @@ export const PurchaseReportsTab = ({
         </div>
 
         {/* Suppliers Involved */}
-        <div
-          onClick={() => onCardClick?.('PUR_SUPPLIERS', { summary, suppliers, medicinesPurchased, orders })}
-          className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Active Suppliers</span>

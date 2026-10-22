@@ -18,7 +18,6 @@ export const InventoryReportsTab = ({
   startDate,
   endDate,
   currencySymbol = 'Birr',
-  onCardClick,
 }) => {
   const { formatDate, calendarType } = useAppDate();
   const [activeSection, setActiveSection] = useState('low-stock'); // 'low-stock' | 'expired' | 'soon-expiring' | 'adjustments'
@@ -44,10 +43,7 @@ export const InventoryReportsTab = ({
       {/* 1. Inventory Valuation Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Cost Value (Capital invested) */}
-        <div
-          onClick={() => onCardClick?.('INV_VALUATION', { summary, lowStockList, expiredList, soonExpiringList, adjustments })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Capital in Stock (Cost)</span>
@@ -68,10 +64,7 @@ export const InventoryReportsTab = ({
         </div>
 
         {/* Potential Retail Value */}
-        <div
-          onClick={() => onCardClick?.('INV_RETAIL', { summary, lowStockList, expiredList, soonExpiringList, adjustments })}
-          className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Retail Sales Value</span>
@@ -92,10 +85,7 @@ export const InventoryReportsTab = ({
         </div>
 
         {/* Low Stock Alerts */}
-        <div
-          onClick={() => onCardClick?.('INV_LOW_STOCK', { summary, lowStockList, expiredList, soonExpiringList, adjustments })}
-          className="p-4 bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Low & Out-of-Stock</span>
@@ -116,10 +106,7 @@ export const InventoryReportsTab = ({
         </div>
 
         {/* Expiration Risk */}
-        <div
-          onClick={() => onCardClick?.('INV_EXPIRY', { summary, lowStockList, expiredList, soonExpiringList, adjustments })}
-          className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Expiry Vulnerability</span>

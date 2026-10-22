@@ -7,7 +7,6 @@ export const MedicinePerformanceTab = ({
   startDate,
   endDate,
   currencySymbol = 'Birr',
-  onCardClick,
 }) => {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState('all'); // 'all' | 'best' | 'slow'
@@ -57,10 +56,7 @@ export const MedicinePerformanceTab = ({
       {/* 1. Performance Overview KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Total Sold Units */}
-        <div
-          onClick={() => onCardClick?.('PERF_UNITS', { summary, allMedicines, bestSelling, slowMoving })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs transition-all select-none">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Total Units Dispensed</span>
             <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-transform group-hover:scale-110">
@@ -77,10 +73,7 @@ export const MedicinePerformanceTab = ({
         </div>
 
         {/* Revenue Generated */}
-        <div
-          onClick={() => onCardClick?.('PERF_REVENUE', { summary, allMedicines, bestSelling, slowMoving })}
-          className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl shadow-2xs transition-all select-none">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Revenue Generated</span>
             <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110">
@@ -99,10 +92,7 @@ export const MedicinePerformanceTab = ({
         </div>
 
         {/* Profit Generated */}
-        <div
-          onClick={() => onCardClick?.('PERF_PROFIT', { summary, allMedicines, bestSelling, slowMoving })}
-          className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-900/60 rounded-2xl shadow-2xs transition-all select-none">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Gross Margin Generated</span>
             <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110">
@@ -121,10 +111,7 @@ export const MedicinePerformanceTab = ({
         </div>
 
         {/* Active Products Ratio */}
-        <div
-          onClick={() => onCardClick?.('PERF_TURNOVER', { summary, allMedicines, bestSelling, slowMoving })}
-          className="p-4 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 rounded-2xl shadow-2xs transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 rounded-2xl shadow-2xs transition-all select-none">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Active Turnover Ratio</span>
             <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110">

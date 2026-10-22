@@ -6,13 +6,11 @@ export const FinancialReportsTab = ({
   startDate,
   endDate,
   currencySymbol = 'Birr',
-  onCardClick,
 }) => {
   const { data, isLoading } = useFinancialReports({ period, startDate, endDate });
 
   const summary = data?.summary || {};
   const comparisons = data?.comparisons || {};
-  const dailyBreakdown = data?.dailyBreakdown || [];
 
   const formatAmount = (num) => {
     return parseFloat(Number(num || 0).toFixed(2)).toLocaleString(undefined, {
@@ -28,10 +26,7 @@ export const FinancialReportsTab = ({
       {/* 1. Quick Timeframe Profit Comparison Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Today */}
-        <div
-          onClick={() => onCardClick?.('FIN_TODAY', { dailyBreakdown, summary, comparisons })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Profit</span>
@@ -59,10 +54,7 @@ export const FinancialReportsTab = ({
         </div>
 
         {/* This Week */}
-        <div
-          onClick={() => onCardClick?.('FIN_WEEK', { dailyBreakdown, summary, comparisons })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Weekly Profit</span>
@@ -90,10 +82,7 @@ export const FinancialReportsTab = ({
         </div>
 
         {/* This Month */}
-        <div
-          onClick={() => onCardClick?.('FIN_MONTH', { dailyBreakdown, summary, comparisons })}
-          className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Monthly Profit</span>
@@ -121,10 +110,7 @@ export const FinancialReportsTab = ({
         </div>
 
         {/* Selected Period (Custom or Preset) */}
-        <div
-          onClick={() => onCardClick?.('FIN_NET', { dailyBreakdown, summary, comparisons })}
-          className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none"
-        >
+        <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-all select-none">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">

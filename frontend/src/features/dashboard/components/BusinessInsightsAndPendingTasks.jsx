@@ -58,9 +58,6 @@ export const BusinessInsightsAndPendingTasks = ({
             <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
               Business Insights & Pending Tasks
             </h3>
-            <p className="text-xs text-slate-400">
-              Proactive alerts and tasks owners often overlook
-            </p>
           </div>
         </div>
 

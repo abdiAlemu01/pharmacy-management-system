@@ -8,7 +8,6 @@ import { QuickActions } from '../components/QuickActions';
 import { SalesAndProfitAnalytics } from '../components/SalesAndProfitAnalytics';
 import { StockAndExpiryAlerts } from '../components/StockAndExpiryAlerts';
 import { RecentSalesAndPurchases } from '../components/RecentSalesAndPurchases';
-import { BusinessInsightsAndPendingTasks } from '../components/BusinessInsightsAndPendingTasks';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export const DashboardPage = () => {
@@ -120,13 +119,6 @@ export const DashboardPage = () => {
       <RecentSalesAndPurchases
         recentSales={summaryData?.recentRecords?.recentSales}
         recentPurchases={summaryData?.recentRecords?.recentPurchases}
-        currencySymbol={currencySymbol}
-        isLoading={isLoading}
-      />
-
-      {/* 5. Business Insights & Pending Tasks Panel */}
-      <BusinessInsightsAndPendingTasks
-        insights={summaryData?.businessInsightsAndPendingTasks}
         currencySymbol={currencySymbol}
         isLoading={isLoading}
       />

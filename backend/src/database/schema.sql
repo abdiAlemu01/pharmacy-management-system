@@ -1,7 +1,4 @@
--- ============================================================
--- Pharmacy Management System - Full Database Schema Migration
--- Safe to run multiple times (CREATE TABLE IF NOT EXISTS)
--- ============================================================
+
 
 -- 1. User table
 CREATE TABLE IF NOT EXISTS "User" (

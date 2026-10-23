@@ -51,9 +51,6 @@ export const RecentSalesAndPurchases = ({
             <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
               Recent Sales & Purchases
             </h3>
-            <p className="text-xs text-slate-400">
-              Latest operational transaction records
-            </p>
           </div>
         </div>
 

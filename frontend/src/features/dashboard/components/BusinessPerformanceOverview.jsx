@@ -105,7 +105,7 @@ export const BusinessPerformanceOverview = ({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          1. Business Performance Overview
+           Business Performance Overview
         </h2>
         <span className="text-xs text-slate-400 font-medium">Updated live from sales & finance</span>
       </div>

@@ -80,9 +80,9 @@ export const QuickActions = () => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          2. Quick Actions & Shortcuts
+         Quick Actions & Shortcuts
         </h2>
-        <span className="text-xs text-slate-400 font-medium">1-Click operational tasks</span>
+        <span className="text-xs text-slate-400 font-medium">Click operational tasks</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">

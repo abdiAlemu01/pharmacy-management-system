@@ -2,15 +2,10 @@ import React, { useState } from 'react';
 import {
   Calendar,
   RefreshCw,
-  Sparkles,
-  ChevronDown,
-  Clock,
-  Building2,
 } from 'lucide-react';
 
 export const DashboardHeader = ({
   user,
-  pharmacyName = 'Pharmacy Care',
   period = '7d',
   onPeriodChange,
   startDate = '',
@@ -29,13 +24,6 @@ export const DashboardHeader = ({
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
   };
-
-  const formattedDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 
   const handlePresetClick = (p) => {
     if (p === 'custom') {
@@ -56,34 +44,12 @@ export const DashboardHeader = ({
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-      {/* Top Row: Welcome & Pharmacy Branding */}
+      {/* Top Row: Welcome Header & Action Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              {getGreeting()}, {user?.firstName || user?.name || 'Pharmacist'}! 👋
-            </h1>
-            <span className="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-              {user?.role || 'PHARMACIST'}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-500 dark:text-slate-400">
-            <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-              {pharmacyName}
-            </span>
-            <span>&bull;</span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              {formattedDate}
-            </span>
-            <span>&bull;</span>
-            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              All Systems Operational
-            </span>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+            {getGreeting()}, {user?.firstName || user?.name || 'Staff'}! 👋
+          </h1>
         </div>
 
         {/* Action Controls & Refresh */}

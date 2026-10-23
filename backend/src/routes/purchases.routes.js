@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PurchasesController } from '../controller/purchases.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 import { validateRequest } from '../middleware/validate-request.middleware.js';
 import {
   createPurchaseSchema,
@@ -12,8 +13,9 @@ import {
 
 const router = Router();
 
-// Require authentication for all purchase routes
+// Require authentication & Role access: Admin and Inventor
 router.use(authenticate);
+router.use(authorize('ADMIN', 'INVENTOR'));
 
 // 1. Get purchase summary and reports
 router.get('/summary', PurchasesController.getPurchasesSummary);

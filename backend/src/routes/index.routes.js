@@ -9,11 +9,15 @@ import expensesRoutes from './expenses.routes.js';
 import settingsRoutes from './settings.routes.js';
 import reportsRoutes from './reports.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import userRoutes from './user.routes.js';
 
 const router = Router();
 
 // Mount Auth routes
 router.use('/auth', authRoutes);
+
+// Mount Users management routes
+router.use('/users', userRoutes);
 
 // Mount Medicines routes
 router.use('/medicines', medicinesRoutes);

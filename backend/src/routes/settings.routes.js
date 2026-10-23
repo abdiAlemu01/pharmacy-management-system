@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { SettingsController } from '../controller/settings.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 import { validateRequest } from '../middleware/validate-request.middleware.js';
+import userRoutes from './user.routes.js';
 import {
   updatePharmacySchema,
   updateAccountSchema,
@@ -12,8 +14,12 @@ import {
 
 const router = Router();
 
-// Protect all settings endpoints with authentication
+// Protect all settings endpoints with authentication & Admin-only authorization
 router.use(authenticate);
+router.use(authorize('ADMIN'));
+
+// User Management Sub-router (/settings/users)
+router.use('/users', userRoutes);
 
 // 1. Get all settings & user profile
 router.get('/', SettingsController.getSettings);

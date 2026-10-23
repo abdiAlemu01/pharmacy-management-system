@@ -69,9 +69,16 @@ export class AuthService {
       throw error;
     }
 
+    // 2.1 Verify account status
+    if (user.status === 'INACTIVE' || user.isActive === false) {
+      const error = new Error('Your account is deactivated. Please contact an administrator.');
+      error.statusCode = 403;
+      throw error;
+    }
+
     // 3. Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, status: user.status || 'ACTIVE' },
       envConfig.jwtSecret,
       { expiresIn: envConfig.jwtExpiresIn }
     );

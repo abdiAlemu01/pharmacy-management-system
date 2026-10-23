@@ -33,17 +33,24 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
     navigate('/login');
   };
 
-  const navItems = [
-    { to: '/dashboard', label: t('nav.dashboard', 'Dashboard'), icon: LayoutDashboard },
-    { to: '/medicines', label: t('nav.medicines', 'Medicines'), icon: Pill },
-    { to: '/inventory', label: t('nav.inventory', 'Inventory'), icon: Boxes },
-    { to: '/suppliers', label: t('nav.suppliers', 'Suppliers'), icon: Truck },
-    { to: '/purchases', label: t('nav.purchases', 'Purchases'), icon: ShoppingBag },
-    { to: '/expenses', label: t('nav.expenses', 'Expenses'), icon: Receipt },
-    { to: '/sales', label: t('nav.sales', 'Sales / POS'), icon: ShoppingCart },
-    { to: '/reports', label: t('nav.reports', 'Reports'), icon: BarChart3 },
-    { to: '/settings', label: t('nav.settings', 'Settings'), icon: Settings },
+  const userRole = (user?.role || 'ADMIN').toUpperCase();
+
+  const allNavItems = [
+    { to: '/dashboard', label: t('nav.dashboard', 'Dashboard'), icon: LayoutDashboard, roles: ['ADMIN'] },
+    { to: '/medicines', label: t('nav.medicines', 'Medicines'), icon: Pill, roles: ['ADMIN', 'INVENTOR'] },
+    { to: '/inventory', label: t('nav.inventory', 'Inventory'), icon: Boxes, roles: ['ADMIN', 'INVENTOR'] },
+    { to: '/suppliers', label: t('nav.suppliers', 'Suppliers'), icon: Truck, roles: ['ADMIN', 'INVENTOR'] },
+    { to: '/purchases', label: t('nav.purchases', 'Purchases'), icon: ShoppingBag, roles: ['ADMIN', 'INVENTOR'] },
+    { to: '/expenses', label: t('nav.expenses', 'Expenses'), icon: Receipt, roles: ['ADMIN'] },
+    { to: '/sales', label: t('nav.sales', 'Sales / POS'), icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { to: '/reports', label: t('nav.reports', 'Reports'), icon: BarChart3, roles: ['ADMIN'] },
+    { to: '/settings', label: t('nav.settings', 'Settings'), icon: Settings, roles: ['ADMIN'] },
   ];
+
+  const navItems = allNavItems.filter((item) => {
+    if (userRole === 'PHARMACIST') return true;
+    return item.roles.includes(userRole);
+  });
 
   const sidebarContent = (
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full">

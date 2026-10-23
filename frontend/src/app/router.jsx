@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/shared/layouts/AppLayout';
 import { AuthLayout } from '@/shared/layouts/AuthLayout';
-import { ProtectedRoute, GuestRoute } from './route-guards';
+import { ProtectedRoute, GuestRoute, RoleRoute, getDefaultHomeForRole } from './route-guards';
+import { useAuth } from '@/features/auth';
 
 // Features Pages
 import { DashboardPage } from '@/features/dashboard';
@@ -15,11 +16,24 @@ import { ExpensesPage } from '@/features/expenses';
 import { SettingsPage } from '@/features/settings';
 import { ReportsPage } from '@/features/reports';
 
+/**
+ * Redirects authenticated root visits to the user's role-appropriate home
+ */
+const RootRedirect = () => {
+  const token = useAuth((state) => state.token);
+  const user = useAuth((state) => state.user);
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Navigate to={getDefaultHomeForRole(user?.role)} replace />;
+};
+
 export const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Guest Routes: Default landing page is /login */}
+        {/* Guest Routes: Unauthenticated users */}
         <Route element={<GuestRoute />}>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -32,25 +46,36 @@ export const AppRouter = () => {
         {/* Protected Application Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/medicines" element={<MedicinesPage />} />
-            <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/suppliers" element={<SuppliersPage />} />
-            <Route path="/suppliers/new" element={<CreateSupplierPage />} />
-            <Route path="/suppliers/:id" element={<SupplierDetailsPage />} />
-            <Route path="/purchases" element={<PurchasesPage />} />
-            <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/sales" element={<SalesPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            {/* 1. Admin-Only Features (Dashboard, Expenses, Reports, Settings) */}
+            <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/expenses" element={<ExpensesPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+
+            {/* 2. Inventory Features (Admin & Inventor) */}
+            <Route element={<RoleRoute allowedRoles={['ADMIN', 'INVENTOR']} />}>
+              <Route path="/medicines" element={<MedicinesPage />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/suppliers/new" element={<CreateSupplierPage />} />
+              <Route path="/suppliers/:id" element={<SupplierDetailsPage />} />
+              <Route path="/purchases" element={<PurchasesPage />} />
+            </Route>
+
+            {/* 3. Sales Feature (Admin & Cashier) */}
+            <Route element={<RoleRoute allowedRoles={['ADMIN', 'CASHIER']} />}>
+              <Route path="/sales" element={<SalesPage />} />
+            </Route>
           </Route>
         </Route>
 
-        {/* Root redirect: Unauthenticated users land on /login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Root redirect: Takes authenticated user to their role home, or /login */}
+        <Route path="/" element={<RootRedirect />} />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<RootRedirect />} />
       </Routes>
     </BrowserRouter>
   );

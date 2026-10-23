@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { MedicinesController } from '../controller/medicines.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 import { validateRequest } from '../middleware/validate-request.middleware.js';
 import {
   createMedicineSchema,
@@ -11,8 +12,9 @@ import {
 
 const router = Router();
 
-// Apply authentication to all medicines endpoints
+// Apply authentication & Role access: Admin and Inventor
 router.use(authenticate);
+router.use(authorize('ADMIN', 'INVENTOR'));
 
 // 1. Create a new medicine
 router.post(

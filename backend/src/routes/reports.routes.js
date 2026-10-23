@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { ReportsController } from '../controller/reports.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 
 const router = Router();
 
-// Protect all report endpoints
+// Protect all report endpoints: Admin only
 router.use(authenticate);
+router.use(authorize('ADMIN'));
 
 // 1. High-level Overview Metrics
 router.get('/overview', ReportsController.getOverview);

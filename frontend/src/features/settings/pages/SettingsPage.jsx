@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Bell,
   Palette,
+  Users,
   CheckCircle2,
   AlertCircle,
   HelpCircle,
@@ -17,6 +18,7 @@ import { PharmacyInfoTab } from '../components/PharmacyInfoTab';
 import { AccountSecurityTab } from '../components/AccountSecurityTab';
 import { NotificationsAlertsTab } from '../components/NotificationsAlertsTab';
 import { GeneralPreferencesTab } from '../components/GeneralPreferencesTab';
+import { UserManagementTab } from '../components/UserManagementTab';
 import { SUPPORTED_LANGUAGES } from '@/shared/lib/i18n';
 
 export const SettingsPage = () => {
@@ -87,6 +89,13 @@ export const SettingsPage = () => {
       icon: Palette,
       description: '',
     },
+    {
+      id: 'users',
+      label: t('settings.tabs.users', 'Staff & User Management'),
+      shortLabel: 'Staff',
+      icon: Users,
+      description: '',
+    },
   ];
 
   return (
@@ -112,7 +121,7 @@ export const SettingsPage = () => {
       )}
 
       {/* Tabs Navigation Bar */}
-      <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-slate-100/70 dark:bg-slate-800/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 sm:gap-1.5 bg-slate-100/70 dark:bg-slate-800/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -162,6 +171,8 @@ export const SettingsPage = () => {
         {activeTab === 'preferences' && (
           <GeneralPreferencesTab settings={settings} isLoading={isLoading} />
         )}
+
+        {activeTab === 'users' && <UserManagementTab />}
       </div>
     </div>
   );

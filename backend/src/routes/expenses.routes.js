@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { ExpensesController } from '../controller/expenses.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 
 const router = Router();
 
-// Protect all expense routes
+// Protect all expense routes: Admin only
 router.use(authenticate);
+router.use(authorize('ADMIN'));
 
 // 1. Summary Cards
 router.get('/summary', ExpensesController.getSummary);

@@ -5,6 +5,7 @@ import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { loginApi } from '../api/auth.api';
 import { useAuth } from '../hooks/use-auth';
+import { getDefaultHomeForRole } from '@/app/route-guards';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -58,7 +59,8 @@ export const LoginForm = () => {
       const response = await loginApi(formData);
       if (response.success) {
         setAuth(response.data.user, response.data.token);
-        navigate('/dashboard');
+        const targetPath = getDefaultHomeForRole(response.data.user?.role);
+        navigate(targetPath);
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please check your credentials.';

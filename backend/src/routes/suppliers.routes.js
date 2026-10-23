@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { SuppliersController } from '../controller/suppliers.controller.js';
 import { authenticate } from '../middleware/authenticate.middleware.js';
+import { authorize } from '../middleware/authorize.middleware.js';
 import { validateRequest } from '../middleware/validate-request.middleware.js';
 import {
   createSupplierSchema,
@@ -11,8 +12,9 @@ import {
 
 const router = Router();
 
-// Require authentication for all supplier endpoints
+// Require authentication & Role access: Admin and Inventor
 router.use(authenticate);
+router.use(authorize('ADMIN', 'INVENTOR'));
 
 // 1. List suppliers with search, filter, and pagination
 router.get('/', validateRequest(getSuppliersQuerySchema), SuppliersController.getSuppliers);

@@ -157,46 +157,52 @@ export class DashboardService {
     const highestDay = salesTrend7Days.reduce((prev, curr) => (curr.sales > prev.sales ? curr : prev), salesTrend7Days[0] || { sales: 0, dayName: 'N/A' });
 
     // 6. Query 5: Feature source Inventory: Stock Distribution Donut (Excess, Normal, Low)
+    // Matches InventoryService.getSummary() exact logic:
+    // Low: quantity <= 10 (1-10 units + 0 out of stock)
+    // Excess: quantity >= 100 units
+    // Normal: quantity between 11 and 99 units
     const stockRes = await db.query(`
       SELECT
-        COALESCE(SUM(CASE WHEN m.quantity <= COALESCE(m."reorderLevel", 10) THEN 1 ELSE 0 END), 0)::int as "lowStock",
-        COALESCE(SUM(CASE WHEN m.quantity > COALESCE(m."targetStockLevel", 50) THEN 1 ELSE 0 END), 0)::int as "excessStock",
-        COALESCE(SUM(CASE 
-          WHEN m.quantity > COALESCE(m."reorderLevel", 10) 
-           AND m.quantity <= COALESCE(m."targetStockLevel", 50) 
-          THEN 1 ELSE 0 
-        END), 0)::int as "normalStock",
-        COUNT(m.id)::int as "totalMedicines"
-      FROM "Medicine" m
+        COUNT(*)::int as "totalMedicines",
+        COALESCE(SUM(quantity), 0)::int as "totalUnits",
+        COALESCE(SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END), 0)::int as "outOfStockCount",
+        COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
+        COALESCE(SUM(CASE WHEN quantity >= 100 THEN 1 ELSE 0 END), 0)::int as "excessStockCount",
+        COALESCE(SUM(CASE WHEN quantity > 10 AND quantity < 100 THEN 1 ELSE 0 END), 0)::int as "normalStockCount"
+      FROM "Medicine"
     `);
     const stockRow = stockRes.rows[0] || {};
     const totalMeds = parseInt(stockRow.totalMedicines || 0, 10);
-    const excessCount = parseInt(stockRow.excessStock || 0, 10);
-    const normalCount = parseInt(stockRow.normalStock || 0, 10);
-    const lowCount = parseInt(stockRow.lowStock || 0, 10);
+    const totalUnits = parseInt(stockRow.totalUnits || 0, 10);
+    const excessCount = parseInt(stockRow.excessStockCount || 0, 10);
+    const normalCount = parseInt(stockRow.normalStockCount || 0, 10);
+    const lowCount = parseInt(stockRow.lowStockCount || 0, 10) + parseInt(stockRow.outOfStockCount || 0, 10);
+    const outOfStockCount = parseInt(stockRow.outOfStockCount || 0, 10);
 
     const stockDistribution = {
       total: totalMeds,
+      totalUnits,
+      outOfStockCount,
       excess: {
         count: excessCount,
         percentage: totalMeds > 0 ? parseFloat(((excessCount / totalMeds) * 100).toFixed(1)) : 0,
         label: 'Excess Stock',
-        description: 'Stock > Target Level (> 50 units)',
-        color: '#10b981', // emerald-500
+        description: 'Excess stock (≥ 100 units)',
+        color: '#6366f1', // indigo-500
       },
       normal: {
         count: normalCount,
         percentage: totalMeds > 0 ? parseFloat(((normalCount / totalMeds) * 100).toFixed(1)) : 0,
         label: 'Normal Stock',
-        description: 'Optimal stock levels (11 - 50 units)',
-        color: '#3b82f6', // blue-500
+        description: 'Normal stock levels (11 - 99 units)',
+        color: '#10b981', // emerald-500
       },
       low: {
         count: lowCount,
         percentage: totalMeds > 0 ? parseFloat(((lowCount / totalMeds) * 100).toFixed(1)) : 0,
         label: 'Low in Stock',
-        description: 'Reorder threshold (<= 10 units)',
-        color: '#f43f5e', // rose-500
+        description: 'Low stock threshold (≤ 10 units)',
+        color: '#f59e0b', // amber-500
       },
     };
 

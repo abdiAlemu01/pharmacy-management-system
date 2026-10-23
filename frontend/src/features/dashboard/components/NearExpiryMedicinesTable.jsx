@@ -87,10 +87,10 @@ export const NearExpiryMedicinesTable = ({ medicines = [] }) => {
                     {/* Stock */}
                     <td className="py-3 px-3 text-center">
                       <span className="font-extrabold text-slate-900 dark:text-white">
-                        {med.batchStock}
+                        {med.totalStock}
                       </span>
                       <span className="text-[10px] text-slate-400 block">
-                        units
+                        units in stock
                       </span>
                     </td>
 

@@ -113,13 +113,13 @@ export const TopSoldMedicinesTable = ({
                       <span
                         className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                           med.currentStock <= 10
-                            ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300'
-                            : med.currentStock > 50
-                            ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
+                            ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
+                            : med.currentStock >= 100
+                            ? 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300'
+                            : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
                         }`}
                       >
-                        {med.currentStock} left
+                        {med.currentStock} in stock
                       </span>
                     </td>
                   </tr>

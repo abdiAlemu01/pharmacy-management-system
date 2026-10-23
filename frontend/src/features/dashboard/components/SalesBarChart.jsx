@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Calendar, Info } from 'lucide-react';
+import { TrendingUp, Calendar } from 'lucide-react';
 
 export const SalesBarChart = ({
   salesTrend,
@@ -93,19 +93,6 @@ export const SalesBarChart = ({
             );
           })}
         </div>
-      </div>
-
-      {/* Footer info note */}
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <div className="flex items-center gap-1.5">
-          <Info className="w-3.5 h-3.5 text-slate-400" />
-          <span>Hover over any bar to view exact sales count and profit.</span>
-        </div>
-        {highestDay && highestDay.sales > 0 && (
-          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-            Peak: {highestDay.dayName} ({formatCurrency(highestDay.sales)})
-          </span>
-        )}
       </div>
     </div>
   );

@@ -1,38 +1,21 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, Calendar, Store, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { LayoutDashboard, Calendar, Store, AlertCircle, RefreshCw } from 'lucide-react';
 import { useDashboardSummary } from '../hooks/use-dashboard';
 import { useSettings } from '@/features/settings/hooks/use-settings';
 import { DashboardStatsCards } from '../components/DashboardStatsCards';
-import { DashboardDateFilter } from '../components/DashboardDateFilter';
 import { SalesBarChart } from '../components/SalesBarChart';
 import { InventoryDonutChart } from '../components/InventoryDonutChart';
 import { TopSoldMedicinesTable } from '../components/TopSoldMedicinesTable';
 import { NearExpiryMedicinesTable } from '../components/NearExpiryMedicinesTable';
 
 export const DashboardPage = () => {
-  // Date filter state
-  const [period, setPeriod] = useState('week');
-  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
-
   // Settings for currency symbol
   const { data: settingsData } = useSettings();
   const currencySymbol = settingsData?.settings?.currencySymbol || 'ETB';
   const pharmacyName = settingsData?.settings?.pharmacyName || 'Pharmacy Management';
 
   // Dashboard API Query
-  const { data, isLoading, error, refetch, isFetching } = useDashboardSummary({
-    period,
-    startDate: period === 'custom' ? dateRange.startDate : undefined,
-    endDate: period === 'custom' ? dateRange.endDate : undefined,
-  });
-
-  const handlePeriodChange = (newPeriod) => {
-    setPeriod(newPeriod);
-  };
-
-  const handleDateChange = (range) => {
-    setDateRange(range);
-  };
+  const { data, isLoading, error, refetch, isFetching } = useDashboardSummary();
 
   const todayData = data?.today || {};
   const periodData = data?.period || {};
@@ -56,30 +39,32 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Live Date Badge */}
-        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-2xs">
-          <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>
-            {new Date().toLocaleDateString(undefined, {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
+        {/* Live Date Badge & Refresh Action */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-2xs">
+            <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              {new Date().toLocaleDateString(undefined, {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer shadow-2xs"
+            title="Refresh dashboard data"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-emerald-600' : ''}`} />
+            <span>{isFetching ? 'Updating...' : 'Refresh'}</span>
+          </button>
         </div>
       </div>
-
-      {/* 2. Interactive Date Range Filter */}
-      <DashboardDateFilter
-        period={period}
-        startDate={dateRange.startDate}
-        endDate={dateRange.endDate}
-        onPeriodChange={handlePeriodChange}
-        onDateChange={handleDateChange}
-        onRefresh={() => refetch()}
-        isLoading={isFetching}
-      />
 
       {/* Error state */}
       {error && (
@@ -89,7 +74,7 @@ export const DashboardPage = () => {
         </div>
       )}
 
-      {/* 3. 4 Key Stats Cards */}
+      {/* 2. 4 Key Stats Cards */}
       <DashboardStatsCards
         today={todayData}
         mostSoldMedicine={mostSoldMedicine}

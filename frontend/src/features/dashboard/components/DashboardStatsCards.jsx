@@ -69,18 +69,18 @@ export const DashboardStatsCards = ({
         </div>
       </div>
 
-      {/* 3. Most Sold Medicine */}
+      {/* 3. Today's Most Sold Medicine */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0 flex-1">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Most Sold Medicine
+              Today's Most Sold Medicine
             </span>
             <div
               className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white truncate"
-              title={mostSoldMedicine?.name || 'No sales yet'}
+              title={mostSoldMedicine?.name || 'No sales yet today'}
             >
-              {mostSoldMedicine?.name || 'No sales yet'}
+              {mostSoldMedicine?.name || 'No sales yet today'}
             </div>
           </div>
           <div className="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-2xs">
@@ -89,25 +89,25 @@ export const DashboardStatsCards = ({
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-          <span className="text-slate-500 dark:text-slate-400 font-medium">Units sold</span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">Units sold today</span>
           <span className="inline-flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg bg-amber-100/80 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300">
             {mostSoldMedicine ? `${mostSoldMedicine.quantitySold} units` : '0 units'}
           </span>
         </div>
       </div>
 
-      {/* 4. Most Profitable Medicine */}
+      {/* 4. Today's Most Profitable Medicine */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0 flex-1">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Most Profitable Medicine
+              Today's Most Profitable Medicine
             </span>
             <div
               className="text-lg sm:text-xl font-extrabold text-purple-700 dark:text-purple-300 truncate"
-              title={mostProfitableMedicine?.name || 'No sales yet'}
+              title={mostProfitableMedicine?.name || 'No sales yet today'}
             >
-              {mostProfitableMedicine?.name || 'No sales yet'}
+              {mostProfitableMedicine?.name || 'No sales yet today'}
             </div>
           </div>
           <div className="w-11 h-11 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-2xs">
@@ -116,9 +116,9 @@ export const DashboardStatsCards = ({
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-          <span className="text-slate-500 dark:text-slate-400 font-medium">Profit generated</span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">Profit today</span>
           <span className="inline-flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg bg-purple-100/80 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300">
-            {mostProfitableMedicine ? formatCurrency(mostProfitableMedicine.totalProfit) : '0.00'}
+            {mostProfitableMedicine ? formatCurrency(mostProfitableMedicine.totalProfit) : formatCurrency(0)}
           </span>
         </div>
       </div>

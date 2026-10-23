@@ -114,7 +114,7 @@ export const TopSoldMedicinesTable = ({
                         className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                           med.currentStock <= 10
                             ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
-                            : med.currentStock >= 100
+                            : med.currentStock > 50
                             ? 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300'
                             : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
                         }`}

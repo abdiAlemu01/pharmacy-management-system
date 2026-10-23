@@ -6,13 +6,13 @@ export class InventoryService {
    * Determine stock status based on quantity:
    * - 0: OUT_OF_STOCK
    * - 1 - 10: LOW_STOCK
-   * - >= 100: EXCESS_STOCK
-   * - 11 - 99: NORMAL
+   * - > 50: EXCESS_STOCK
+   * - 11 - 50: NORMAL
    */
   getStockStatus(quantity) {
     if (quantity <= 0) return 'OUT_OF_STOCK';
     if (quantity <= 10) return 'LOW_STOCK';
-    if (quantity >= 100) return 'EXCESS_STOCK';
+    if (quantity > 50) return 'EXCESS_STOCK';
     return 'NORMAL';
   }
 
@@ -73,7 +73,7 @@ export class InventoryService {
         COALESCE(SUM(quantity * "sellingPrice"), 0)::numeric as "totalSellingValue",
         COALESCE(SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END), 0)::int as "outOfStockCount",
         COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
-        COALESCE(SUM(CASE WHEN quantity >= 100 THEN 1 ELSE 0 END), 0)::int as "excessStockCount"
+        COALESCE(SUM(CASE WHEN quantity > 50 THEN 1 ELSE 0 END), 0)::int as "excessStockCount"
       FROM "Medicine"
     `);
 

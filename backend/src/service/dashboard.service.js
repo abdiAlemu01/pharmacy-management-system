@@ -13,6 +13,12 @@ export class DashboardService {
     if (startDate && endDate) {
       filterParams.push(startDate, `${endDate} 23:59:59`);
       filterCondition = `s."createdAt" >= $1 AND s."createdAt" <= $2`;
+    } else if (startDate && !endDate) {
+      filterParams.push(startDate);
+      filterCondition = `s."createdAt" >= $1`;
+    } else if (!startDate && endDate) {
+      filterParams.push(`${endDate} 23:59:59`);
+      filterCondition = `s."createdAt" <= $1`;
     } else if (period === 'today') {
       filterCondition = `s."createdAt" >= CURRENT_DATE AND s."createdAt" < CURRENT_DATE + INTERVAL '1 day'`;
     } else if (period === 'month') {
@@ -113,12 +119,57 @@ export class DashboardService {
       currentStock: parseInt(row.currentStock || 0, 10),
     }));
 
-    // Find most sold medicine
-    const mostSoldMedicine = topSellingMedicines.length > 0 ? topSellingMedicines[0] : null;
-
-    // Find most profitable medicine
+    // Find most sold medicine in period/overall
     const sortedByProfit = [...topSellingMedicines].sort((a, b) => b.totalProfit - a.totalProfit);
-    const mostProfitableMedicine = sortedByProfit.length > 0 ? sortedByProfit[0] : null;
+
+    // Query Today's top sold & profitable medicines specifically for Today's Stats Cards
+    const todayTopMedsRes = await db.query(`
+      SELECT 
+        m.id,
+        m.name,
+        COALESCE(c.name, 'General') as category,
+        COALESCE(SUM(si.quantity), 0)::int as "quantitySold",
+        COALESCE(SUM(si.quantity * si."unitPrice"), 0)::numeric as "totalRevenue",
+        COALESCE(SUM((si."unitPrice" - COALESCE(si."purchaseCost", 0)) * si.quantity), 0)::numeric as "totalProfit",
+        m.quantity as "currentStock"
+      FROM "SaleItem" si
+      JOIN "Medicine" m ON m.id = si."medicineId"
+      LEFT JOIN "Category" c ON c.id = m."categoryId"
+      JOIN "Sale" s ON s.id = si."saleId"
+      WHERE s."createdAt" >= CURRENT_DATE AND s."createdAt" < CURRENT_DATE + INTERVAL '1 day'
+      GROUP BY m.id, m.name, c.name, m.quantity
+      ORDER BY "quantitySold" DESC
+      LIMIT 10
+    `);
+
+    let todayMostSold = null;
+    let todayMostProfitable = null;
+
+    if (todayTopMedsRes.rows.length > 0) {
+      const todayList = todayTopMedsRes.rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        category: row.category,
+        quantitySold: parseInt(row.quantitySold || 0, 10),
+        totalRevenue: parseFloat(row.totalRevenue || 0),
+        totalProfit: parseFloat(row.totalProfit || 0),
+        currentStock: parseInt(row.currentStock || 0, 10),
+      }));
+      todayMostSold = todayList[0];
+      const sortedTodayProfit = [...todayList].sort((a, b) => b.totalProfit - a.totalProfit);
+      todayMostProfitable = sortedTodayProfit[0];
+    } else {
+      // If no sales recorded yet today, indicate 0 units and 0 profit today
+      todayMostSold = topSellingMedicines.length > 0 
+        ? { ...topSellingMedicines[0], quantitySold: 0, totalProfit: 0 } 
+        : null;
+      todayMostProfitable = sortedByProfit.length > 0 
+        ? { ...sortedByProfit[0], quantitySold: 0, totalProfit: 0 } 
+        : null;
+    }
+
+    const mostSoldMedicine = todayMostSold;
+    const mostProfitableMedicine = todayMostProfitable;
 
     // 5. Query 4: Feature source Sales/POS: Daily Sales for Last 7 Days (or selected range)
     const salesTrendRes = await db.query(`
@@ -159,16 +210,16 @@ export class DashboardService {
     // 6. Query 5: Feature source Inventory: Stock Distribution Donut (Excess, Normal, Low)
     // Matches InventoryService.getSummary() exact logic:
     // Low: quantity <= 10 (1-10 units + 0 out of stock)
-    // Excess: quantity >= 100 units
-    // Normal: quantity between 11 and 99 units
+    // Normal: quantity between 11 and 50 units
+    // Excess: quantity > 50 units (Stock exceeds >= 50)
     const stockRes = await db.query(`
       SELECT
         COUNT(*)::int as "totalMedicines",
         COALESCE(SUM(quantity), 0)::int as "totalUnits",
         COALESCE(SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END), 0)::int as "outOfStockCount",
         COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
-        COALESCE(SUM(CASE WHEN quantity >= 100 THEN 1 ELSE 0 END), 0)::int as "excessStockCount",
-        COALESCE(SUM(CASE WHEN quantity > 10 AND quantity < 100 THEN 1 ELSE 0 END), 0)::int as "normalStockCount"
+        COALESCE(SUM(CASE WHEN quantity > 50 THEN 1 ELSE 0 END), 0)::int as "excessStockCount",
+        COALESCE(SUM(CASE WHEN quantity > 10 AND quantity <= 50 THEN 1 ELSE 0 END), 0)::int as "normalStockCount"
       FROM "Medicine"
     `);
     const stockRow = stockRes.rows[0] || {};
@@ -186,21 +237,21 @@ export class DashboardService {
       excess: {
         count: excessCount,
         percentage: totalMeds > 0 ? parseFloat(((excessCount / totalMeds) * 100).toFixed(1)) : 0,
-        label: 'Excess Stock',
-        description: 'Excess stock (≥ 100 units)',
+        label: 'Excess Stock (≥ 50)',
+        description: 'Stock exceeds target level (> 50 units)',
         color: '#6366f1', // indigo-500
       },
       normal: {
         count: normalCount,
         percentage: totalMeds > 0 ? parseFloat(((normalCount / totalMeds) * 100).toFixed(1)) : 0,
-        label: 'Normal Stock',
-        description: 'Normal stock levels (11 - 99 units)',
+        label: 'Normal Stock (11-50)',
+        description: 'Safe stock level (11 - 50 units)',
         color: '#10b981', // emerald-500
       },
       low: {
         count: lowCount,
         percentage: totalMeds > 0 ? parseFloat(((lowCount / totalMeds) * 100).toFixed(1)) : 0,
-        label: 'Low in Stock',
+        label: 'Low Stock (1-10)',
         description: 'Low stock threshold (≤ 10 units)',
         color: '#f59e0b', // amber-500
       },

@@ -20,7 +20,7 @@ export const InventoryTable = ({
   const statusTabs = [
     { id: 'ALL', label: 'All Items' },
     { id: 'LOW_STOCK', label: 'Low Stock (1-10)' },
-    { id: 'EXCESS_STOCK', label: 'Excess Stock (≥ 100)' },
+    { id: 'EXCESS_STOCK', label: 'Excess Stock (> 50)' },
     { id: 'NORMAL', label: 'Normal' },
   ];
 

@@ -19,7 +19,7 @@ export const StockStatusBadge = ({ quantity }) => {
     );
   }
 
-  if (qty >= 100) {
+  if (qty > 50) {
     return (
       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
         Excess Stock ({qty})

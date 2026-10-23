@@ -8,6 +8,7 @@ import purchasesRoutes from './purchases.routes.js';
 import expensesRoutes from './expenses.routes.js';
 import settingsRoutes from './settings.routes.js';
 import reportsRoutes from './reports.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
 
@@ -37,5 +38,8 @@ router.use('/settings', settingsRoutes);
 
 // Mount Reports routes
 router.use('/reports', reportsRoutes);
+
+// Mount Dashboard routes
+router.use('/dashboard', dashboardRoutes);
 
 export default router;

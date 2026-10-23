@@ -483,15 +483,9 @@ export const UserManagementTab = () => {
           )}
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            Are you sure you want to permanently delete the staff account for{' '}
-            <strong className="text-slate-900 dark:text-slate-100 font-bold">
-              {selectedUserForDelete?.name || selectedUserForDelete?.email}
-            </strong>
-            ?
+            Are you sure you want to permanently delete this account ?
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
-            Past sales and transaction records associated with this account will be safely preserved for your financial and sales reports.
-          </p>
+          
 
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button

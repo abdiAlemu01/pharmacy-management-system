@@ -414,7 +414,7 @@ export class SalesService {
     let pIdx = 1;
 
     if (search && search.trim() !== '') {
-      conditions.push(`LOWER(name) LIKE $${pIdx}`);
+      conditions.push(`(LOWER(m.name) LIKE $${pIdx} OR LOWER(COALESCE(m."genericName", '')) LIKE $${pIdx} OR LOWER(COALESCE(m.barcode, '')) LIKE $${pIdx})`);
       values.push(`%${search.trim().toLowerCase()}%`);
       pIdx++;
     }
@@ -423,17 +423,20 @@ export class SalesService {
 
     const sql = `
       SELECT 
-        id,
-        name,
-        quantity,
-        COALESCE("purchaseCost", 0)::numeric as "purchaseCost",
-        COALESCE("sellingPrice", price, 0)::numeric as "sellingPrice",
-        barcode,
-        "purchaseDate"
-      FROM "Medicine"
+        m.id,
+        m.name,
+        m."genericName",
+        m.quantity,
+        COALESCE(m."purchaseCost", 0)::numeric as "purchaseCost",
+        COALESCE(m."sellingPrice", m.price, 0)::numeric as "sellingPrice",
+        m.barcode,
+        m."purchaseDate",
+        c.name as "categoryName"
+      FROM "Medicine" m
+      LEFT JOIN "Category" c ON m."categoryId" = c.id
       ${whereClause}
-      ORDER BY name ASC
-      LIMIT 100
+      ORDER BY m.name ASC
+      LIMIT 200
     `;
 
     const res = await db.query(sql, values);
@@ -447,6 +450,8 @@ export class SalesService {
       return {
         id: r.id,
         name: r.name,
+        genericName: r.genericName || '',
+        categoryName: r.categoryName || 'General',
         quantity,
         purchaseCost,
         sellingPrice,

@@ -17,6 +17,7 @@ import {
 
 export const SalesPage = () => {
   const [activeTab, setActiveTab] = useState('pos'); // 'pos' | 'analytics' | 'history'
+  const [showSummaryCards, setShowSummaryCards] = useState(false);
 
   // History search & pagination
   const [historySearch, setHistorySearch] = useState('');
@@ -128,9 +129,18 @@ export const SalesPage = () => {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            onClick={() => setShowSummaryCards((prev) => !prev)}
+            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4"
+          >
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <span>{showSummaryCards ? 'Hide Metrics' : 'Financial Metrics'}</span>
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={handleRefresh}
             disabled={isFetchingAnalytics}
-            className="flex items-center gap-1.5 text-sm py-2 px-4"
+            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4"
           >
             <RefreshCw className={`w-4 h-4 ${isFetchingAnalytics ? 'animate-spin' : ''}`} />
             Refresh
@@ -166,12 +176,14 @@ export const SalesPage = () => {
       )}
 
       {/* Key Financial Analytics Cards (Daily & Monthly Sell & Profit) */}
-      <SalesAnalyticsCards
-        analytics={analytics}
-        isLoading={isAnalyticsLoading}
-        onCardClick={handleCardClick}
-        activeFilter={activeCardFilter}
-      />
+      {(showSummaryCards || activeTab === 'analytics' || activeCardFilter) && (
+        <SalesAnalyticsCards
+          analytics={analytics}
+          isLoading={isAnalyticsLoading}
+          onCardClick={handleCardClick}
+          activeFilter={activeCardFilter}
+        />
+      )}
 
       {/* Active Card Filter Banner */}
       {activeCardFilter && (

@@ -1,71 +1,134 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Minus, Trash2, ShoppingCart, CheckCircle, AlertTriangle, X, Package, Calculator, ArrowRight } from 'lucide-react';
-import { Dialog } from '@/shared/components/ui/Dialog';
-import { Button } from '@/shared/components/ui/Button';
+import {
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingCart,
+  CheckCircle,
+  AlertTriangle,
+  X,
+  Package,
+  Star,
+  Heart,
+  SlidersHorizontal,
+  Pill,
+  ShoppingBag,
+} from 'lucide-react';
 
-export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isCheckingOut = false }) => {
+export const POSTerminal = ({
+  medicines = [],
+  isLoading = false,
+  onCheckout,
+  isCheckingOut = false,
+}) => {
+  // ── Cart State ──
   const [cart, setCart] = useState([]); // [{ medicine, quantity }]
 
-  // Single modal for selecting stock by scrolling
-  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
-  const [stockSearch, setStockSearch] = useState('');
-  const [selectedStockMed, setSelectedStockMed] = useState(null);
-  const [addQuantity, setAddQuantity] = useState(1);
+  // ── Search & Filter State ──
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'inStock' | 'lowStock'
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [favorites, setFavorites] = useState(() => new Set());
+
+  // ── Financial Modifiers ──
+  const [discountPercent, setDiscountPercent] = useState(0); // 0%, 5%, 10%, etc.
 
   const formatBirr = (val) => {
     const num = parseFloat(val || 0);
-    return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
+    return `${num.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} Birr`;
   };
 
-  // Filter medicines inside the scrollable stock selector modal
-  const filteredStock = useMemo(() => {
-    if (!stockSearch.trim()) return medicines;
-    const term = stockSearch.toLowerCase().trim();
-    return medicines.filter(
-      (m) =>
-        m.name.toLowerCase().includes(term) ||
-        (m.barcode && m.barcode.toLowerCase().includes(term))
-    );
-  }, [medicines, stockSearch]);
+  // ── Formatted Date for Top Banner ──
+  const formattedDate = useMemo(() => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }, []);
 
-  // Open the single modal and preselect the first available in-stock medicine
-  const handleOpenSelectModal = () => {
-    setStockSearch('');
-    const firstInStock = medicines.find((m) => m.quantity > 0) || medicines[0] || null;
-    setSelectedStockMed(firstInStock);
-    setAddQuantity(1);
-    setIsSelectModalOpen(true);
-  };
+  // ── Extract Dynamic Categories ──
+  const categories = useMemo(() => {
+    const set = new Set();
+    medicines.forEach((m) => {
+      if (m.categoryName && m.categoryName.trim()) {
+        set.add(m.categoryName.trim());
+      }
+    });
 
-  // Add selected medicine with chosen quantity to cart
-  const handleConfirmAddStock = () => {
-    if (!selectedStockMed || selectedStockMed.quantity <= 0) return;
+    // If categories are sparse, add common standard pharmacy categories
+    const standard = ['Tablets', 'Capsules', 'Syrups', 'Injections', 'Antibiotics', 'Ointments', 'Medical Supplies'];
+    standard.forEach((c) => set.add(c));
 
-    const qtyToAdd = Math.max(1, Math.min(parseInt(addQuantity, 10) || 1, selectedStockMed.quantity));
+    return ['All', ...Array.from(set).slice(0, 8)];
+  }, [medicines]);
 
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.medicine.id === selectedStockMed.id);
+  // ── Filter Medicines ──
+  const filteredMedicines = useMemo(() => {
+    return medicines.filter((med) => {
+      // 1. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = med.name?.toLowerCase().includes(q);
+        const matchGeneric = med.genericName?.toLowerCase().includes(q);
+        const matchBarcode = med.barcode?.toLowerCase().includes(q);
+        if (!matchName && !matchGeneric && !matchBarcode) return false;
+      }
+
+      // 2. Category Pill Filter
+      if (selectedCategory !== 'All') {
+        const cat = (med.categoryName || '').toLowerCase();
+        const medName = med.name.toLowerCase();
+        const target = selectedCategory.toLowerCase();
+
+        const matchCat = cat.includes(target);
+        const matchNameKeyword =
+          (target === 'tablets' && (medName.includes('tab') || medName.includes('mg'))) ||
+          (target === 'capsules' && (medName.includes('cap') || medName.includes('capsule'))) ||
+          (target === 'syrups' && (medName.includes('syr') || medName.includes('susp') || medName.includes('liquid') || medName.includes('ml'))) ||
+          (target === 'injections' && (medName.includes('inj') || medName.includes('vial') || medName.includes('ampoule'))) ||
+          (target === 'antibiotics' && (medName.includes('cillin') || medName.includes('mycin') || medName.includes('oxacin') || medName.includes('cef'))) ||
+          (target === 'ointments' && (medName.includes('cream') || medName.includes('ointment') || medName.includes('gel')));
+
+        if (!matchCat && !matchNameKeyword) return false;
+      }
+
+      // 3. Stock Level Filter
+      if (stockFilter === 'inStock' && med.quantity <= 0) return false;
+      if (stockFilter === 'lowStock' && (med.quantity <= 0 || med.quantity > 10)) return false;
+
+      return true;
+    });
+  }, [medicines, searchQuery, selectedCategory, stockFilter]);
+
+  // ── Cart Interactions ──
+  const addToCart = (med) => {
+    if (med.quantity <= 0) return;
+
+    setCart((prev) => {
+      const existing = prev.find((item) => item.medicine.id === med.id);
       if (existing) {
-        const newTotalQty = Math.min(existing.quantity + qtyToAdd, selectedStockMed.quantity);
-        return prevCart.map((item) =>
-          item.medicine.id === selectedStockMed.id
-            ? { ...item, quantity: newTotalQty }
+        if (existing.quantity >= med.quantity) return prev; // Cannot exceed available stock
+        return prev.map((item) =>
+          item.medicine.id === med.id
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prevCart, { medicine: selectedStockMed, quantity: qtyToAdd }];
+      return [...prev, { medicine: med, quantity: 1 }];
     });
-
-    setIsSelectModalOpen(false);
-    setSelectedStockMed(null);
-    setAddQuantity(1);
   };
 
   const updateQuantity = (medicineId, newQty) => {
-    // If the input is temporarily cleared, allow empty string so user can type a new number
     if (newQty === '') {
-      setCart((prevCart) =>
-        prevCart.map((item) =>
+      setCart((prev) =>
+        prev.map((item) =>
           item.medicine.id === medicineId ? { ...item, quantity: '' } : item
         )
       );
@@ -75,13 +138,11 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
     const qty = parseInt(newQty, 10);
     if (isNaN(qty)) return;
 
-    setCart((prevCart) =>
-      prevCart.map((item) => {
+    setCart((prev) =>
+      prev.map((item) => {
         if (item.medicine.id === medicineId) {
-          const maxStock = item.medicine.quantity;
-          // Clamp quantity between 1 and maxStock (Never delete the item on number edit!)
-          const clampedQty = Math.max(1, Math.min(qty, maxStock));
-          return { ...item, quantity: clampedQty };
+          const clamped = Math.max(1, Math.min(qty, item.medicine.quantity));
+          return { ...item, quantity: clamped };
         }
         return item;
       })
@@ -96,188 +157,447 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
   };
 
   const removeFromCart = (medicineId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.medicine.id !== medicineId));
+    setCart((prev) => prev.filter((item) => item.medicine.id !== medicineId));
   };
 
   const clearCart = () => setCart([]);
 
-  // Live Cart Totals Calculations
+  const toggleFavorite = (id) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // ── Cart Totals Calculation ──
   const cartTotals = useMemo(() => {
-    let totalSell = 0;
+    let subtotal = 0;
     let totalCost = 0;
     let totalUnits = 0;
 
     cart.forEach((item) => {
       const q = parseInt(item.quantity, 10) || 0;
-      const sell = q * item.medicine.sellingPrice;
-      const cost = q * item.medicine.purchaseCost;
-      totalSell += sell;
-      totalCost += cost;
+      subtotal += q * (parseFloat(item.medicine.sellingPrice) || 0);
+      totalCost += q * (parseFloat(item.medicine.purchaseCost) || 0);
       totalUnits += q;
     });
 
-    const totalProfit = totalSell - totalCost;
-    const profitMargin = totalSell > 0 ? ((totalProfit / totalSell) * 100).toFixed(1) : '0.0';
+    const discountAmount = (subtotal * discountPercent) / 100;
+    const finalTotal = Math.max(0, subtotal - discountAmount);
+    const totalProfit = finalTotal - totalCost;
 
     return {
-      totalSell: parseFloat(totalSell.toFixed(2)),
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      discountAmount: parseFloat(discountAmount.toFixed(2)),
+      finalTotal: parseFloat(finalTotal.toFixed(2)),
       totalCost: parseFloat(totalCost.toFixed(2)),
       totalProfit: parseFloat(totalProfit.toFixed(2)),
       totalUnits,
-      profitMargin,
     };
-  }, [cart]);
+  }, [cart, discountPercent]);
 
+  // ── Checkout Handler ──
   const handleCompleteSale = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || isCheckingOut) return;
+
     const payload = {
       items: cart.map((i) => ({
         medicineId: i.medicine.id,
         quantity: Math.max(1, parseInt(i.quantity, 10) || 1),
-        unitPrice: i.medicine.sellingPrice,
+        unitPrice: parseFloat(i.medicine.sellingPrice) || 0,
       })),
+      discount: cartTotals.discountAmount,
     };
+
     onCheckout(payload, () => {
       clearCart();
     });
   };
 
-  // Dynamic preview for the selected medicine inside the modal
-  const selectedUnitCost = selectedStockMed ? parseFloat(selectedStockMed.purchaseCost || 0) : 0;
-  const selectedUnitSell = selectedStockMed ? parseFloat(selectedStockMed.sellingPrice || 0) : 0;
-  const safeQty = selectedStockMed
-    ? Math.max(1, Math.min(parseInt(addQuantity, 10) || 1, selectedStockMed.quantity))
-    : 1;
-  const previewTotalSell = (safeQty * selectedUnitSell).toFixed(2);
-  const previewTotalProfit = (safeQty * (selectedUnitSell - selectedUnitCost)).toFixed(2);
+  // ── Visual Tint for Product Illustration ──
+  const getProductArtwork = (name = '', idx = 0) => {
+    const colorThemes = [
+      { bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-100 dark:border-emerald-900/40' },
+      { bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-100 dark:border-blue-900/40' },
+      { bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-600 dark:text-purple-400', border: 'border-purple-100 dark:border-purple-900/40' },
+      { bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-100 dark:border-amber-900/40' },
+      { bg: 'bg-teal-50 dark:bg-teal-950/40', text: 'text-teal-600 dark:text-teal-400', border: 'border-teal-100 dark:border-teal-900/40' },
+    ];
+    const theme = colorThemes[idx % colorThemes.length];
+    return theme;
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Top POS Action Bar with Single Add Button */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
-              <ShoppingCart className="w-5 h-5" />
-            </div>
+    <div className="relative">
+      {/* ── Main POS Layout (Left Products Grid + Right "My Order" Panel) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* ══════════════════════════════════════════════════════════════════════
+            LEFT SECTION: Header, Category Pills, Product Cards Grid (8 cols)
+        ══════════════════════════════════════════════════════════════════════ */}
+        <div className="lg:col-span-8 space-y-5">
+          {/* 1. Header: Date + Title + Search Bar & Filter */}
+          <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
-              <h3 className="font-extrabold text-slate-900 text-base">Point of Sale (POS) Workstation</h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                {cart.length === 0
-                  ? ''
-                  : ``}
-              </p>
+              <span className="text-xs font-semibold text-slate-400 block tracking-tight">
+                {formattedDate}
+              </span>
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
+                Pharmacy Dispensary
+              </h2>
+            </div>
+
+            {/* Search Input & Filter Button */}
+            <div className="flex items-center gap-2 w-full sm:w-auto relative">
+              <div className="relative flex-1 sm:w-64 md:w-72">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search Here"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 text-xs bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 transition-all shadow-2xs"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Dropdown Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowFilterMenu((prev) => !prev)}
+                  title="Filter inventory"
+                  className={`p-2 rounded-full border transition-all cursor-pointer ${
+                    stockFilter !== 'all'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                </button>
+
+                {showFilterMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-1.5 z-30 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockFilter('all');
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                        stockFilter === 'all'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      All Stock Items
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockFilter('inStock');
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                        stockFilter === 'inStock'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      In-Stock Only
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockFilter('lowStock');
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                        stockFilter === 'lowStock'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      Low Stock Alert (≤ 10)
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Single Add Button & Actions */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {cart.length > 0 && (
-            <button
-              type="button"
-              onClick={clearCart}
-              className="px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-            >
-              Clear Cart
-            </button>
-          )}
-
-          {/* THE ONLY ONE ADD BUTTON */}
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleOpenSelectModal}
-            className="flex items-center gap-2 text-sm py-2.5 px-5 shadow-sm"
-          >
-            <span>Sell Medicine from Stock</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Main POS Cart Table & Financial Summary Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Active Sale Items Table (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
-            <div className="flex items-center gap-2">
-              <h4 className="font-extrabold text-sm text-slate-800 uppercase tracking-wide">
-                Items in Current Sale
-              </h4>
+          {/* 2. Category Filter Pills ("Find The Best Food" / "Find The Best Medicines" Section) */}
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">
+                Find The Best Medicines
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('All');
+                  setStockFilter('all');
+                  setSearchQuery('');
+                }}
+                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+              >
+                View All
+              </button>
             </div>
-            
+
+            {/* Horizontal Scrollable Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50/80 text-xs uppercase font-bold text-slate-500 tracking-wider border-b border-slate-100">
-                <tr>
-                  <th className="px-5 py-3.5">Medicine Name</th>
-                  <th className="px-3 py-3.5 text-center">Available Stock</th>
-                  <th className="px-3 py-3.5 text-right">Unit Cost</th>
-                  <th className="px-3 py-3.5 text-right">Unit Price</th>
-                  <th className="px-4 py-3.5 text-center">Quantity to Sell</th>
-                  <th className="px-3 py-3.5 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {cart.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="py-16 text-center text-slate-400">
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
-                        <Package className="w-8 h-8" />
-                      </div>
-                      <p className="font-bold text-slate-700 text-base">Your POS cart is empty</p>
-                     
-                      <div className="mt-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleOpenSelectModal}
-                          className="text-xs py-2 px-4 inline-flex items-center gap-1.5"
+          {/* 3. Product Catalog Grid */}
+          {isLoading ? (
+            <div className="p-16 text-center text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <Package className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+              <p className="font-bold text-sm">Loading pharmacy inventory...</p>
+            </div>
+          ) : filteredMedicines.length === 0 ? (
+            <div className="p-16 text-center text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+              <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">No medicines found</p>
+              <p className="text-xs text-slate-400 mt-1">Try resetting your search query or category filter.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('All');
+                  setStockFilter('all');
+                }}
+                className="mt-3 px-4 py-1.5 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredMedicines.map((med, idx) => {
+                const artwork = getProductArtwork(med.name, idx);
+                const isOutOfStock = med.quantity <= 0;
+                const isFav = favorites.has(med.id);
+                const inCart = cart.find((i) => i.medicine.id === med.id);
+
+                return (
+                  <div
+                    key={med.id}
+                    className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group relative"
+                  >
+                    {/* Favorite Heart Button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleFavorite(med.id)}
+                      className="absolute top-3.5 right-3.5 p-1 rounded-full text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 transition-colors z-10 cursor-pointer"
+                      title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Heart
+                        className={`w-4 h-4 transition-transform active:scale-125 ${
+                          isFav ? 'fill-rose-500 text-rose-500' : ''
+                        }`}
+                      />
+                    </button>
+
+                    <div>
+                      {/* Product Visual Centerpiece */}
+                      <div className="py-2 flex items-center justify-center">
+                        <div
+                          className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center border transition-transform duration-200 group-hover:scale-105 shadow-2xs relative ${artwork.bg} ${artwork.border}`}
                         >
-                          <Plus className="w-4 h-4 text-emerald-600" />
-                          <span>Select Stock Item</span>
-                        </Button>
+                          <Pill className={`w-9 h-9 sm:w-10 sm:h-10 ${artwork.text}`} />
+                          {inCart && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+                              {inCart.quantity}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                ) : (
-                  cart.map((item) => {
-                    const med = item.medicine;
 
-                    return (
-                      <tr key={med.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-5 py-4">
-                          <span className="font-bold text-slate-900 block text-sm">{med.name}</span>
-                          <span className="text-[11px] text-slate-400">ID: {med.id.slice(0, 8)}...</span>
-                        </td>
-
-                        <td className="px-4 py-6 text-center">
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                            {med.quantity} 
-                          </span>
-                        </td>
-
-                        <td className="px-3 py-4 text-right text-xs text-slate-500 whitespace-nowrap">
-                          {formatBirr(med.purchaseCost)}
-                        </td>
-
-                        <td className="px-3 py-4 text-right font-medium text-slate-800 whitespace-nowrap">
+                      {/* Product Title & Price Header */}
+                      <div className="mt-3 flex items-start justify-between gap-2">
+                        <h4
+                          className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-100 truncate flex-1"
+                          title={med.name}
+                        >
+                          {med.name}
+                        </h4>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-black text-sm sm:text-base whitespace-nowrap">
                           {formatBirr(med.sellingPrice)}
-                        </td>
+                        </span>
+                      </div>
 
-                        {/* Interactive Quantity Stepper */}
-                        <td className="px-4 py-4 text-center">
-                          <div className="inline-flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                      {/* Subtitle / Generic Name / Description Line */}
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                        {med.genericName ? `Generic: ${med.genericName}` : 'Pharmaceutical product formulation'}
+                      </p>
+                    </div>
+
+                    {/* Bottom Row: Rating/Stock + Add to Cart Button */}
+                    <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                      {/* Stock / Rating Indicator */}
+                      <div className="flex items-center gap-1.5">
+                        <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          <span>5.0</span>
+                        </span>
+                        <span className="text-slate-300 dark:text-slate-700">•</span>
+                        {isOutOfStock ? (
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/60 px-1.5 py-0.5 rounded">
+                            Out
+                          </span>
+                        ) : med.quantity <= 10 ? (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded">
+                            {med.quantity} left
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-500">
+                            {med.quantity} in stock
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Add to Cart Button */}
+                      <button
+                        type="button"
+                        onClick={() => addToCart(med)}
+                        disabled={isOutOfStock}
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer ${
+                          isOutOfStock
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                            : inCart
+                            ? 'bg-emerald-700 text-white hover:bg-emerald-800'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{inCart ? 'Add More' : 'Add to cart'}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            RIGHT SECTION: "My Order" Panel (4 cols) — Matches Reference Image
+        ══════════════════════════════════════════════════════════════════════ */}
+        <div className="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4 lg:sticky lg:top-20">
+          <div>
+            {/* 1. Header: "My Order" Title & Clear Cart Button */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                  My Order
+                </h3>
+                {cart.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[10px]">
+                    {cart.length}
+                  </span>
+                )}
+              </div>
+
+              {cart.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCart}
+                  title="Clear order cart"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* 2. Ordered Items List */}
+            <div className="mt-3.5 max-h-[360px] overflow-y-auto space-y-3 pr-1 divide-y divide-slate-100 dark:divide-slate-800/80">
+              {cart.length === 0 ? (
+                <div className="py-10 text-center text-slate-400">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-400">
+                    <ShoppingBag className="w-6 h-6" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Your order is empty</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Click "Add to cart" on any medicine</p>
+                </div>
+              ) : (
+                cart.map((item, idx) => {
+                  const med = item.medicine;
+                  const artwork = getProductArtwork(med.name, idx);
+                  const safeQty = parseInt(item.quantity, 10) || 1;
+
+                  return (
+                    <div key={med.id} className="pt-3 first:pt-0 flex items-center gap-3">
+                      {/* Thumbnail */}
+                      <div
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center border shrink-0 ${artwork.bg} ${artwork.border}`}
+                      >
+                        <Pill className={`w-5 h-5 ${artwork.text}`} />
+                      </div>
+
+                      {/* Title & Price */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1">
+                          <h5 className="font-extrabold text-xs text-slate-900 dark:text-slate-100 truncate">
+                            {med.name}
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(med.id)}
+                            className="text-slate-300 hover:text-rose-500 p-0.5 shrink-0 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 block mt-0.5">
+                          {formatBirr(med.sellingPrice)}
+                        </span>
+
+                        {/* Stepper Control: [ - ] [ 01 ] [ + ] */}
+                        <div className="mt-1.5 flex items-center justify-between">
+                          <span className="text-[10px] text-slate-400">
+                            Subtotal: {(safeQty * med.sellingPrice).toFixed(2)} Birr
+                          </span>
+
+                          <div className="inline-flex items-center gap-1 bg-slate-100/90 dark:bg-slate-800/90 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
                             <button
                               type="button"
-                              onClick={() => updateQuantity(med.id, Math.max(1, (parseInt(item.quantity, 10) || 1) - 1))}
-                              disabled={(parseInt(item.quantity, 10) || 1) <= 1}
-                              className="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
-                              title="Decrease quantity"
+                              onClick={() => {
+                                if (safeQty <= 1) removeFromCart(med.id);
+                                else updateQuantity(med.id, safeQty - 1);
+                              }}
+                              className="w-5 h-5 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 transition-colors cursor-pointer"
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Minus className="w-3 h-3" />
                             </button>
 
                             <input
@@ -287,280 +607,113 @@ export const POSTerminal = ({ medicines = [], isLoading = false, onCheckout, isC
                               value={item.quantity}
                               onChange={(e) => updateQuantity(med.id, e.target.value)}
                               onBlur={(e) => handleQuantityBlur(med.id, e.target.value)}
-                              className="w-12 text-center text-sm font-black bg-transparent focus:outline-none"
+                              className="w-8 text-center text-xs font-black bg-transparent focus:outline-none"
                             />
 
                             <button
                               type="button"
-                              onClick={() => updateQuantity(med.id, (parseInt(item.quantity, 10) || 1) + 1)}
-                              disabled={(parseInt(item.quantity, 10) || 1) >= med.quantity}
-                              className="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
-                              title="Increase quantity"
+                              onClick={() => updateQuantity(med.id, safeQty + 1)}
+                              disabled={safeQty >= med.quantity}
+                              className="w-5 h-5 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 disabled:opacity-40 transition-colors cursor-pointer"
                             >
-                              <Plus className="w-3.5 h-3.5" />
+                              <Plus className="w-3 h-3" />
                             </button>
                           </div>
-                        </td>
-
-                        <td className="px-3 py-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeFromCart(med.id)}
-                            className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer shadow-2xs"
-                            title="Delete item from cart"
-                          >
-                            <Trash2 className="w-4 h-4 text-rose-600" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Right: Financial Summary & Checkout Panel (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-md p-6 space-y-5">
-          <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
-            <Calculator className="w-5 h-5 text-emerald-600" />
-            <h4 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider">
-              Sale Financial Summary
-            </h4>
-          </div>
-
-          <div className="space-y-3 text-xs text-slate-600">
-            <div className="flex justify-between items-center">
-              <span>Total Units to Dispense</span>
-              <span className="font-bold text-slate-900 text-sm">{cartTotals.totalUnits} units</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Stock purchase Cost</span>
-              <span className="font-semibold text-slate-800">{formatBirr(cartTotals.totalCost)}</span>
-            </div>
-            <div className="flex justify-between items-center text-emerald-700 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-100">
-              <span className="font-bold">Estimated Profit </span>
-              <span className="font-black text-sm">{formatBirr(cartTotals.totalProfit)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-200">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              Grand Total Sale
-            </span>
-            <div className="text-3xl font-black text-emerald-700 tracking-tight mt-1">
-              {formatBirr(cartTotals.totalSell)}
+          {/* 4. Financial Order Totals */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+              <span>Items ({cartTotals.totalUnits})</span>
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {formatBirr(cartTotals.subtotal)}
+              </span>
+            </div>
+
+            {/* Discount Row */}
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-1">
+                <span>Discount</span>
+                <select
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(parseInt(e.target.value, 10) || 0)}
+                  className="bg-slate-100 dark:bg-slate-800 rounded px-1 text-[10px] font-bold border border-slate-200 dark:border-slate-700 cursor-pointer"
+                >
+                  <option value={0}>0%</option>
+                  <option value={5}>5%</option>
+                  <option value={10}>10%</option>
+                  <option value={15}>15%</option>
+                </select>
+              </div>
+              <span className="font-bold text-rose-600">
+                -{formatBirr(cartTotals.discountAmount)}
+              </span>
+            </div>
+
+            {/* Total Profit (Pharmacy internal insight) */}
+            <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900">
+              <span className="font-bold">Estimated Profit</span>
+              <span className="font-black">+{formatBirr(cartTotals.totalProfit)}</span>
+            </div>
+
+            {/* Total Amount (Prominent display) */}
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                Total Amount
+              </span>
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                {formatBirr(cartTotals.finalTotal)}
+              </span>
             </div>
           </div>
 
-          <Button
+          {/* Checkout Button */}
+          <button
             type="button"
-            variant="primary"
-            disabled={cart.length === 0 || isCheckingOut}
             onClick={handleCompleteSale}
-            className="w-full py-3.5 text-base font-extrabold flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
+            disabled={cart.length === 0 || isCheckingOut}
+            className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-sm sm:text-base rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
           >
             <CheckCircle className="w-5 h-5" />
-            <span>{isCheckingOut ? 'Processing Checkout...' : `Confirm Sale (${formatBirr(cartTotals.totalSell)})`}</span>
-          </Button>
+            <span>
+              {isCheckingOut ? 'Processing Checkout...' : `Checkout (${formatBirr(cartTotals.finalTotal)})`}
+            </span>
+          </button>
         </div>
       </div>
 
-      {/* SINGLE MODAL: Scrollable Stock Selector Dialog */}
-      <Dialog
-        isOpen={isSelectModalOpen}
-        onClose={() => setIsSelectModalOpen(false)}
-        title="Select Medicine from Stock"
-      >
-        <div className="space-y-4 text-xs">
-          {/* Quick Search */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={stockSearch}
-              onChange={(e) => setStockSearch(e.target.value)}
-              placeholder="Filter stock by medicine name or barcode..."
-              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-            {stockSearch && (
-              <button
-                type="button"
-                onClick={() => setStockSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Scrollable Stock List */}
-          <div className="border border-slate-200 rounded-xl max-h-[340px] overflow-y-auto divide-y divide-slate-100">
-            {isLoading ? (
-              <div className="p-8 text-center text-slate-400">Loading stock medicines...</div>
-            ) : filteredStock.length === 0 ? (
-              <div className="p-8 text-center text-slate-400">
-                <AlertTriangle className="w-6 h-6 mx-auto text-amber-400 mb-1" />
-                <p className="font-semibold text-slate-700">No stock found</p>
-              </div>
-            ) : (
-              filteredStock.map((med) => {
-                const isSelected = selectedStockMed?.id === med.id;
-                const isOutOfStock = med.quantity <= 0;
-                const inCart = cart.find((i) => i.medicine.id === med.id);
-
-                return (
-                  <div
-                    key={med.id}
-                    onClick={() => {
-                      if (!isOutOfStock) {
-                        setSelectedStockMed(med);
-                        setAddQuantity(1);
-                      }
-                    }}
-                    className={`p-3.5 flex items-center justify-between cursor-pointer transition-all ${
-                      isSelected
-                        ? 'bg-emerald-50/80 border-l-4 border-emerald-600'
-                        : isOutOfStock
-                        ? 'opacity-40 cursor-not-allowed bg-slate-50'
-                        : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">{med.name}</span>
-                        {isOutOfStock ? (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">
-                            Out of Stock
-                          </span>
-                        ) : med.quantity <= 10 ? (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
-                            Low Stock: {med.quantity} left
-                          </span>
-                        ) : (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            Stock: {med.quantity}
-                          </span>
-                        )}
-                        {inCart && (
-                          <span className="text-[10px] font-semibold text-slate-500">
-                            ({inCart.quantity} in cart)
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-3 text-[11px] text-slate-500">
-                        <span>Sell: <strong className="text-slate-800">{formatBirr(med.sellingPrice)}</strong></span>
-                        <span>•</span>
-                        <span>Cost: <strong className="text-slate-600">{formatBirr(med.purchaseCost)}</strong></span>
-                        <span>•</span>
-                        <span className="text-emerald-700 font-semibold">
-                          Profit: +{formatBirr(med.profitPerUnit)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
-                        isSelected ? 'bg-emerald-600 text-white' : 'text-slate-400 bg-slate-100'
-                      }`}>
-                        {isSelected ? 'Selected' : 'Click to select'}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* Selected Medicine Quantity & Financial Preview */}
-          {selectedStockMed && selectedStockMed.quantity > 0 && (
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                    Selected Medicine:
-                  </span>
-                  <span className="font-extrabold text-sm text-slate-900">
-                    {selectedStockMed.name}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">
-                    Available in stock: <strong>{selectedStockMed.quantity} units</strong>
-                  </span>
-                </div>
-
-                {/* Quantity Input */}
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-slate-600 text-xs">Qty:</span>
-                  <div className="flex items-center bg-white border border-slate-300 rounded-lg p-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setAddQuantity((q) => Math.max(1, q - 1))}
-                      className="w-6 h-6 flex items-center justify-center hover:bg-slate-100 rounded text-slate-600 font-bold"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      max={selectedStockMed.quantity}
-                      value={addQuantity}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        if (!isNaN(val)) setAddQuantity(val);
-                      }}
-                      className="w-10 text-center font-bold text-xs focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setAddQuantity((q) => Math.min(selectedStockMed.quantity, q + 1))}
-                      disabled={addQuantity >= selectedStockMed.quantity}
-                      className="w-6 h-6 flex items-center justify-center hover:bg-slate-100 rounded text-slate-600 font-bold disabled:opacity-30"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price Preview */}
-              <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-slate-200">
-                <div className="p-2 bg-white rounded-lg border border-slate-200">
-                  <span className="text-slate-400 block text-[10px]">Total Sell Value:</span>
-                  <span className="font-extrabold text-slate-900 text-xs">{previewTotalSell} Birr</span>
-                </div>
-                <div className="p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                  <span className="text-emerald-700 block text-[10px]">Total Profit:</span>
-                  <span className="font-extrabold text-emerald-800 text-xs">+{previewTotalProfit} Birr</span>
-                </div>
-              </div>
+      {/* ── Mobile Sticky Cart Bar (Shown on small screens when cart has items) ── */}
+      {cart.length > 0 && (
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 bg-slate-900 text-white p-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between animate-in slide-in-from-bottom duration-200">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold">{cart.length} medicines in cart</span>
             </div>
-          )}
-
-          {/* Modal Action Buttons */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsSelectModalOpen(false)}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={!selectedStockMed || selectedStockMed.quantity <= 0}
-              onClick={handleConfirmAddStock}
-              className="text-xs font-bold flex items-center gap-1.5"
-            >
-              <CheckCircle className="w-3.5 h-3.5" />
-              <span>Add to Sale Cart</span>
-            </Button>
+            <span className="text-base font-black text-emerald-400 block mt-0.5">
+              {formatBirr(cartTotals.finalTotal)}
+            </span>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>View Order</span>
+          </button>
         </div>
-      </Dialog>
+      )}
     </div>
   );
 };

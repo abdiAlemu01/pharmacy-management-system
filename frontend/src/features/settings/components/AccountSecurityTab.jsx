@@ -267,11 +267,11 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-stretch sm:justify-end">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
             <button
               type="submit"
               disabled={updateAccountMutation.isPending}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             >
               {updateAccountMutation.isPending ? (
                 <>
@@ -424,29 +424,29 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-row items-center justify-end flex-wrap gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setShowLogoutModal(true)}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-sm rounded-xl transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-500/30 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-2xs cursor-pointer focus:outline-none"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>{t('settings.account.signOutBtn', 'Sign Out Now')}</span>
             </button>
 
             <button
               type="submit"
               disabled={changePasswordMutation.isPending}
-              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:px-6 sm:py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none"
             >
               {changePasswordMutation.isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
                   <span>{t('settings.account.updatingPasswordBtn', 'Verifying & Updating...')}</span>
                 </>
               ) : (
                 <>
-                  <KeyRound className="w-4 h-4" />
+                  <KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>{t('settings.account.updatePasswordBtn', 'Update Password')}</span>
                 </>
               )}
@@ -466,18 +466,18 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
           <p className="text-slate-600 dark:text-slate-300">
             {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out ?')}
           </p>
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-row items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setShowLogoutModal(false)}
-              className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-center"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-center"
             >
               {t('settings.account.cancel', 'Cancel')}
             </button>
             <button
               type="button"
               onClick={handleConfirmLogout}
-              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer text-center"
+              className="px-4 py-1.5 sm:px-5 sm:py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer text-center"
             >
               {t('settings.account.yesSignOut', 'Yes, Sign Out')}
             </button>

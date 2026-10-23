@@ -305,3 +305,4 @@ CREATE TABLE IF NOT EXISTS "PharmacySetting" (
 -- Seed default PharmacySetting row
 INSERT INTO "PharmacySetting" ("id") VALUES ('default')
 ON CONFLICT ("id") DO NOTHING;
+

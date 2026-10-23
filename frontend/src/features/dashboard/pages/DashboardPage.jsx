@@ -94,34 +94,35 @@ export const DashboardPage = () => {
       {/* 2. Quick Actions Shortcuts */}
       <QuickActions />
 
-      {/* 3. Main Analytics & Expiry Alerts Grid (2 Columns on large screens) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Sales and Profit Analytics Chart (7 cols) */}
-        <div className="lg:col-span-7">
-          <SalesAndProfitAnalytics
-            analytics={summaryData?.salesAndProfitAnalytics}
-            currencySymbol={currencySymbol}
-            periodLabel={summaryData?.period?.label || 'Selected Range'}
-            isLoading={isLoading}
-          />
-        </div>
+      {/* 3. Sales & Profit Analytics (Hero Graph & Financial Intelligence) */}
+      <SalesAndProfitAnalytics
+        analytics={summaryData?.salesAndProfitAnalytics}
+        businessOverview={summaryData?.businessOverview}
+        currencySymbol={currencySymbol}
+        periodLabel={summaryData?.period?.label || 'Selected Range'}
+        isLoading={isLoading}
+      />
 
-        {/* Right Column: Medicine Stock & Expiry Alerts (5 cols) */}
+      {/* 4. Operational Activity & Safeguards (Stock Alerts & Recent Transactions) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Medicine Stock & Expiry Alerts (5 cols) */}
         <div className="lg:col-span-5">
           <StockAndExpiryAlerts
             alerts={summaryData?.stockAndExpiryAlerts}
             isLoading={isLoading}
           />
         </div>
-      </div>
 
-      {/* 4. Recent Sales and Purchases Compact Tables */}
-      <RecentSalesAndPurchases
-        recentSales={summaryData?.recentRecords?.recentSales}
-        recentPurchases={summaryData?.recentRecords?.recentPurchases}
-        currencySymbol={currencySymbol}
-        isLoading={isLoading}
-      />
+        {/* Right Column: Recent Sales and Purchases Compact Tables (7 cols) */}
+        <div className="lg:col-span-7">
+          <RecentSalesAndPurchases
+            recentSales={summaryData?.recentRecords?.recentSales}
+            recentPurchases={summaryData?.recentRecords?.recentPurchases}
+            currencySymbol={currencySymbol}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
     </div>
   );
 };

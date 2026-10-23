@@ -1,6 +1,6 @@
 
 
--- 1. User table
+
 CREATE TABLE IF NOT EXISTS "User" (
   "id"        TEXT PRIMARY KEY DEFAULT (gen_random_uuid())::text,
   "email"     TEXT NOT NULL UNIQUE,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS "User" (
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Category table
+
 CREATE TABLE IF NOT EXISTS "Category" (
   "id"          TEXT PRIMARY KEY DEFAULT (gen_random_uuid())::text,
   "name"        TEXT NOT NULL UNIQUE,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "Category" (
   "updatedAt"   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Medicine table
+
 CREATE TABLE IF NOT EXISTS "Medicine" (
   "id"               TEXT PRIMARY KEY DEFAULT (gen_random_uuid())::text,
   "name"             TEXT NOT NULL,
@@ -257,7 +257,7 @@ CREATE TABLE IF NOT EXISTS "ExpensePayment" (
   "createdAt"       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 18. ExpenseAuditLog table
+
 CREATE TABLE IF NOT EXISTS "ExpenseAuditLog" (
   "id"        TEXT PRIMARY KEY,
   "expenseId" TEXT NOT NULL REFERENCES "Expense"("id"),
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS "ExpenseAuditLog" (
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 19. PharmacySetting table
+
 CREATE TABLE IF NOT EXISTS "PharmacySetting" (
   "id"                          TEXT PRIMARY KEY DEFAULT 'default',
   "pharmacyName"                TEXT NOT NULL DEFAULT 'Pharmacy Care',

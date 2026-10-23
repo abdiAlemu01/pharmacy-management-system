@@ -25,6 +25,7 @@ export const StockAndExpiryAlerts = ({
   const totalExpiring30 = expirySummary.expiring30DaysCount || 0;
   const totalExpiring60 = expirySummary.expiring60DaysCount || 0;
   const totalExpiring90 = expirySummary.expiring90DaysCount || 0;
+  const totalExpiringBatches = totalExpired + totalExpiring30 + totalExpiring60 + totalExpiring90;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
@@ -134,6 +135,48 @@ export const StockAndExpiryAlerts = ({
       {/* Tab 2: Expiry Tracking (30d, 60d, 90d & Expired) */}
       {activeTab === 'expiring' && (
         <div className="space-y-3">
+          {/* Visual Expiry Distribution Timeline Bar */}
+          {totalExpiringBatches > 0 && (
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                <span>Expiry Risk Distribution</span>
+                <span className="text-[11px] font-normal text-slate-400">
+                  {totalExpiringBatches} affected batches
+                </span>
+              </div>
+              <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex">
+                {totalExpired > 0 && (
+                  <div
+                    style={{ width: `${(totalExpired / totalExpiringBatches) * 100}%` }}
+                    className="h-full bg-rose-500 transition-all duration-300"
+                    title={`Already Expired: ${totalExpired}`}
+                  />
+                )}
+                {totalExpiring30 > 0 && (
+                  <div
+                    style={{ width: `${(totalExpiring30 / totalExpiringBatches) * 100}%` }}
+                    className="h-full bg-amber-500 transition-all duration-300"
+                    title={`≤ 30 Days: ${totalExpiring30}`}
+                  />
+                )}
+                {totalExpiring60 > 0 && (
+                  <div
+                    style={{ width: `${(totalExpiring60 / totalExpiringBatches) * 100}%` }}
+                    className="h-full bg-purple-500 transition-all duration-300"
+                    title={`31 - 60 Days: ${totalExpiring60}`}
+                  />
+                )}
+                {totalExpiring90 > 0 && (
+                  <div
+                    style={{ width: `${(totalExpiring90 / totalExpiringBatches) * 100}%` }}
+                    className="h-full bg-blue-500 transition-all duration-300"
+                    title={`61 - 90 Days: ${totalExpiring90}`}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Expiry Breakdown Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900">

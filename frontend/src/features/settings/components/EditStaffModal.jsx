@@ -86,29 +86,32 @@ export const EditStaffModal = ({ isOpen, onClose, user, currentUserId }) => {
     }
   };
 
-  const roles = [
+  const baseRoles = [
     {
       id: 'CASHIER',
       name: 'Cashier',
-      description: 'Access ONLY to Sales & POS',
       icon: ShoppingCart,
       activeRing: 'ring-2 ring-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800',
     },
     {
       id: 'INVENTOR',
       name: 'Inventor',
-      description: 'Access ONLY to Inventory & Stock',
       icon: Boxes,
       activeRing: 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-800',
     },
-    {
-      id: 'ADMIN',
-      name: 'Admin',
-      description: 'Full access to entire system',
-      icon: ShieldCheck,
-      activeRing: 'ring-2 ring-purple-500 bg-purple-50/50 dark:bg-purple-950/20 border-purple-300 dark:border-purple-800',
-    },
   ];
+
+  const roles = user?.role === 'ADMIN'
+    ? [
+        ...baseRoles,
+        {
+          id: 'ADMIN',
+          name: 'Admin',
+          icon: ShieldCheck,
+          activeRing: 'ring-2 ring-purple-500 bg-purple-50/50 dark:bg-purple-950/20 border-purple-300 dark:border-purple-800',
+        },
+      ]
+    : baseRoles;
 
   return (
     <Dialog
@@ -191,9 +194,9 @@ export const EditStaffModal = ({ isOpen, onClose, user, currentUserId }) => {
         {/* 3. Role Assignment */}
         <div className="space-y-2 pt-1">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-            Role & Access Level
+            Role
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className={`grid grid-cols-1 ${roles.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2.5`}>
             {roles.map((r) => {
               const Icon = r.icon;
               const isSelected = formData.role === r.id;
@@ -231,9 +234,6 @@ export const EditStaffModal = ({ isOpen, onClose, user, currentUserId }) => {
                     <span className="font-extrabold text-xs text-slate-900 dark:text-slate-100 block">
                       {r.name}
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 leading-snug">
-                      {r.description}
-                    </span>
                   </div>
                 </div>
               );
@@ -246,9 +246,6 @@ export const EditStaffModal = ({ isOpen, onClose, user, currentUserId }) => {
           <div>
             <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">
               Account Status
-            </span>
-            <span className="text-[11px] text-slate-400 block">
-              Deactivated accounts cannot sign into the system
             </span>
           </div>
           <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">

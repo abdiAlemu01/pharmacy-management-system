@@ -115,7 +115,7 @@ export const UserManagementTab = () => {
   return (
     <div className="space-y-5 animate-in fade-in duration-150">
       {/* 1. Header & KPI Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Total Staff */}
         <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between">
@@ -128,9 +128,6 @@ export const UserManagementTab = () => {
           </div>
           <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight block mt-1">
             {isLoading ? '...' : stats.total}
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">
-            {stats.active} active accounts
           </span>
         </div>
 
@@ -147,9 +144,6 @@ export const UserManagementTab = () => {
           <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight block mt-1">
             {isLoading ? '...' : stats.cashiers}
           </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">
-            Sales & POS access
-          </span>
         </div>
 
         {/* Inventors */}
@@ -164,27 +158,6 @@ export const UserManagementTab = () => {
           </div>
           <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tight block mt-1">
             {isLoading ? '...' : stats.inventors}
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">
-            Inventory & stock access
-          </span>
-        </div>
-
-        {/* Admins */}
-        <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Admins
-            </span>
-            <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <span className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 tracking-tight block mt-1">
-            {isLoading ? '...' : stats.admins}
-          </span>
-          <span className="text-[10px] text-slate-400 block mt-0.5">
-            Full system control
           </span>
         </div>
       </div>
@@ -215,7 +188,6 @@ export const UserManagementTab = () => {
               <option value="ALL">All Roles</option>
               <option value="CASHIER">Cashiers</option>
               <option value="INVENTOR">Inventors</option>
-              <option value="ADMIN">Admins</option>
             </select>
 
             {/* Status filter */}
@@ -260,7 +232,7 @@ export const UserManagementTab = () => {
               <tr>
                 <th className="py-3 px-4">Staff Member</th>
                 <th className="py-3 px-4">Phone Number</th>
-                <th className="py-3 px-4">Role & Permissions</th>
+                <th className="py-3 px-4">Role</th>
                 <th className="py-3 px-4">Account Status</th>
                 <th className="py-3 px-4">Joined Date</th>
                 <th className="py-3 px-4 text-right">Actions</th>
@@ -335,19 +307,19 @@ export const UserManagementTab = () => {
                         {roleUpper === 'CASHIER' && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <ShoppingCart className="w-3 h-3 text-emerald-600" />
-                            <span>Cashier (Sales Only)</span>
+                            <span>Cashier</span>
                           </span>
                         )}
                         {roleUpper === 'INVENTOR' && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                             <Boxes className="w-3 h-3 text-blue-600" />
-                            <span>Inventor (Stock Only)</span>
+                            <span>Inventor</span>
                           </span>
                         )}
                         {roleUpper === 'ADMIN' && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                             <ShieldCheck className="w-3 h-3 text-purple-600" />
-                            <span>Admin (Full Access)</span>
+                            <span>Admin</span>
                           </span>
                         )}
                       </td>

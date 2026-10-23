@@ -27,7 +27,6 @@ export const POSTerminal = ({
 
   // ── Search & Filter State ──
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'inStock' | 'lowStock'
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [favorites, setFavorites] = useState(() => new Set());
@@ -53,22 +52,6 @@ export const POSTerminal = ({
     });
   }, []);
 
-  // ── Extract Dynamic Categories ──
-  const categories = useMemo(() => {
-    const set = new Set();
-    medicines.forEach((m) => {
-      if (m.categoryName && m.categoryName.trim()) {
-        set.add(m.categoryName.trim());
-      }
-    });
-
-    // If categories are sparse, add common standard pharmacy categories
-    const standard = ['Tablets', 'Capsules', 'Syrups', 'Injections', 'Antibiotics', 'Ointments', 'Medical Supplies'];
-    standard.forEach((c) => set.add(c));
-
-    return ['All', ...Array.from(set).slice(0, 8)];
-  }, [medicines]);
-
   // ── Filter Medicines ──
   const filteredMedicines = useMemo(() => {
     return medicines.filter((med) => {
@@ -81,31 +64,13 @@ export const POSTerminal = ({
         if (!matchName && !matchGeneric && !matchBarcode) return false;
       }
 
-      // 2. Category Pill Filter
-      if (selectedCategory !== 'All') {
-        const cat = (med.categoryName || '').toLowerCase();
-        const medName = med.name.toLowerCase();
-        const target = selectedCategory.toLowerCase();
-
-        const matchCat = cat.includes(target);
-        const matchNameKeyword =
-          (target === 'tablets' && (medName.includes('tab') || medName.includes('mg'))) ||
-          (target === 'capsules' && (medName.includes('cap') || medName.includes('capsule'))) ||
-          (target === 'syrups' && (medName.includes('syr') || medName.includes('susp') || medName.includes('liquid') || medName.includes('ml'))) ||
-          (target === 'injections' && (medName.includes('inj') || medName.includes('vial') || medName.includes('ampoule'))) ||
-          (target === 'antibiotics' && (medName.includes('cillin') || medName.includes('mycin') || medName.includes('oxacin') || medName.includes('cef'))) ||
-          (target === 'ointments' && (medName.includes('cream') || medName.includes('ointment') || medName.includes('gel')));
-
-        if (!matchCat && !matchNameKeyword) return false;
-      }
-
-      // 3. Stock Level Filter
+      // 2. Stock Level Filter
       if (stockFilter === 'inStock' && med.quantity <= 0) return false;
       if (stockFilter === 'lowStock' && (med.quantity <= 0 || med.quantity > 10)) return false;
 
       return true;
     });
-  }, [medicines, searchQuery, selectedCategory, stockFilter]);
+  }, [medicines, searchQuery, stockFilter]);
 
   // ── Cart Interactions ──
   const addToCart = (med) => {
@@ -335,48 +300,7 @@ export const POSTerminal = ({
             </div>
           </div>
 
-          {/* 2. Category Filter Pills ("Find The Best Food" / "Find The Best Medicines" Section) */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">
-                Find The Best Medicines
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedCategory('All');
-                  setStockFilter('all');
-                  setSearchQuery('');
-                }}
-                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
-              >
-                View All
-              </button>
-            </div>
-
-            {/* Horizontal Scrollable Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 no-scrollbar">
-              {categories.map((cat) => {
-                const isActive = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 3. Product Catalog Grid */}
+          {/* 2. Product Catalog Grid */}
           {isLoading ? (
             <div className="p-16 text-center text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
               <Package className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
@@ -386,12 +310,11 @@ export const POSTerminal = ({
             <div className="p-16 text-center text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
               <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
               <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">No medicines found</p>
-              <p className="text-xs text-slate-400 mt-1">Try resetting your search query or category filter.</p>
+              <p className="text-xs text-slate-400 mt-1">Try resetting your search query or inventory filter.</p>
               <button
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCategory('All');
                   setStockFilter('all');
                 }}
                 className="mt-3 px-4 py-1.5 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"

@@ -506,7 +506,7 @@ export class UserService {
   }
 
   /**
-   * Delete a staff account
+   * Delete a staff account safely without breaking historical sales records
    */
   async deleteUser(id, currentUserId) {
     if (id === currentUserId) {
@@ -515,6 +515,24 @@ export class UserService {
       throw err;
     }
 
+    // 1. Ensure foreign key constraint on Sale allows ON DELETE SET NULL
+    try {
+      await db.query(`
+        ALTER TABLE "Sale" ALTER COLUMN "userId" DROP NOT NULL;
+        ALTER TABLE "Sale" DROP CONSTRAINT IF EXISTS "Sale_userId_fkey";
+        ALTER TABLE "Sale" ADD CONSTRAINT "Sale_userId_fkey" 
+          FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL;
+      `);
+    } catch (_) {}
+
+    // 2. Reassign associated sales to active admin or set to NULL so accounting history is preserved
+    if (currentUserId) {
+      await db.query('UPDATE "Sale" SET "userId" = $1 WHERE "userId" = $2', [currentUserId, id]);
+    } else {
+      await db.query('UPDATE "Sale" SET "userId" = NULL WHERE "userId" = $1', [id]);
+    }
+
+    // 3. Delete the user
     const result = await db.query('DELETE FROM "User" WHERE "id" = $1 RETURNING "id"', [id]);
     if (result.rows.length === 0) {
       const err = new Error('User not found');

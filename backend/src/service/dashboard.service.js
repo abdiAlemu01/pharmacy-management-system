@@ -317,7 +317,7 @@ export class DashboardService {
           s.id,
           s.total,
           s."createdAt",
-          u.name as "cashierName",
+          COALESCE(u.name, 'Staff') as "cashierName",
           p.name as "patientName",
           COUNT(si.id)::int as "itemsCount",
           COALESCE(SUM(si.quantity), 0)::int as "totalUnits",

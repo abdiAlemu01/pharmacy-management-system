@@ -40,6 +40,7 @@ export const UserManagementTab = () => {
   const [selectedUserForEdit, setSelectedUserForEdit] = useState(null);
   const [selectedUserForReset, setSelectedUserForReset] = useState(null);
   const [selectedUserForDelete, setSelectedUserForDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
 
   const { data: usersData, isLoading, isFetching, refetch } = useUsers({
     search,
@@ -86,13 +87,19 @@ export const UserManagementTab = () => {
     }
   };
 
+  const handleCloseDeleteModal = () => {
+    setSelectedUserForDelete(null);
+    setDeleteError('');
+  };
+
   const handleConfirmDelete = async () => {
     if (!selectedUserForDelete) return;
+    setDeleteError('');
     try {
       await deleteUserMutation.mutateAsync(selectedUserForDelete.id);
-      setSelectedUserForDelete(null);
+      handleCloseDeleteModal();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete user');
+      setDeleteError(err.response?.data?.message || 'Failed to delete user');
     }
   };
 
@@ -464,23 +471,32 @@ export const UserManagementTab = () => {
       {/* Delete Confirmation Modal */}
       <Dialog
         isOpen={!!selectedUserForDelete}
-        onClose={() => setSelectedUserForDelete(null)}
+        onClose={handleCloseDeleteModal}
         title="Delete Staff Account"
         className="max-w-md"
       >
         <div className="space-y-4">
+          {deleteError && (
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xl text-xs text-rose-700 dark:text-rose-300">
+              {deleteError}
+            </div>
+          )}
+
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            Are you sure you want to permanently delete the account for{' '}
+            Are you sure you want to permanently delete the staff account for{' '}
             <strong className="text-slate-900 dark:text-slate-100 font-bold">
-              {selectedUserForDelete?.name}
-            </strong>{' '}
-            ({selectedUserForDelete?.email})? This action cannot be undone.
+              {selectedUserForDelete?.name || selectedUserForDelete?.email}
+            </strong>
+            ?
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+            Past sales and transaction records associated with this account will be safely preserved for your financial and sales reports.
           </p>
 
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
-              onClick={() => setSelectedUserForDelete(null)}
+              onClick={handleCloseDeleteModal}
               className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
             >
               Cancel

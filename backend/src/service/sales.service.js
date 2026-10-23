@@ -357,7 +357,7 @@ export class SalesService {
         s.total,
         s."createdAt",
         s."userId",
-        u.name as "cashierName",
+        COALESCE(u.name, 'Staff') as "cashierName",
         COALESCE(SUM(si.quantity * (si."unitPrice" - si."purchaseCost")), 0)::numeric as "totalProfit",
         COALESCE(SUM(si.quantity), 0)::int as "totalQuantity",
         json_agg(

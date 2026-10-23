@@ -21,6 +21,12 @@ export async function runMigration() {
       UPDATE "User" SET "status" = 'ACTIVE' WHERE "status" IS NULL;
       UPDATE "User" SET "isActive" = TRUE WHERE "isActive" IS NULL;
       UPDATE "User" SET "role" = 'ADMIN' WHERE UPPER("role") NOT IN ('ADMIN', 'CASHIER', 'INVENTOR') OR "role" IS NULL;
+      
+      -- Ensure Sale.userId allows ON DELETE SET NULL so deleting users never violates foreign keys
+      ALTER TABLE "Sale" ALTER COLUMN "userId" DROP NOT NULL;
+      ALTER TABLE "Sale" DROP CONSTRAINT IF EXISTS "Sale_userId_fkey";
+      ALTER TABLE "Sale" ADD CONSTRAINT "Sale_userId_fkey" 
+        FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL;
     `);
 
     console.log('✅ Database schema migration completed successfully.');

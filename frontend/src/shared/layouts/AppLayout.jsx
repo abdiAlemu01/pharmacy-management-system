@@ -75,7 +75,7 @@ export const AppLayout = () => {
             <div className="flex items-center gap-2">
               <div
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs"
-                title={`${user?.name || user?.email} (${user?.role || 'Staff'})`}
+                title={user?.name || user?.email}
               >
                 {(user?.name || user?.firstName || user?.email || 'U')[0].toUpperCase()}
               </div>
@@ -89,11 +89,6 @@ export const AppLayout = () => {
                   {user?.email}
                 </span>
               </div>
-
-              {/* Role badge — hidden on extra small screens, visible on sm+ */}
-              <span className="hidden sm:inline-block text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 uppercase font-bold tracking-wide shrink-0">
-                {user?.role || 'Staff'}
-              </span>
             </div>
           </div>
         </header>

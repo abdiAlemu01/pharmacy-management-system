@@ -87,11 +87,11 @@ const resources = {
           confirmPassword: 'Confirm New Password',
           updatePasswordBtn: 'Update Password',
           updatingPasswordBtn: 'Verifying & Updating...',
-          signOutBtn: 'Sign Out Now',
+          signOutBtn: 'Sign Out',
           confirmSignOut: 'Confirm Sign Out',
           confirmSignOutMsg: 'Are you sure you want to sign out ?',
           cancel: 'Cancel',
-          yesSignOut: 'Yes, Sign Out',
+          yesSignOut: 'Sign Out',
           profileSuccess: 'Account details and session settings saved.',
         },
         notifications: {

@@ -99,7 +99,7 @@ export const RecordPaymentModal = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center pt-1">
             <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <span className="text-[11px] font-bold text-slate-500 block">Total Cost</span>
               <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">

@@ -57,27 +57,34 @@ export const PurchaseDetailsModal = ({
     >
       <div className="space-y-6 text-sm">
         {/* Top Header Card */}
-        <div className="p-5 bg-gradient-to-r from-emerald-50/70 via-slate-50 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-emerald-950/20 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-black text-2xl flex items-center justify-center shrink-0 shadow-sm ring-4 ring-emerald-500/10">
-              <Package className="w-7 h-7" />
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50/80 via-slate-50 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-emerald-950/20 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-black text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm ring-4 ring-emerald-500/10">
+              <Package className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                
-                
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="font-mono font-black text-slate-900 dark:text-slate-100 text-sm sm:text-base tracking-tight">
+                  {activePurchase.purchaseOrderNo || `#${activePurchase.id?.slice(0, 8)}`}
+                </span>
+                {activePurchase.invoiceNo && (
+                  <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold">
+                    Inv: {activePurchase.invoiceNo}
+                  </span>
+                )}
               </div>
-               <p className="flex flex-wrap items-center gap-1.5 text-base font-medium text-slate-600 dark:text-slate-300">
-  <span>Ordered on :</span>
-  <span className="font-semibold text-slate-800 dark:text-slate-100">
-    {activePurchase.orderDate ? formatDate(activePurchase.orderDate) : '-'}
-  </span>
-</p>
+              <p className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+                <span className="text-slate-400">Ordered on:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-100">
+                  {activePurchase.orderDate ? formatDate(activePurchase.orderDate) : '-'}
+                </span>
+              </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-            
+          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
+            <DeliveryStatusBadge status={activePurchase.status} />
+            <PaymentStatusBadge status={activePurchase.paymentStatus} />
           </div>
         </div>
 
@@ -99,8 +106,8 @@ export const PurchaseDetailsModal = ({
 
             {activePurchase.supplierPhone && (
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-slate-400" />
-                <a href={`tel:${activePurchase.supplierPhone}`} className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">
+                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                <a href={`tel:${activePurchase.supplierPhone}`} className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">
                   {activePurchase.supplierPhone}
                 </a>
               </div>
@@ -108,8 +115,8 @@ export const PurchaseDetailsModal = ({
 
             {activePurchase.supplierEmail && (
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400" />
-                <span className="text-xs text-slate-600 dark:text-slate-300">
+                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="text-xs text-slate-600 dark:text-slate-300 truncate">
                   {activePurchase.supplierEmail}
                 </span>
               </div>
@@ -123,40 +130,37 @@ export const PurchaseDetailsModal = ({
             )}
           </div>
 
-          {/* Financial Breakdown card */}
-          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs flex flex-col justify-between">
-            
-            
-            <div>
-              <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-emerald-600" />
-                <span>Financial Breakdown</span>
-              </h4>
-            </div>
-            <div className="pt-2 grid grid-cols-3 gap-2 text-center">
-              <div className="p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
-                <span className="text-[10px] font-bold text-slate-500 block">Total Cost</span>
-                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">
-                  {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+          {/* Financial Overview card */}
+          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs flex flex-col justify-between space-y-3.5">
+            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-emerald-600" />
+              <span>Financial Overview</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Total Cost</span>
+                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 block">
+                  {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-slate-400">Br</span>
                 </span>
               </div>
-              <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl">
-                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block">Amount Paid</span>
-                <span className="text-xs sm:text-sm font-black text-emerald-700 dark:text-emerald-400">
-                  {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+              <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Amount Paid</span>
+                <span className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 block">
+                  {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-emerald-500">Br</span>
                 </span>
               </div>
-              <div className="p-2 bg-rose-50 dark:bg-rose-950/40 rounded-xl">
-                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 block">Remaining Due</span>
-                <span className="text-xs sm:text-sm font-black text-rose-700 dark:text-rose-300">
-                  {amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+              <div className="p-3 bg-rose-50/70 dark:bg-rose-950/40 rounded-xl border border-rose-100 dark:border-rose-900/50">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block mb-0.5">Balance Due</span>
+                <span className="text-sm sm:text-base font-black text-rose-700 dark:text-rose-300 block">
+                  {amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-rose-400">Br</span>
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Medicine Items Ordered & Delivery status */}
+        {/* Medicine Items Ordered */}
         <div className="space-y-2">
           <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
             <PackageCheck className="w-4 h-4 text-emerald-600" />
@@ -164,7 +168,7 @@ export const PurchaseDetailsModal = ({
           </h4>
 
           <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[640px]">
               <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="py-2.5 px-3">Medicine</th>
@@ -226,7 +230,7 @@ export const PurchaseDetailsModal = ({
               <span>Payment Installments ({activePurchase.payments.length})</span>
             </h4>
             <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl text-xs">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[320px]">
                 <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
                   <tr>
                     <th className="py-2 px-3">Date</th>
@@ -256,7 +260,7 @@ export const PurchaseDetailsModal = ({
               <span>Medicines Returned Log ({activePurchase.returns.length})</span>
             </h4>
             <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl text-xs">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[320px]">
                 <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
                   <tr>
                     <th className="py-2 px-3">Return Date</th>
@@ -288,50 +292,53 @@ export const PurchaseDetailsModal = ({
 
         {/* Modal Bottom Actions */}
         <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             {canReceive && (
-              <Button
+              <button
                 type="button"
-                variant="primary"
                 onClick={() => {
                   onClose();
                   onOpenReceive(activePurchase);
                 }}
-                className="flex items-center gap-1.5 text-xs py-2 px-3"
+                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 font-bold text-xs rounded-xl border border-emerald-300 dark:border-emerald-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
               >
-                <PackageCheck className="w-4 h-4" />
+                <div className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
+                  <PackageCheck className="w-3.5 h-3.5" />
+                </div>
                 <span>Receive Medicines</span>
-              </Button>
+              </button>
             )}
 
             {canPay && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => {
                   onClose();
                   onOpenPayment(activePurchase);
                 }}
-                className="flex items-center gap-1.5 text-xs py-2 px-3 text-emerald-700 dark:text-emerald-400 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/70 text-sky-800 dark:text-sky-200 font-bold text-xs rounded-xl border border-sky-300 dark:border-sky-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
               >
-                <CreditCard className="w-4 h-4" />
+                <div className="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
+                  <CreditCard className="w-3.5 h-3.5" />
+                </div>
                 <span>Record Payment</span>
-              </Button>
+              </button>
             )}
 
             {canReturn && (
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => {
                   onClose();
                   onOpenReturn(activePurchase);
                 }}
-                className="flex items-center gap-1.5 text-xs py-2 px-3 text-purple-700 dark:text-purple-400 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-950/70 text-purple-800 dark:text-purple-200 font-bold text-xs rounded-xl border border-purple-300 dark:border-purple-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
               >
-                <RotateCcw className="w-4 h-4" />
+                <div className="w-5 h-5 rounded-md bg-purple-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </div>
                 <span>Return Medicines</span>
-              </Button>
+              </button>
             )}
           </div>
 

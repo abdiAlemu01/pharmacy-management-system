@@ -91,8 +91,8 @@ export const SettingsPage = () => {
     },
     {
       id: 'users',
-      label: t('settings.tabs.users', 'Staff & User Management'),
-      shortLabel: 'Staff',
+      label: t('settings.tabs.users', 'User Management'),
+      shortLabel: 'Users',
       icon: Users,
       description: '',
     },

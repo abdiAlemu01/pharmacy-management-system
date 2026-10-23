@@ -560,13 +560,114 @@ export const PurchasesPage = () => {
         </div>
       </div>
 
-      {/* 4. Action Toolbar for Selected Purchase */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-3 sm:p-4">
+      {/* 4. Action Toolbar for Selected Purchase (matches SupplierTable pattern) */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="p-3 sm:p-4 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* 1. View Details */}
+            <button
+              type="button"
+              onClick={() => handleActionClick('details')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+                selectedPurchase
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer shadow-xs active:scale-95'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
+              }`}
+              title={selectedPurchase ? `View Details for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
+            >
+              <Eye className="w-4 h-4" />
+              <span>View Details</span>
+            </button>
+
+            {/* 2. Receive Medicines */}
+            <button
+              type="button"
+              onClick={() => handleActionClick('receive')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+                selectedPurchase
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer shadow-xs active:scale-95'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
+              }`}
+              title={selectedPurchase ? `Receive Medicines for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
+            >
+              <PackageCheck className="w-4 h-4" />
+              <span>Receive Medicines</span>
+            </button>
+
+            {/* 3. Record Payment */}
+            <button
+              type="button"
+              onClick={() => handleActionClick('pay')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+                selectedPurchase
+                  ? 'bg-sky-600 text-white hover:bg-sky-700 cursor-pointer shadow-xs active:scale-95'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
+              }`}
+              title={selectedPurchase ? `Record Payment for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>Record Payment</span>
+            </button>
+
+            {/* 4. Return Medicines */}
+            <button
+              type="button"
+              onClick={() => handleActionClick('return')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+                selectedPurchase
+                  ? 'bg-purple-600 text-white hover:bg-purple-700 cursor-pointer shadow-xs active:scale-95'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
+              }`}
+              title={selectedPurchase ? `Return Medicines for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Return Medicines</span>
+            </button>
+
+            {/* 5. Delete */}
+            <button
+              type="button"
+              onClick={() => handleActionClick('delete')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
+                selectedPurchase
+                  ? 'bg-rose-600 text-white hover:bg-rose-700 cursor-pointer shadow-xs active:scale-95'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
+              }`}
+              title={selectedPurchase ? 'Delete Purchase Order' : 'Click to select a purchase order first'}
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete</span>
+            </button>
+          </div>
+
+          {/* Selection Banner / Status (matches SupplierTable) */}
+          {selectedPurchase && (
+            <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
+              <div className="inline-flex items-center gap-2 bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 px-3.5 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm font-bold shadow-2xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="truncate max-w-[260px]">
+                  Selected: <strong className="font-extrabold">{selectedPurchase.supplierName || 'Order'}</strong> ({selectedPurchase.purchaseOrderNo || `#${selectedPurchase.id.slice(0, 8)}`})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPurchaseId(null)}
+                  className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-white font-bold ml-1.5 p-0.5 rounded cursor-pointer"
+                  title="Deselect"
+                  aria-label="Deselect"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {noSelectionPrompt && (
-          <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 rounded-xl flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300 animate-in fade-in duration-200">
+          <div className="m-3 p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 rounded-xl flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300 animate-in fade-in duration-200">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Please select a purchase order row from the table below to execute an action.</span>
+              <span>Please click on a purchase order row in the table first.</span>
             </div>
             <button
               type="button"
@@ -577,87 +678,6 @@ export const PurchasesPage = () => {
             </button>
           </div>
         )}
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Action buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleActionClick('details')}
-              disabled={!selectedPurchase}
-              className={`flex items-center gap-2 py-2 px-3.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                selectedPurchase
-                  ? 'border-slate-300 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer shadow-2xs'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <Eye className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-              <span>View Details</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleActionClick('receive')}
-              disabled={!selectedPurchase || selectedPurchase.status === 'RECEIVED'}
-              className={`flex items-center gap-2 py-2 px-3.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                selectedPurchase && selectedPurchase.status !== 'RECEIVED'
-                  ? 'border-emerald-300 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer shadow-2xs'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <PackageCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Receive Medicines</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleActionClick('pay')}
-              disabled={!selectedPurchase || selectedPurchase.amountDue <= 0}
-              className={`flex items-center gap-2 py-2 px-3.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                selectedPurchase && selectedPurchase.amountDue > 0
-                  ? 'border-sky-300 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 cursor-pointer shadow-2xs'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <span>Record Payment</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleActionClick('return')}
-              disabled={!selectedPurchase || selectedPurchase.totalQuantityReceived <= 0}
-              className={`flex items-center gap-2 py-2 px-3.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                selectedPurchase && selectedPurchase.totalQuantityReceived > 0
-                  ? 'border-purple-300 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 cursor-pointer shadow-2xs'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <RotateCcw className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-              <span>Return Medicines</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleActionClick('delete')}
-              disabled={!selectedPurchase}
-              className={`flex items-center gap-2 py-2 px-3.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                selectedPurchase
-                  ? 'border-rose-300 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer shadow-2xs'
-                  : 'opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <Trash2 className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-              <span>Delete</span>
-            </Button>
-          </div>
-          
-        </div>
       </div>
 
       {/* 5. Purchases Main Table */}
@@ -676,18 +696,19 @@ export const PurchasesPage = () => {
                 <th className="py-3 px-4 text-rose-600 dark:text-rose-400">Balance Due</th>
                 <th className="py-3 px-3 text-center">Delivery</th>
                 <th className="py-3 px-3 text-center">Payment</th>
+                <th className="py-3 px-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-slate-400">
+                  <td colSpan={11} className="py-12 text-center text-slate-400">
                     Loading purchase orders...
                   </td>
                 </tr>
               ) : purchasesList.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-16 text-center">
+                  <td colSpan={11} className="py-16 text-center">
                     <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       No purchase orders found
@@ -804,6 +825,40 @@ export const PurchasesPage = () => {
                       {/* Payment Status Badge */}
                       <td className="py-3 px-3 text-center whitespace-nowrap">
                         <PaymentStatusBadge status={p.paymentStatus} />
+                      </td>
+
+                      {/* Quick Actions */}
+                      <td className="py-3 px-3 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            title="View Details"
+                            onClick={() => setDetailsPurchase(p)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          {p.status !== 'RECEIVED' && (
+                            <button
+                              type="button"
+                              title="Receive Medicines"
+                              onClick={() => setReceivePurchase(p)}
+                              className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/60 transition-all cursor-pointer"
+                            >
+                              <PackageCheck className="w-4 h-4" />
+                            </button>
+                          )}
+                          {p.amountDue > 0 && (
+                            <button
+                              type="button"
+                              title="Record Payment"
+                              onClick={() => setPaymentPurchase(p)}
+                              className="p-1.5 rounded-lg text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/60 transition-all cursor-pointer"
+                            >
+                              <CreditCard className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

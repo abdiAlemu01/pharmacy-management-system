@@ -152,7 +152,7 @@ export const ReceiveMedicinesModal = ({
 
         {/* Items Receiving Table */}
         <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[760px]">
             <thead className="bg-slate-100/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
               <tr>
                 <th className="py-2.5 px-3">Medicine</th>

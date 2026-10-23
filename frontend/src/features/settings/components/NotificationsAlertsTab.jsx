@@ -171,27 +171,27 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
       )}
 
       {/* Live Alert Metrics Summary Banner */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-6">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-              <Bell className="w-6 h-6" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+              <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.notifications.overview', 'Live Alert Metrics Overview')}
               </h2>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5 sm:gap-4">
           {/* Low stock badge */}
           <button
             type="button"
             disabled={!preferences.lowStockAlerts}
             onClick={() => preferences.lowStockAlerts && handleOpenCardModal('lowStock')}
-            className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+            className={`w-full p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 text-left focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
               !preferences.lowStockAlerts
                 ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 opacity-60 cursor-not-allowed'
                 : selectedMetric === 'lowStock'
@@ -201,44 +201,44 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           >
             <div>
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center border border-amber-200 dark:border-amber-800 shrink-0">
-                  <AlertTriangle className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center border border-amber-200 dark:border-amber-800 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {selectedMetric === 'lowStock' ? (
-                  <div className="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                 ) : preferences.lowStockAlerts ? (
-                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700" />
                 ) : (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
                 )}
               </div>
 
-              <div className="mt-2.5">
-                <span className={`text-2xl font-extrabold block ${!preferences.lowStockAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className="mt-2 sm:mt-2.5">
+                <span className={`text-xl sm:text-2xl font-extrabold block ${!preferences.lowStockAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                   {preferences.lowStockAlerts ? (alertMetrics?.lowStockCount ?? 0) : 0}
                 </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5 leading-tight">
                   {t('settings.notifications.lowStock')}
                 </span>
               </div>
             </div>
 
             {/* Clickable Action Footer */}
-            <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px] w-full">
+            <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] sm:text-[11px] w-full">
               <span className="font-semibold text-slate-600 dark:text-slate-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex items-center gap-1">
-                <span>View content</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
 
               {selectedMetric === 'lowStock' ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -250,7 +250,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             type="button"
             disabled={!preferences.nearingExpiryAlerts}
             onClick={() => preferences.nearingExpiryAlerts && handleOpenCardModal('nearingExpiry')}
-            className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+            className={`w-full p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
               !preferences.nearingExpiryAlerts
                 ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 opacity-60 cursor-not-allowed'
                 : selectedMetric === 'nearingExpiry'
@@ -260,44 +260,44 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           >
             <div>
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0">
-                  <CalendarClock className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0">
+                  <CalendarClock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {selectedMetric === 'nearingExpiry' ? (
-                  <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                 ) : preferences.nearingExpiryAlerts ? (
-                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700" />
                 ) : (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
                 )}
               </div>
 
-              <div className="mt-2.5">
-                <span className={`text-2xl font-extrabold block ${!preferences.nearingExpiryAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className="mt-2 sm:mt-2.5">
+                <span className={`text-xl sm:text-2xl font-extrabold block ${!preferences.nearingExpiryAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                   {preferences.nearingExpiryAlerts ? (alertMetrics?.nearingExpiryCount ?? 0) : 0}
                 </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5 leading-tight">
                   {t('settings.notifications.nearingExpiry')}
                 </span>
               </div>
             </div>
 
             {/* Clickable Action Footer */}
-            <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px] w-full">
+            <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] sm:text-[11px] w-full">
               <span className="font-semibold text-slate-600 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1">
-                <span>View content</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
 
               {selectedMetric === 'nearingExpiry' ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -309,7 +309,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             type="button"
             disabled={!preferences.expiredAlerts}
             onClick={() => preferences.expiredAlerts && handleOpenCardModal('expired')}
-            className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-rose-500/30 ${
+            className={`w-full p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 text-left focus:outline-none focus:ring-2 focus:ring-rose-500/30 ${
               !preferences.expiredAlerts
                 ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 opacity-60 cursor-not-allowed'
                 : selectedMetric === 'expired'
@@ -319,44 +319,44 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           >
             <div>
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 flex items-center justify-center border border-rose-200 dark:border-rose-800 shrink-0">
-                  <Skull className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 flex items-center justify-center border border-rose-200 dark:border-rose-800 shrink-0">
+                  <Skull className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {selectedMetric === 'expired' ? (
-                  <div className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                 ) : preferences.expiredAlerts ? (
-                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700" />
                 ) : (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
                 )}
               </div>
 
-              <div className="mt-2.5">
-                <span className={`text-2xl font-extrabold block ${!preferences.expiredAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className="mt-2 sm:mt-2.5">
+                <span className={`text-xl sm:text-2xl font-extrabold block ${!preferences.expiredAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                   {preferences.expiredAlerts ? (alertMetrics?.expiredCount ?? 0) : 0}
                 </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5 leading-tight">
                   {t('settings.notifications.expired')}
                 </span>
               </div>
             </div>
 
             {/* Clickable Action Footer */}
-            <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px] w-full">
+            <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] sm:text-[11px] w-full">
               <span className="font-semibold text-slate-600 dark:text-slate-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors flex items-center gap-1">
-                <span>View content</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
 
               {selectedMetric === 'expired' ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -368,7 +368,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             type="button"
             disabled={!preferences.supplierPaymentDueReminders}
             onClick={() => preferences.supplierPaymentDueReminders && handleOpenCardModal('paymentDue')}
-            className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-purple-500/30 ${
+            className={`w-full p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 text-left focus:outline-none focus:ring-2 focus:ring-purple-500/30 ${
               !preferences.supplierPaymentDueReminders
                 ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 opacity-60 cursor-not-allowed'
                 : selectedMetric === 'paymentDue'
@@ -378,44 +378,44 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           >
             <div>
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 flex items-center justify-center border border-purple-200 dark:border-purple-800 shrink-0">
-                  <CreditCard className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 flex items-center justify-center border border-purple-200 dark:border-purple-800 shrink-0">
+                  <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {selectedMetric === 'paymentDue' ? (
-                  <div className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                 ) : preferences.supplierPaymentDueReminders ? (
-                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700" />
                 ) : (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
                 )}
               </div>
 
-              <div className="mt-2.5">
-                <span className={`text-2xl font-extrabold block ${!preferences.supplierPaymentDueReminders ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className="mt-2 sm:mt-2.5">
+                <span className={`text-xl sm:text-2xl font-extrabold block ${!preferences.supplierPaymentDueReminders ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                   {preferences.supplierPaymentDueReminders ? (alertMetrics?.paymentDueCount ?? 0) : 0}
                 </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5 leading-tight">
                   {t('settings.notifications.paymentDue')}
                 </span>
               </div>
             </div>
 
             {/* Clickable Action Footer */}
-            <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px] w-full">
+            <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] sm:text-[11px] w-full">
               <span className="font-semibold text-slate-600 dark:text-slate-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-1">
-                <span>View content</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
 
               {selectedMetric === 'paymentDue' ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
+                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -427,7 +427,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             type="button"
             disabled={!preferences.pendingPurchaseAlerts}
             onClick={() => preferences.pendingPurchaseAlerts && handleOpenCardModal('pendingPo')}
-            className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+            className={`w-full col-span-2 sm:col-span-1 lg:col-span-1 p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-2.5 sm:gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
               !preferences.pendingPurchaseAlerts
                 ? 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 opacity-60 cursor-not-allowed'
                 : selectedMetric === 'pendingPo'
@@ -437,44 +437,44 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
           >
             <div>
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shrink-0">
-                  <ShoppingBag className="w-4 h-4" />
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {selectedMetric === 'pendingPo' ? (
-                  <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                 ) : preferences.pendingPurchaseAlerts ? (
-                  <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 dark:border-slate-700" />
                 ) : (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">OFF</span>
                 )}
               </div>
 
-              <div className="mt-2.5">
-                <span className={`text-2xl font-extrabold block ${!preferences.pendingPurchaseAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className="mt-2 sm:mt-2.5">
+                <span className={`text-xl sm:text-2xl font-extrabold block ${!preferences.pendingPurchaseAlerts ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                   {preferences.pendingPurchaseAlerts ? (alertMetrics?.pendingPoCount ?? 0) : 0}
                 </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 block mt-0.5 leading-tight">
                   {t('settings.notifications.pendingPo')}
                 </span>
               </div>
             </div>
 
             {/* Clickable Action Footer */}
-            <div className="mt-3.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px] w-full">
+            <div className="mt-2 sm:mt-3.5 pt-2 sm:pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px] sm:text-[11px] w-full">
               <span className="font-semibold text-slate-600 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1">
-                <span>View content</span>
-                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>View</span>
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
 
               {selectedMetric === 'pendingPo' ? (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>Open</span>
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-slate-400 hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
                   Click to open
                 </span>
               )}
@@ -511,8 +511,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {/* Low stock items table */}
             {selectedMetric === 'lowStock' && (
               alertMetrics?.lowStockItems?.length > 0 ? (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+                  <table className="w-full min-w-[480px] text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="py-2.5 px-3">Medicine Name</th>
@@ -547,8 +547,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {/* Nearing expiry items table */}
             {selectedMetric === 'nearingExpiry' && (
               alertMetrics?.nearingExpiryItems?.length > 0 ? (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+                  <table className="w-full min-w-[480px] text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="py-2.5 px-3">Medicine Name</th>
@@ -581,8 +581,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {/* Expired items table */}
             {selectedMetric === 'expired' && (
               alertMetrics?.expiredItems?.length > 0 ? (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+                  <table className="w-full min-w-[480px] text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="py-2.5 px-3">Medicine Name</th>
@@ -615,8 +615,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {/* Supplier payment due items table */}
             {selectedMetric === 'paymentDue' && (
               alertMetrics?.paymentDueItems?.length > 0 ? (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+                  <table className="w-full min-w-[480px] text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="py-2.5 px-3">Medicine Name</th>
@@ -651,8 +651,8 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             {/* Pending POs table */}
             {selectedMetric === 'pendingPo' && (
               alertMetrics?.pendingPoItems?.length > 0 ? (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+                  <table className="w-full min-w-[480px] text-left">
                     <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="py-2.5 px-3">Medicine Name</th>
@@ -688,35 +688,35 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
       </div>
 
       {/* Main Alert Rules & Preferences */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-6">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-              <Sliders className="w-6 h-6" />
+            <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+              <Sliders className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.notifications.rulesTitle')}
               </h2>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 pt-1">
           {/* 1. Low-Stock Alerts Card */}
           <div
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 ${
+            className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3.5 sm:gap-4 ${
               preferences.lowStockAlerts
                 ? 'border-emerald-500/80 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-2xs'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 opacity-70'
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-800 shrink-0">
-                  <AlertTriangle className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-800 shrink-0">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.lowStockTitle')}
                 </h4>
               </div>
@@ -737,7 +737,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             </div>
 
             {preferences.lowStockAlerts && (
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   {t('settings.notifications.alertThreshold')}
                 </span>
@@ -762,18 +762,18 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* 2. Medicines Nearing Expiry Card */}
           <div
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 ${
+            className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3.5 sm:gap-4 ${
               preferences.nearingExpiryAlerts
                 ? 'border-emerald-500/80 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-2xs'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 opacity-70'
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0">
-                  <CalendarClock className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0">
+                  <CalendarClock className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.nearingExpiryTitle')}
                 </h4>
               </div>
@@ -794,7 +794,7 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
             </div>
 
             {preferences.nearingExpiryAlerts && (
-              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   {t('settings.notifications.alertAheadBy')}
                 </span>
@@ -819,18 +819,18 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* 3. Expired Medicine Alerts Card */}
           <div
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 ${
+            className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3.5 sm:gap-4 ${
               preferences.expiredAlerts
                 ? 'border-emerald-500/80 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-2xs'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 opacity-70'
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800 shrink-0">
-                  <Skull className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800 shrink-0">
+                  <Skull className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.expiredTitle')}
                 </h4>
               </div>
@@ -853,18 +853,18 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* 4. Supplier Payment Due Reminders Card */}
           <div
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 ${
+            className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3.5 sm:gap-4 ${
               preferences.supplierPaymentDueReminders
                 ? 'border-emerald-500/80 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-2xs'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 opacity-70'
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800 shrink-0">
-                  <CreditCard className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800 shrink-0">
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.paymentDueTitle')}
                 </h4>
               </div>
@@ -887,18 +887,18 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
 
           {/* 5. Pending Purchase Order Alerts Card */}
           <div
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-4 md:col-span-2 ${
+            className={`p-3.5 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-3.5 sm:gap-4 md:col-span-2 ${
               preferences.pendingPurchaseAlerts
                 ? 'border-emerald-500/80 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-2xs'
                 : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 opacity-70'
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shrink-0">
-                  <ShoppingBag className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.notifications.pendingPoTitle')}
                 </h4>
               </div>
@@ -921,11 +921,11 @@ export const NotificationsAlertsTab = ({ settings, alertMetrics, isLoading }) =>
         </div>
 
         {/* Action Button */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-stretch sm:justify-end">
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+            className="w-full sm:w-auto justify-center flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
             {updateMutation.isPending ? (
               <>

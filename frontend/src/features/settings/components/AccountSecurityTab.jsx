@@ -171,43 +171,43 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 1. Owner's Name & Profile */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-6">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-                <User className="w-6 h-6" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
+          <div className="flex items-center justify-between flex-wrap gap-2.5 sm:gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+                <User className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                   {t('settings.account.title', "Owner's Profile & Account")}
                 </h2>
               </div>
             </div>
-            <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs uppercase rounded-full">
+            <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-extrabold text-[11px] sm:text-xs uppercase rounded-full">
               {user?.role || t('settings.owner', 'Owner')}
             </span>
           </div>
         </div>
 
         {profileSuccess && (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 rounded-xl flex items-center gap-2.5 text-sm font-semibold shadow-xs">
+          <div className="p-3.5 sm:p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold shadow-xs">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>{profileSuccess}</span>
           </div>
         )}
 
         {profileError && (
-          <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-sm font-semibold shadow-xs">
+          <div className="p-3.5 sm:p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold shadow-xs">
             <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
             <span>{profileError}</span>
           </div>
         )}
 
-        <form onSubmit={handleProfileSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <form onSubmit={handleProfileSubmit} className="space-y-5 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Owner's Name */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -267,11 +267,11 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-stretch sm:justify-end">
             <button
               type="submit"
               disabled={updateAccountMutation.isPending}
-              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             >
               {updateAccountMutation.isPending ? (
                 <>
@@ -290,14 +290,14 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
       </div>
 
       {/* 2. Password Change & Current Password Verification */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-6">
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-              <KeyRound className="w-6 h-6" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+              <KeyRound className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.account.changePassword', 'Change Password')}
               </h2>
             </div>
@@ -305,20 +305,20 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
         </div>
 
         {pwdSuccess && (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 rounded-xl flex items-center gap-2.5 text-sm font-semibold shadow-xs">
+          <div className="p-3.5 sm:p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold shadow-xs">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>{pwdSuccess}</span>
           </div>
         )}
 
         {pwdError && (
-          <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-sm font-semibold shadow-xs">
+          <div className="p-3.5 sm:p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold shadow-xs">
             <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
             <span>{pwdError}</span>
           </div>
         )}
 
-        <form onSubmit={handlePasswordSubmit} className="space-y-5">
+        <form onSubmit={handlePasswordSubmit} className="space-y-4 sm:space-y-5">
           {/* Current Password Verification */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -344,7 +344,7 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {/* New Password */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -424,11 +424,20 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setShowLogoutModal(true)}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-sm rounded-xl transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-500/30 w-full sm:w-auto"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>{t('settings.account.signOutBtn', 'Sign Out Now')}</span>
+            </button>
+
             <button
               type="submit"
               disabled={changePasswordMutation.isPending}
-              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30 w-full sm:w-auto"
             >
               {changePasswordMutation.isPending ? (
                 <>
@@ -441,15 +450,6 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
                   <span>{t('settings.account.updatePasswordBtn', 'Update Password')}</span>
                 </>
               )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowLogoutModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-sm rounded-xl transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-500/30"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>{t('settings.account.signOutBtn', 'Sign Out Now')}</span>
             </button>
           </div>
         </form>
@@ -466,18 +466,18 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
           <p className="text-slate-600 dark:text-slate-300">
             {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out ?')}
           </p>
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setShowLogoutModal(false)}
-              className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-center"
             >
               {t('settings.account.cancel', 'Cancel')}
             </button>
             <button
               type="button"
               onClick={handleConfirmLogout}
-              className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer text-center"
             >
               {t('settings.account.yesSignOut', 'Yes, Sign Out')}
             </button>

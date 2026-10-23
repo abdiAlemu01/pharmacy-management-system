@@ -90,21 +90,19 @@ export const SettingsPage = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-in fade-in duration-200">
+    <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto px-2 sm:px-4 md:px-0 pb-12 animate-in fade-in duration-200">
       {/* Top Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-xs shrink-0">
-            <SettingsIcon className="w-6 h-6 animate-spin-slow" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-xs shrink-0">
+            <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">
                 {t('settings.title', 'System & Pharmacy Settings')}
               </h1>
-             
             </div>
-            
           </div>
         </div>
 
@@ -116,14 +114,14 @@ export const SettingsPage = () => {
 
       {/* Error state if API fails */}
       {error && (
-        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-sm font-semibold shadow-xs">
+        <div className="p-3.5 sm:p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 rounded-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold shadow-xs">
           <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span>Failed to load settings. Please verify the backend connection and try again.</span>
         </div>
       )}
 
       {/* Tabs Navigation Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 bg-slate-100/70 dark:bg-slate-800/60 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2.5 bg-slate-100/70 dark:bg-slate-800/60 p-1 sm:p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -132,19 +130,19 @@ export const SettingsPage = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-start p-3 rounded-xl transition-all cursor-pointer text-left relative ${
+              className={`flex flex-col items-start p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer text-left relative ${
                 isActive
                   ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm border border-emerald-400 dark:border-emerald-500/80 font-bold'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
-                  <span className="text-xs font-bold truncate">{tab.label}</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  <span className="text-xs font-bold truncate leading-tight">{tab.label}</span>
                 </div>
                 {tab.badge && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-white shadow-2xs">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-white shadow-2xs shrink-0 ml-1">
                     {tab.badge}
                   </span>
                 )}
@@ -158,7 +156,7 @@ export const SettingsPage = () => {
       </div>
 
       {/* Active Tab Content */}
-      <div className="mt-6">
+      <div className="mt-4 sm:mt-6">
         {activeTab === 'pharmacy' && (
           <PharmacyInfoTab settings={settings} user={user} isLoading={isLoading} />
         )}

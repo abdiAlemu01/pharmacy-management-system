@@ -147,15 +147,15 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
       )}
 
       {/* Main Form Container */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-8">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
         {/* Section Header */}
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-              <Building2 className="w-6 h-6" />
+            <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.pharmacy.title', 'Pharmacy Information')}
               </h2>
             </div>
@@ -167,9 +167,9 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             {t('settings.pharmacy.logo', 'Pharmacy Logo')}
           </label>
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
             {/* Logo Preview */}
-            <div className="w-24 h-24 rounded-full bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-400/80 dark:border-emerald-600/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative group">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-400/80 dark:border-emerald-600/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative group">
               {logoPreview ? (
                 <img
                   src={logoPreview}
@@ -178,15 +178,15 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center text-slate-400 text-center p-2">
-                  <ImageIcon className="w-8 h-8 text-emerald-500/70 mb-1" />
+                  <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-500/70 mb-1" />
                   <span className="text-[10px] font-semibold text-slate-400">No Logo</span>
                 </div>
               )}
             </div>
 
             {/* Logo Actions */}
-            <div className="flex-1 space-y-2 text-center sm:text-left">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+            <div className="flex-1 w-full sm:w-auto space-y-2 text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-start gap-2 sm:gap-2.5">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -197,7 +197,7 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
                 />
                 <label
                   htmlFor="pharmacy-logo-input"
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-600 transition-all cursor-pointer shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-600 transition-all cursor-pointer shadow-2xs"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>{logoPreview ? t('settings.pharmacy.changeLogo', 'Change Logo') : t('settings.pharmacy.uploadLogo', 'Upload Logo')}</span>
@@ -207,7 +207,7 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
                   <button
                     type="button"
                     onClick={handleRemoveLogo}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100 border border-rose-200 dark:border-rose-900 transition-all cursor-pointer shadow-2xs"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100 border border-rose-200 dark:border-rose-900 transition-all cursor-pointer shadow-2xs"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>{t('settings.pharmacy.removeLogo', 'Remove')}</span>
@@ -219,7 +219,7 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
         </div>
 
         {/* 2. Form Grid Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Pharmacy Name */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -298,11 +298,11 @@ export const PharmacyInfoTab = ({ settings, user, isLoading }) => {
         </div>
 
         {/* Action Button */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-stretch sm:justify-end">
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer"
           >
             {updateMutation.isPending ? (
               <>

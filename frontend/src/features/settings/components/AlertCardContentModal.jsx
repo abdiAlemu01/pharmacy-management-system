@@ -126,29 +126,29 @@ export const AlertCardContentModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs overflow-y-auto flex justify-center items-start p-4 sm:p-6 pt-16 sm:pt-20 pb-16"
+      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs overflow-y-auto flex justify-center items-start p-2 sm:p-4 md:p-6 pt-10 sm:pt-16 pb-10 sm:pb-16"
       onClick={onClose}
     >
       <div
-        className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden shrink-0 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
+        className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden shrink-0 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] sm:max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${config.iconColor}`}>
-              <Icon className="w-5 h-5" />
+        <div className="flex items-center justify-between p-3.5 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 ${config.iconColor}`}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                   {config.title}
                 </h3>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${config.badgeColor}`}>
+                <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${config.badgeColor}`}>
                   {config.count} {config.count === 1 ? 'Item' : 'Items'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                 {config.subtitle}
               </p>
             </div>
@@ -163,7 +163,7 @@ export const AlertCardContentModal = ({
         </div>
 
         {/* Search bar */}
-        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="p-3 sm:p-4 bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -177,7 +177,7 @@ export const AlertCardContentModal = ({
         </div>
 
         {/* Table Content */}
-        <div className="flex-1 overflow-y-auto p-4 min-h-[220px]">
+        <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 min-h-[220px]">
           {filteredItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-slate-400">
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-2" />
@@ -189,8 +189,8 @@ export const AlertCardContentModal = ({
               </p>
             </div>
           ) : (
-            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs">
-              <table className="w-full text-left">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-xs">
+              <table className="w-full min-w-[500px] text-left">
                 <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
                   {alertType === 'lowStock' && (
                     <tr>
@@ -334,16 +334,16 @@ export const AlertCardContentModal = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 shrink-0">
-          <span className="text-xs text-slate-500">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-2 p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 shrink-0">
+          <span className="text-[11px] sm:text-xs text-slate-500 text-center sm:text-left">
             Showing {filteredItems.length} of {config.count} items
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {config.targetRoute && (
               <button
                 type="button"
                 onClick={handleNavigate}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors cursor-pointer"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors cursor-pointer"
               >
                 <span>{config.targetLabel}</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -352,7 +352,7 @@ export const AlertCardContentModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="flex-1 sm:flex-initial px-4 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-center"
             >
               Close
             </button>

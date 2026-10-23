@@ -410,15 +410,15 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-6 md:p-8 space-y-8">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
         {/* Section Header */}
-        <div className="border-b border-slate-100 dark:border-slate-800 pb-5">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
-              <Palette className="w-6 h-6" />
+        <div className="border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 rounded-xl">
+              <Palette className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                 {t('settings.preferences.title', 'General Preferences')}
               </h2>
             </div>
@@ -434,7 +434,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
             {SUPPORTED_LANGUAGES.map((lang) => {
               const isSelected = activeLanguage === lang.code;
               return (
@@ -442,14 +442,14 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                   key={lang.code}
                   type="button"
                   onClick={() => handleLanguageSelect(lang.code)}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                  className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                     isSelected
                       ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                    <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-black text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
                       {lang.badge}
                     </span>
                     {isSelected ? (
@@ -477,25 +477,25 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             {t('settings.preferences.appearanceTitle', 'System Appearance Theme')}
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Light Mode Card */}
             <button
               type="button"
               onClick={() => handleThemeSelect('light')}
-              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+              className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3.5 sm:gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.theme === 'light'
                   ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                   : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
               }`}
             >
               <div
-                className={`p-3 rounded-xl shrink-0 ${
+                className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${
                   preferences.theme === 'light'
                     ? 'bg-emerald-600 text-white'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <Sun className="w-6 h-6" />
+                <Sun className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
@@ -513,20 +513,20 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             <button
               type="button"
               onClick={() => handleThemeSelect('dark')}
-              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+              className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3.5 sm:gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.theme === 'dark'
                   ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                   : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
               }`}
             >
               <div
-                className={`p-3 rounded-xl shrink-0 ${
+                className={`p-2.5 sm:p-3 rounded-xl shrink-0 ${
                   preferences.theme === 'dark'
                     ? 'bg-emerald-600 text-white'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <Moon className="w-6 h-6" />
+                <Moon className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
@@ -551,19 +551,19 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Ethiopian Calendar Card */}
             <button
               type="button"
               onClick={() => handleCalendarSelect('ethiopian')}
-              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+              className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 sm:gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.calendarType === 'ethiopian'
                   ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                   : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
               }`}
             >
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
                     {t('settings.preferences.ethiopianCalendar', 'Ethiopian Calendar (E.C.)')}
                   </span>
@@ -593,7 +593,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             <button
               type="button"
               onClick={() => handleCalendarSelect('gregorian')}
-              className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+              className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 sm:gap-4 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                 preferences.calendarType === 'gregorian'
                   ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                   : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
@@ -631,7 +631,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
             </label>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {DATE_FORMAT_OPTIONS.map((item) => {
               const isSelected = (preferences.dateFormat || 'DD/MM/YYYY') === item.format;
               const liveSample = formatAppDate(today, {
@@ -645,7 +645,7 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
                   key={item.format}
                   type="button"
                   onClick={() => handleDateFormatSelect(item.format)}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3.5 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                  className={`w-full p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 sm:gap-3.5 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
                     isSelected
                       ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/20'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900'
@@ -676,22 +676,13 @@ export const GeneralPreferencesTab = ({ settings, isLoading }) => {
           </div>
         </div>
 
-
-
-
-
-
-
-
-
-
         {/* Action Button */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-stretch sm:justify-end">
           <button
             type="submit"
             onClick={handleSubmit}
             disabled={updateMutation.isPending}
-            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           >
             {updateMutation.isPending ? (
               <>

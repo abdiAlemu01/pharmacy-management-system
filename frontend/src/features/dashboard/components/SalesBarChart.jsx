@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, TrendingUp, Calendar, Info } from 'lucide-react';
+import { TrendingUp, Calendar, Info } from 'lucide-react';
 
 export const SalesBarChart = ({
   salesTrend,
@@ -24,39 +24,11 @@ export const SalesBarChart = ({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
-      {/* Header with Source Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              7-Day Daily Sales Trend
-            </h3>
-            {/* Feature source badge */}
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-              <ShoppingBag className="w-3 h-3" />
-              <span>Feature source: Sales/POS</span>
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Daily revenue performance captured from completed POS terminal sales
-          </p>
-        </div>
-
-        {/* 7-Day Stats Badges */}
-        <div className="flex items-center gap-2 text-xs">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <span className="text-slate-400 block text-[10px] font-medium">7-Day Total</span>
-            <span className="font-extrabold text-slate-900 dark:text-white">
-              {formatCurrency(total7DaySales)}
-            </span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <span className="text-slate-400 block text-[10px] font-medium">Daily Avg</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">
-              {formatCurrency(avgDailySales)}
-            </span>
-          </div>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          7-Day Daily Sales Trend
+        </h3>
       </div>
 
       {/* Main Bar Chart Container */}

@@ -54,9 +54,6 @@ export const DashboardPage = () => {
             </h1>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Operational and business performance overview for <strong>{pharmacyName}</strong>
-          </p>
         </div>
 
         {/* Live Date Badge */}
@@ -116,13 +113,13 @@ export const DashboardPage = () => {
 
       {/* 5. Two Data Tables: Most Sold Medicines + Near to Expire Medicines */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Table 1: Most Sold Medicines */}
+        {/* Most Sold Medicines */}
         <TopSoldMedicinesTable
           medicines={topSellingMedicines}
           currencySymbol={currencySymbol}
         />
 
-        {/* Table 2: Near to Expire Medicines */}
+        {/* Near to Expire Medicines */}
         <NearExpiryMedicinesTable
           medicines={nearExpiryMedicines}
         />

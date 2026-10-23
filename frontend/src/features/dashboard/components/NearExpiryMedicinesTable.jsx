@@ -20,19 +20,14 @@ export const NearExpiryMedicinesTable = ({ medicines = [] }) => {
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col justify-between">
       {/* Table Header */}
       <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Near to Expire Medicines
-            </h3>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-              <AlertTriangle className="w-3 h-3" />
-              <span>Table 2: Expiry Risk</span>
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Batches sorted by nearest expiration date requiring priority dispensing
-          </p>
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            Near to Expire Medicines
+          </h3>
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+            <AlertTriangle className="w-3 h-3" />
+            <span>Expiry Risk</span>
+          </span>
         </div>
 
         <span className="text-xs font-bold text-slate-400">

@@ -468,9 +468,6 @@ export const AccountSecurityTab = ({ user, settings, isLoading }) => {
               <LogOut className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
-                Ready to leave?
-              </h4>
               <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
                 {t('settings.account.confirmSignOutMsg', 'Are you sure you want to sign out of your account? Any unsaved changes will be lost.')}
               </p>

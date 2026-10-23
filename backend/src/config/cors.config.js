@@ -2,6 +2,7 @@ import { envConfig } from './env.config.js';
 
 // Allowed origins
 const defaultOrigins = [
+  'https://pharm-35qm.onrender.com',
   'https://pharm.onrender.com',
   'http://localhost:3000',
   'http://localhost:5173',
@@ -23,7 +24,12 @@ export const corsConfig = {
 
     const cleanOrigin = origin.replace(/\/+$/, '');
 
-    if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.includes('*')) {
+    // Allow explicitly listed origins, wildcard, or any render.com frontend deployment
+    if (
+      allowedOrigins.includes(cleanOrigin) ||
+      allowedOrigins.includes('*') ||
+      cleanOrigin.endsWith('.onrender.com')
+    ) {
       return callback(null, true);
     }
 

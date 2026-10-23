@@ -5,11 +5,11 @@ import { authorize } from '../middleware/authorize.middleware.js';
 
 const router = Router();
 
-// Protect dashboard route: Admin only
+// Protect dashboard route: Authenticated ADMIN only
 router.use(authenticate);
 router.use(authorize('ADMIN'));
 
-// GET /api/dashboard/summary
+// GET /api/v1/dashboard/summary
 router.get('/summary', DashboardController.getSummary);
 
 export default router;

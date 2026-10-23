@@ -6,7 +6,7 @@ export const useDashboardSummary = (params = {}) => {
     queryKey: ['dashboard', 'summary', params],
     queryFn: () => getDashboardSummaryApi(params),
     staleTime: 1000 * 30, // 30 seconds
-    refetchOnWindowFocus: true,
+    refetchInterval: 1000 * 60, // Auto-refresh every minute
   });
 };
 

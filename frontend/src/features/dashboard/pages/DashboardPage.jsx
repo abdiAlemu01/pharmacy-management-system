@@ -1,131 +1,133 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/features/auth';
-import { useSettings } from '@/features/settings';
+import { LayoutDashboard, Calendar, Store, AlertCircle } from 'lucide-react';
 import { useDashboardSummary } from '../hooks/use-dashboard';
-import { DashboardHeader } from '../components/DashboardHeader';
-import { BusinessPerformanceOverview } from '../components/BusinessPerformanceOverview';
-import { QuickActions } from '../components/QuickActions';
-import { SalesAndProfitAnalytics } from '../components/SalesAndProfitAnalytics';
-import { StockAndExpiryAlerts } from '../components/StockAndExpiryAlerts';
-import { RecentSalesAndPurchases } from '../components/RecentSalesAndPurchases';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useSettings } from '@/features/settings/hooks/use-settings';
+import { DashboardStatsCards } from '../components/DashboardStatsCards';
+import { DashboardDateFilter } from '../components/DashboardDateFilter';
+import { SalesBarChart } from '../components/SalesBarChart';
+import { InventoryDonutChart } from '../components/InventoryDonutChart';
+import { TopSoldMedicinesTable } from '../components/TopSoldMedicinesTable';
+import { NearExpiryMedicinesTable } from '../components/NearExpiryMedicinesTable';
 
 export const DashboardPage = () => {
-  const { user } = useAuth();
+  // Date filter state
+  const [period, setPeriod] = useState('week');
+  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+
+  // Settings for currency symbol
   const { data: settingsData } = useSettings();
+  const currencySymbol = settingsData?.settings?.currencySymbol || 'ETB';
+  const pharmacyName = settingsData?.settings?.pharmacyName || 'Pharmacy Management';
 
-  // Period / Custom Date state for dynamic interactive analysis
-  const [period, setPeriod] = useState('7d'); 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-
-  const {
-    data: summaryData,
-    isLoading,
-    isFetching,
-    refetch,
-    isError,
-    error,
-  } = useDashboardSummary({
+  // Dashboard API Query
+  const { data, isLoading, error, refetch, isFetching } = useDashboardSummary({
     period,
-    startDate: period === 'custom' ? startDate : '',
-    endDate: period === 'custom' ? endDate : '',
+    startDate: period === 'custom' ? dateRange.startDate : undefined,
+    endDate: period === 'custom' ? dateRange.endDate : undefined,
   });
-
-  const settings = settingsData?.settings || {};
-  const pharmacyName = settings.pharmacyName || 'Pharmacy Care';
-  const currencySymbol = settings.currencySymbol || summaryData?.settings?.currencySymbol || 'Birr';
 
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
-    if (newPeriod !== 'custom') {
-      setStartDate('');
-      setEndDate('');
-    }
   };
 
-  const handleCustomDateChange = (start, end) => {
-    setStartDate(start);
-    setEndDate(end);
-    setPeriod('custom');
+  const handleDateChange = (range) => {
+    setDateRange(range);
   };
+
+  const todayData = data?.today || {};
+  const periodData = data?.period || {};
+  const mostSoldMedicine = data?.mostSoldMedicine || null;
+  const mostProfitableMedicine = data?.mostProfitableMedicine || null;
+  const salesTrend = data?.salesTrend || {};
+  const stockDistribution = data?.stockDistribution || {};
+  const topSellingMedicines = data?.topSellingMedicines || [];
+  const nearExpiryMedicines = data?.nearExpiryMedicines || [];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 animate-in fade-in duration-200">
-      {/* 0. Top Header Banner with Live Date, Greeting, and Date Range Controls */}
-      <DashboardHeader
-        user={user}
-        pharmacyName={pharmacyName}
+    <div className="space-y-6">
+      {/* 1. Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Executive Dashboard
+            </h1>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Operational and business performance overview for <strong>{pharmacyName}</strong>
+          </p>
+        </div>
+
+        {/* Live Date Badge */}
+        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-2xs">
+          <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Interactive Date Range Filter */}
+      <DashboardDateFilter
         period={period}
+        startDate={dateRange.startDate}
+        endDate={dateRange.endDate}
         onPeriodChange={handlePeriodChange}
-        startDate={startDate}
-        endDate={endDate}
-        onCustomDateChange={handleCustomDateChange}
+        onDateChange={handleDateChange}
         onRefresh={() => refetch()}
-        isRefreshing={isFetching}
+        isLoading={isFetching}
       />
 
-      {/* Error Banner */}
-      {isError && (
-        <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>
-              {error?.response?.data?.message || 'Could not load complete dashboard statistics. Please try refreshing.'}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg cursor-pointer"
-          >
-            Retry
-          </button>
+      {/* Error state */}
+      {error && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-2xl flex items-center gap-3 text-rose-800 dark:text-rose-300 text-sm font-medium">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+          <span>Failed to load live dashboard statistics. Please click refresh to retry.</span>
         </div>
       )}
 
-      {/* 1. Business Performance Overview (6 Essential Summary Cards) */}
-      <BusinessPerformanceOverview
-        overview={summaryData?.businessOverview}
+      {/* 3. 4 Key Stats Cards */}
+      <DashboardStatsCards
+        today={todayData}
+        mostSoldMedicine={mostSoldMedicine}
+        mostProfitableMedicine={mostProfitableMedicine}
         currencySymbol={currencySymbol}
-        isLoading={isLoading}
       />
 
-      {/* 2. Quick Actions Shortcuts */}
-      <QuickActions />
+      {/* 4. Charts Section: 1 Bar Chart (Sales/POS) + 1 Donut Chart (Inventory) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bar Chart: Last 7 Days Daily Sales (Source: Sales/POS) */}
+        <SalesBarChart
+          salesTrend={salesTrend}
+          currencySymbol={currencySymbol}
+        />
 
-      {/* 3. Sales & Profit Analytics (Hero Graph & Financial Intelligence) */}
-      <SalesAndProfitAnalytics
-        analytics={summaryData?.salesAndProfitAnalytics}
-        businessOverview={summaryData?.businessOverview}
-        currencySymbol={currencySymbol}
-        periodLabel={summaryData?.period?.label || 'Selected Range'}
-        isLoading={isLoading}
-      />
+        {/* Donut Chart: Inventory Health (Source: Inventory) */}
+        <InventoryDonutChart
+          stockDistribution={stockDistribution}
+        />
+      </div>
 
-      {/* 4. Operational Activity & Safeguards (Stock Alerts & Recent Transactions) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Medicine Stock & Expiry Alerts (5 cols) */}
-        <div className="lg:col-span-5">
-          <StockAndExpiryAlerts
-            alerts={summaryData?.stockAndExpiryAlerts}
-            isLoading={isLoading}
-          />
-        </div>
+      {/* 5. Two Data Tables: Most Sold Medicines + Near to Expire Medicines */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Table 1: Most Sold Medicines */}
+        <TopSoldMedicinesTable
+          medicines={topSellingMedicines}
+          currencySymbol={currencySymbol}
+        />
 
-        {/* Right Column: Recent Sales and Purchases Compact Tables (7 cols) */}
-        <div className="lg:col-span-7">
-          <RecentSalesAndPurchases
-            recentSales={summaryData?.recentRecords?.recentSales}
-            recentPurchases={summaryData?.recentRecords?.recentPurchases}
-            currencySymbol={currencySymbol}
-            isLoading={isLoading}
-          />
-        </div>
+        {/* Table 2: Near to Expire Medicines */}
+        <NearExpiryMedicinesTable
+          medicines={nearExpiryMedicines}
+        />
       </div>
     </div>
   );
 };
-
-export default DashboardPage;
 

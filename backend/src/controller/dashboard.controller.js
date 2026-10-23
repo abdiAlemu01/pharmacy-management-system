@@ -1,22 +1,17 @@
-import { dashboardService } from '../service/dashboard.service.js';
+import { DashboardService } from '../service/dashboard.service.js';
 
 export class DashboardController {
   static async getSummary(req, res, next) {
     try {
-      const { period, startDate, endDate } = req.query;
-      const data = await dashboardService.getDashboardData({
-        period,
-        startDate,
-        endDate,
-      });
-
-      return res.status(200).json({
+      const { startDate, endDate, period } = req.query;
+      const data = await DashboardService.getSummary({ startDate, endDate, period });
+      res.status(200).json({
         success: true,
         message: 'Dashboard data retrieved successfully',
         data,
       });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 }

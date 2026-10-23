@@ -13,6 +13,15 @@ export async function runMigration() {
 
   try {
     await db.query(sql);
+
+    // Safe schema additions for User roles and status
+    await db.query(`
+      ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'ACTIVE';
+      ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT TRUE;
+      UPDATE "User" SET "status" = 'ACTIVE' WHERE "status" IS NULL;
+      UPDATE "User" SET "isActive" = TRUE WHERE "isActive" IS NULL;
+    `);
+
     console.log('✅ Database schema migration completed successfully.');
   } catch (error) {
     console.error('❌ Database migration failed:', error.message);

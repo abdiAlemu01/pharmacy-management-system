@@ -305,3 +305,8 @@ CREATE TABLE IF NOT EXISTS "PharmacySetting" (
 INSERT INTO "PharmacySetting" ("id") VALUES ('default')
 ON CONFLICT ("id") DO NOTHING;
 
+-- Safe column additions for User table (ensures existing databases get status & isActive)
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'ACTIVE';
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT TRUE;
+
+

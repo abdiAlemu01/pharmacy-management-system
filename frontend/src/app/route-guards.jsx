@@ -51,11 +51,7 @@ export const RoleRoute = ({ allowedRoles = [], fallbackPath }) => {
 
   const role = (user?.role || 'ADMIN').toUpperCase();
   const normalizedAllowed = allowedRoles.map((r) => r.toUpperCase());
-
-  // Allow legacy PHARMACIST role as ADMIN
-  const hasAccess =
-    normalizedAllowed.includes(role) ||
-    (normalizedAllowed.includes('ADMIN') && role === 'PHARMACIST');
+  const hasAccess = normalizedAllowed.includes(role);
 
   if (!hasAccess) {
     const redirectTarget = fallbackPath || getDefaultHomeForRole(user?.role);

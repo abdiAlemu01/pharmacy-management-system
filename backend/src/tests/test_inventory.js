@@ -20,7 +20,7 @@ async function runTests() {
     purchaseCost: 12.5,
     sellingPrice: 18.0,
     purchaseDate: '2026-10-13',
-    user: { id: 'test-user-id', name: 'Pharmacist' },
+    user: { id: 'test-user-id', name: 'Inventor Staff' },
   });
   console.log('Added medicine:', {
     name: added.name,
@@ -37,7 +37,7 @@ async function runTests() {
     purchaseCost: 13.0,
     sellingPrice: 19.0,
     purchaseDate: '2026-10-13',
-    user: { id: 'test-user-id', name: 'Pharmacist' },
+    user: { id: 'test-user-id', name: 'Inventor Staff' },
   });
   console.log('Added again quantity (expected 50):', addedAgain.quantity);
 
@@ -47,7 +47,7 @@ async function runTests() {
     quantity: 15,
     reason: 'Dispensed to customer',
     date: '2026-10-13',
-    user: { id: 'test-user-id', name: 'Pharmacist' },
+    user: { id: 'test-user-id', name: 'Inventor Staff' },
   });
   console.log('Reduced quantity (expected 35):', reduced.quantity);
 
@@ -64,7 +64,7 @@ async function runTests() {
       quantity: 9999,
       reason: 'Should fail',
       date: '2026-10-13',
-      user: { id: 'test-user-id', name: 'Pharmacist' },
+      user: { id: 'test-user-id', name: 'Inventor Staff' },
     });
     console.error('❌ Negative stock was not prevented!');
   } catch (err) {

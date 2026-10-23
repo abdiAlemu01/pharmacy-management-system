@@ -10,11 +10,6 @@ export const authorize = (...allowedRoles) => {
     const userRole = (req.user.role || '').toUpperCase();
     const normalizedAllowed = allowedRoles.map((r) => r.toUpperCase());
 
-    // If ADMIN is allowed, also allow legacy PHARMACIST role
-    if (normalizedAllowed.includes('ADMIN') && userRole === 'PHARMACIST') {
-      return next();
-    }
-
     if (!normalizedAllowed.includes(userRole)) {
       return res.status(403).json({
         success: false,

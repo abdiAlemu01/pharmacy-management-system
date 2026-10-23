@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS "User" (
   "firstName" TEXT,
   "lastName"  TEXT,
   "phone"     TEXT,
-  "role"      TEXT NOT NULL DEFAULT 'ADMIN',
+  "role"      TEXT NOT NULL DEFAULT 'ADMIN' CHECK ("role" IN ('ADMIN', 'CASHIER', 'INVENTOR')),
   "status"    TEXT NOT NULL DEFAULT 'ACTIVE',
   "isActive"  BOOLEAN NOT NULL DEFAULT TRUE,
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

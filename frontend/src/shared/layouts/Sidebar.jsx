@@ -48,7 +48,6 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
   ];
 
   const navItems = allNavItems.filter((item) => {
-    if (userRole === 'PHARMACIST') return true;
     return item.roles.includes(userRole);
   });
 

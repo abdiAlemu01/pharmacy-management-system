@@ -12,7 +12,12 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("PHARMACIST") // ADMIN, PHARMACIST, CASHIER
+  firstName String?
+  lastName  String?
+  phone     String?
+  role      String   @default("ADMIN") // ADMIN, CASHIER, INVENTOR
+  status    String   @default("ACTIVE")
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   sales     Sale[]

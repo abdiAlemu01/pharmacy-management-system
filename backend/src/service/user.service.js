@@ -25,6 +25,7 @@ export class UserService {
         ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT TRUE;
         UPDATE "User" SET "status" = 'ACTIVE' WHERE "status" IS NULL;
         UPDATE "User" SET "isActive" = TRUE WHERE "isActive" IS NULL;
+        UPDATE "User" SET "role" = 'ADMIN' WHERE UPPER("role") NOT IN ('ADMIN', 'CASHIER', 'INVENTOR') OR "role" IS NULL;
       `).catch(() => {});
 
       // 2. Query available columns directly from PostgreSQL information_schema

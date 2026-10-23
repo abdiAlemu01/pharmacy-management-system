@@ -4,8 +4,14 @@ import { db } from '../database/client.js';
 import { envConfig } from '../config/env.config.js';
 
 export class AuthService {
-  async register({ firstName, lastName, email, password, phone, role = 'PHARMACIST' }) {
+  async register({ firstName, lastName, email, password, phone, role = 'ADMIN' }) {
     const normalizedEmail = email.toLowerCase().trim();
+    let normalizedRole = (role || 'ADMIN').toUpperCase().trim();
+    if (normalizedRole === 'CASHER') normalizedRole = 'CASHIER';
+    if (normalizedRole === 'INVENTORY') normalizedRole = 'INVENTOR';
+    if (!['ADMIN', 'CASHIER', 'INVENTOR'].includes(normalizedRole)) {
+      normalizedRole = 'ADMIN';
+    }
 
     // 1. Check if email already registered
     const existingUser = await db.query(
@@ -29,7 +35,7 @@ export class AuthService {
       `INSERT INTO "User" ("firstName", "lastName", "name", "email", "password", "phone", "role")
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING "id", "firstName", "lastName", "name", "email", "phone", "role", "createdAt"`,
-      [firstName.trim(), lastName.trim(), fullName, normalizedEmail, hashedPassword, phone.trim(), role]
+      [firstName.trim(), lastName.trim(), fullName, normalizedEmail, hashedPassword, phone.trim(), normalizedRole]
     );
 
     const user = result.rows[0];

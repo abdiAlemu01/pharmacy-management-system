@@ -31,7 +31,7 @@ async function runTests() {
         unitPrice: testMed.sellingPrice,
       },
     ],
-    user: { id: 'test-cashier-id', name: 'Pharmacist Abdi' },
+    user: { id: 'test-cashier-id', name: 'Cashier Abdi' },
   };
 
   const completedSale = await salesService.createSale(salePayload);
@@ -75,7 +75,7 @@ async function runTests() {
   try {
     await salesService.createSale({
       items: [{ medicineId: testMed.id, quantity: 99999 }],
-      user: { id: 'test-cashier-id', name: 'Pharmacist' },
+      user: { id: 'test-cashier-id', name: 'Cashier' },
     });
     throw new Error('Should have failed on excessive quantity!');
   } catch (err) {

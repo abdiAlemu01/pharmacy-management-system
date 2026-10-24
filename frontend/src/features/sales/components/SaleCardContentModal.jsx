@@ -52,11 +52,13 @@ export const SaleCardContentModal = ({
           monthStart = `${ethStartGreg.year}-${pad(ethStartGreg.month)}-${pad(ethStartGreg.day)}`;
           monthEnd = `${ethEndGreg.year}-${pad(ethEndGreg.month)}-${pad(ethEndGreg.day)}`;
         }
-        monthDisplay = `${formatDate(todayStr, { showMonthName: true })} (${eth.year} E.C.)`;
+        monthDisplay = `${String(eth.month).padStart(2, '0')}/${eth.year} E.C.`;
       }
+    } else {
+      monthDisplay = `${String(currentMonthNum).padStart(2, '0')}/${currentYear} G.C.`;
     }
 
-    const todayDisplay = formatDate(todayStr, { showMonthName: true, showSuffix: true });
+    const todayDisplay = formatDate(todayStr, { showMonthName: false, showSuffix: true });
 
     switch (cardType) {
       case 'DAILY_SELL':

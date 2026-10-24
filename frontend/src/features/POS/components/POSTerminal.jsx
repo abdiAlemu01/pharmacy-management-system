@@ -89,10 +89,10 @@ export const POSTerminal = ({
 
   const { formatDate, formatDateTime, calendarType } = useAppDate();
 
-  // ── Formatted Date for Top Banner ──
+  // ── Formatted Date for Top Banner (Numeric format) ──
   const formattedDate = useMemo(() => {
     const today = new Date();
-    return formatDate(today, { showMonthName: true, showSuffix: true });
+    return formatDate(today, { showMonthName: false, showSuffix: false });
   }, [formatDate, calendarType]);
 
   // ── Filter Medicines ──

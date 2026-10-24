@@ -122,13 +122,12 @@ export const SuppliersPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Truck className="w-7 h-7 text-emerald-600" />
-            <span>Suppliers Page </span>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 sm:gap-2.5">
+            <Truck className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 shrink-0" />
+            <span>Suppliers Page</span>
           </h1>
-          
         </div>
 
         {/* Add Supplier Button */}
@@ -136,7 +135,7 @@ export const SuppliersPage = () => {
           type="button"
           variant="primary"
           onClick={handleOpenAdd}
-          className="flex items-center gap-2 self-start sm:self-auto py-2.5 px-4 shadow-sm"
+          className="flex items-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 shadow-xs shrink-0 ml-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Supplier</span>

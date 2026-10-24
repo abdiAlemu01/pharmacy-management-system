@@ -16,6 +16,7 @@ import {
   Building2,
   ChevronDown,
   Check,
+  MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
@@ -122,11 +123,8 @@ export const PurchasesPage = () => {
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
 
-  // Selection
-  const [selectedPurchaseId, setSelectedPurchaseId] = useState(null);
-  const [noSelectionPrompt, setNoSelectionPrompt] = useState(false);
-
   // Modals state
+  const [activeActionMenuId, setActiveActionMenuId] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [detailsPurchase, setDetailsPurchase] = useState(null);
   const [receivePurchase, setReceivePurchase] = useState(null);
@@ -135,6 +133,20 @@ export const PurchasesPage = () => {
   const [deletingPurchase, setDeletingPurchase] = useState(null);
   const [selectedCardModal, setSelectedCardModal] = useState({ isOpen: false, cardType: 'TODAY' });
   const [activeCardFilter, setActiveCardFilter] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('[data-action-menu]')) {
+        setActiveActionMenuId(null);
+      }
+    };
+    if (activeActionMenuId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeActionMenuId]);
 
   const handleCardClick = (cardKey) => {
     setSelectedCardModal({ isOpen: true, cardType: cardKey });
@@ -229,45 +241,9 @@ export const PurchasesPage = () => {
   const pagination = purchasesData?.data?.pagination || { total: 0, page: 1, totalPages: 1 };
   const summary = summaryData?.data || null;
 
-  const selectedPurchase = purchasesList.find((p) => p.id === selectedPurchaseId) || null;
-
   const showAlert = (msg) => {
     setAlertMessage(msg);
     setTimeout(() => setAlertMessage(null), 4000);
-  };
-
-  const handleToggleSelect = (id) => {
-    setSelectedPurchaseId((prev) => (prev === id ? null : id));
-    setNoSelectionPrompt(false);
-  };
-
-  const handleActionClick = (actionType) => {
-    if (!selectedPurchase) {
-      setNoSelectionPrompt(true);
-      setTimeout(() => setNoSelectionPrompt(false), 4000);
-      return;
-    }
-
-    setNoSelectionPrompt(false);
-    switch (actionType) {
-      case 'details':
-        setDetailsPurchase(selectedPurchase);
-        break;
-      case 'receive':
-        setReceivePurchase(selectedPurchase);
-        break;
-      case 'pay':
-        setPaymentPurchase(selectedPurchase);
-        break;
-      case 'return':
-        setReturnPurchase(selectedPurchase);
-        break;
-      case 'delete':
-        setDeletingPurchase(selectedPurchase);
-        break;
-      default:
-        break;
-    }
   };
 
   // Handlers
@@ -334,7 +310,6 @@ export const PurchasesPage = () => {
       onSuccess: () => {
         showAlert('Purchase order deleted successfully.');
         setDeletingPurchase(null);
-        setSelectedPurchaseId(null);
       },
       onError: (err) => {
         alert(err.response?.data?.message || err.message || 'Failed to delete purchase');
@@ -498,112 +473,12 @@ export const PurchasesPage = () => {
         )}
       </div>
 
-      {/* 4. Action Toolbar for Selected Purchase (matches SupplierTable pattern) */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div className="p-3 sm:p-4 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* 1. View Details */}
-            <button
-              type="button"
-              onClick={() => handleActionClick('details')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
-                selectedPurchase
-                  ? 'bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer shadow-xs active:scale-95'
-                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
-              }`}
-              title={selectedPurchase ? `View Details for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
-            >
-              <Eye className="w-4 h-4" />
-              <span>View Details</span>
-            </button>
-
-            {/* 2. Receive Medicines */}
-            <button
-              type="button"
-              onClick={() => handleActionClick('receive')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
-                selectedPurchase
-                  ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer shadow-xs active:scale-95'
-                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
-              }`}
-              title={selectedPurchase ? `Receive Medicines for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
-            >
-              <PackageCheck className="w-4 h-4" />
-              <span>Receive Medicines</span>
-            </button>
-
-            {/* 3. Record Payment */}
-            <button
-              type="button"
-              onClick={() => handleActionClick('pay')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
-                selectedPurchase
-                  ? 'bg-sky-600 text-white hover:bg-sky-700 cursor-pointer shadow-xs active:scale-95'
-                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
-              }`}
-              title={selectedPurchase ? `Record Payment for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
-            >
-              <CreditCard className="w-4 h-4" />
-              <span>Record Payment</span>
-            </button>
-
-            {/* 4. Return Medicines */}
-            <button
-              type="button"
-              onClick={() => handleActionClick('return')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
-                selectedPurchase
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 cursor-pointer shadow-xs active:scale-95'
-                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
-              }`}
-              title={selectedPurchase ? `Return Medicines for ${selectedPurchase.supplierName || 'Order'}` : 'Click to select a purchase order first'}
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Return Medicines</span>
-            </button>
-
-            {/* 5. Delete */}
-            <button
-              type="button"
-              onClick={() => handleActionClick('delete')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-2xs ${
-                selectedPurchase
-                  ? 'bg-rose-600 text-white hover:bg-rose-700 cursor-pointer shadow-xs active:scale-95'
-                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer'
-              }`}
-              title={selectedPurchase ? 'Delete Purchase Order' : 'Click to select a purchase order first'}
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete</span>
-            </button>
-          </div>
-        </div>
-
-        {noSelectionPrompt && (
-          <div className="m-3 p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 rounded-xl flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300 animate-in fade-in duration-200">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Please click on a purchase order row in the table first.</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setNoSelectionPrompt(false)}
-              className="text-amber-700 dark:text-amber-400 hover:text-amber-900 ml-2 font-black cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 5. Purchases Main Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+      {/* 4. Purchases Main Table */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold tracking-wider border-b border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs">
               <tr>
-                <th className="py-3 px-3 text-center w-10">Select</th>
                 <th className="py-3 px-4">Supplier</th>
                 <th className="py-3 px-4">Medicine  Name</th>
                 <th className="py-3 px-4">Order Date</th>
@@ -619,13 +494,13 @@ export const PurchasesPage = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={11} className="py-12 text-center text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
                     Loading purchase orders...
                   </td>
                 </tr>
               ) : purchasesList.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="py-16 text-center">
+                  <td colSpan={10} className="py-16 text-center">
                     <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       No purchase orders found
@@ -648,32 +523,13 @@ export const PurchasesPage = () => {
                   </td>
                 </tr>
               ) : (
-                purchasesList.map((p) => {
-                  const isSelected = p.id === selectedPurchaseId;
+                purchasesList.map((p, index) => {
                   return (
                     <tr
                       key={p.id}
-                      onClick={() => handleToggleSelect(p.id)}
                       onDoubleClick={() => setDetailsPurchase(p)}
-                      className={`cursor-pointer transition-colors ${
-                        isSelected
-                          ? 'bg-emerald-50/70 dark:bg-emerald-950/40 ring-1 ring-inset ring-emerald-500/30'
-                          : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/50'
-                      }`}
+                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
                     >
-                      {/* Selection radio/checkbox indicator */}
-                      <td className="py-3 px-3 text-center">
-                        <div
-                          className={`w-4 h-4 mx-auto rounded-full border flex items-center justify-center transition-all ${
-                            isSelected
-                              ? 'border-emerald-600 bg-emerald-600 text-white'
-                              : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
-                          }`}
-                        >
-                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </div>
-                      </td>
-
                       {/* Supplier */}
                       <td className="py-3 px-4">
                         <span className="font-bold text-slate-900 dark:text-slate-100 block">
@@ -744,36 +600,118 @@ export const PurchasesPage = () => {
                         <PaymentStatusBadge status={p.paymentStatus} />
                       </td>
 
-                      {/* Quick Actions */}
+                      {/* Actions Column (Three-dot Kebab Menu) */}
                       <td className="py-3 px-3 text-right whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative inline-block text-left" data-action-menu>
                           <button
                             type="button"
-                            title="View Details"
-                            onClick={() => setDetailsPurchase(p)}
-                            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveActionMenuId(activeActionMenuId === p.id ? null : p.id);
+                            }}
+                            className={`p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer ${
+                              activeActionMenuId === p.id ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 ring-2 ring-emerald-500/20' : ''
+                            }`}
+                            title="Actions"
+                            aria-label="Actions"
                           >
-                            <Eye className="w-4 h-4" />
+                            <MoreVertical className="w-4 h-4" />
                           </button>
-                          {p.status !== 'RECEIVED' && (
-                            <button
-                              type="button"
-                              title="Receive Medicines"
-                              onClick={() => setReceivePurchase(p)}
-                              className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/60 transition-all cursor-pointer"
+
+                          {activeActionMenuId === p.id && (
+                            <div
+                              className={`absolute right-0 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 py-1 text-xs animate-in fade-in zoom-in-95 duration-100 ${
+                                index >= purchasesList.length - 2 && purchasesList.length > 2
+                                  ? 'bottom-full mb-1'
+                                  : 'top-full mt-1'
+                              }`}
                             >
-                              <PackageCheck className="w-4 h-4" />
-                            </button>
-                          )}
-                          {p.amountDue > 0 && (
-                            <button
-                              type="button"
-                              title="Record Payment"
-                              onClick={() => setPaymentPurchase(p)}
-                              className="p-1.5 rounded-lg text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/60 transition-all cursor-pointer"
-                            >
-                              <CreditCard className="w-4 h-4" />
-                            </button>
+                              {/* 1. View Details */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveActionMenuId(null);
+                                  setDetailsPurchase(p);
+                                }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left font-medium cursor-pointer"
+                              >
+                                <Eye className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                <span>View Details</span>
+                              </button>
+
+                              {/* 2. Receive Medicines */}
+                              <button
+                                type="button"
+                                disabled={p.status === 'RECEIVED'}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (p.status === 'RECEIVED') return;
+                                  setActiveActionMenuId(null);
+                                  setReceivePurchase(p);
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left font-medium transition-colors ${
+                                  p.status === 'RECEIVED'
+                                    ? 'opacity-40 cursor-not-allowed text-slate-400'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer'
+                                }`}
+                                title={p.status === 'RECEIVED' ? 'All items already received' : 'Receive medicines'}
+                              >
+                                <PackageCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                                <span>Receive Medicines</span>
+                              </button>
+
+                              {/* 3. Record Payment */}
+                              <button
+                                type="button"
+                                disabled={p.amountDue <= 0}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (p.amountDue <= 0) return;
+                                  setActiveActionMenuId(null);
+                                  setPaymentPurchase(p);
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left font-medium transition-colors ${
+                                  p.amountDue <= 0
+                                    ? 'opacity-40 cursor-not-allowed text-slate-400'
+                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer'
+                                }`}
+                                title={p.amountDue <= 0 ? 'Payment settled in full' : 'Record payment'}
+                              >
+                                <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+                                <span>Record Payment</span>
+                              </button>
+
+                              {/* 4. Return Medicines */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveActionMenuId(null);
+                                  setReturnPurchase(p);
+                                }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left font-medium cursor-pointer"
+                              >
+                                <RotateCcw className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <span>Return Medicines</span>
+                              </button>
+
+                              <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                              {/* 5. Delete Order */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveActionMenuId(null);
+                                  setDeletingPurchase(p);
+                                }}
+                                className="w-full flex items-center gap-2.5 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-left font-medium cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4 text-rose-500 shrink-0" />
+                                <span>Delete</span>
+                              </button>
+                            </div>
                           )}
                         </div>
                       </td>

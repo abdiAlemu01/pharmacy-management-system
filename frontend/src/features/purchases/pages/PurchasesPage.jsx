@@ -360,20 +360,19 @@ export const PurchasesPage = () => {
   return (
     <div className="space-y-6">
       {/* 1. Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
-            <ShoppingBag className="w-7 h-7 text-emerald-600" />
-            <span>Purchases Management</span>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2 sm:gap-2.5">
+            <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 shrink-0" />
+            <span>Purchases Page</span>
           </h1>
-          
         </div>
 
         <Button
           type="button"
           variant="primary"
           onClick={() => setIsAddOpen(true)}
-          className="flex items-center gap-2 self-start sm:self-auto py-2.5 px-4 shadow-sm"
+          className="flex items-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 shadow-xs shrink-0 ml-auto"
         >
           <Plus className="w-4 h-4" />
           <span>New Purchase Order</span>
@@ -450,10 +449,10 @@ export const PurchasesPage = () => {
       )}
 
       {/* 3. Search & Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
           {/* Search bar */}
-          <div className="relative md:col-span-2">
+          <div className="relative col-span-2 md:col-span-2">
             <Search className="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
@@ -477,7 +476,7 @@ export const PurchasesPage = () => {
           </div>
 
           {/* Supplier filter */}
-          <div>
+          <div className="col-span-1">
             <DropdownSelect
               value={supplierFilter}
               onChange={(val) => {
@@ -490,7 +489,7 @@ export const PurchasesPage = () => {
           </div>
 
           {/* Delivery Status filter */}
-          <div>
+          <div className="col-span-1">
             <DropdownSelect
               value={statusFilter}
               onChange={(val) => {
@@ -504,10 +503,10 @@ export const PurchasesPage = () => {
         </div>
 
         {/* Second Row: Payment Status & Date Range */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-500">Payment</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="col-span-2 sm:col-span-1 flex items-center gap-1.5">
+              <span className="font-bold text-slate-500 shrink-0">Payment</span>
               <DropdownSelect
                 value={paymentStatusFilter}
                 onChange={(val) => {
@@ -516,13 +515,13 @@ export const PurchasesPage = () => {
                 }}
                 options={paymentStatusOptions}
                 placeholder="All Payments"
-                className="min-w-[130px]"
+                className="w-full sm:min-w-[130px]"
                 buttonClassName="px-2.5 py-1.5 rounded-lg text-xs"
               />
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-500">From </span>
+              <span className="font-bold text-slate-500 shrink-0">From</span>
               <input
                 type="date"
                 value={startDate}
@@ -530,12 +529,12 @@ export const PurchasesPage = () => {
                   setStartDate(e.target.value);
                   setPage(1);
                 }}
-                className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-500">To</span>
+              <span className="font-bold text-slate-500 shrink-0">To</span>
               <input
                 type="date"
                 value={endDate}
@@ -543,7 +542,7 @@ export const PurchasesPage = () => {
                   setEndDate(e.target.value);
                   setPage(1);
                 }}
-                className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
           </div>
@@ -552,7 +551,7 @@ export const PurchasesPage = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 transition-colors cursor-pointer"
+              className="self-end sm:self-auto px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 transition-colors cursor-pointer"
             >
               Reset Filters
             </button>
@@ -640,27 +639,6 @@ export const PurchasesPage = () => {
               <span>Delete</span>
             </button>
           </div>
-
-          {/* Selection Banner / Status (matches SupplierTable) */}
-          {selectedPurchase && (
-            <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
-              <div className="inline-flex items-center gap-2 bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 px-3.5 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm font-bold shadow-2xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span className="truncate max-w-[260px]">
-                  Selected: <strong className="font-extrabold">{selectedPurchase.supplierName || 'Order'}</strong> ({selectedPurchase.purchaseOrderNo || `#${selectedPurchase.id.slice(0, 8)}`})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedPurchaseId(null)}
-                  className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-white font-bold ml-1.5 p-0.5 rounded cursor-pointer"
-                  title="Deselect"
-                  aria-label="Deselect"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {noSelectionPrompt && (

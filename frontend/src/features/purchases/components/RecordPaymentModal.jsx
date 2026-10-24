@@ -83,39 +83,40 @@ export const RecordPaymentModal = ({
         )}
 
         {/* PO & Financials card */}
-        <div className="p-4.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-700 pb-2.5">
-            <div>
-              <span className="text-xs text-slate-500 font-bold block">Purchase Order</span>
-              <span className="text-base font-extrabold text-slate-900 dark:text-slate-100">
+        <div className="p-3.5 sm:p-4.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3">
+          <div className="flex flex-row items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-700 pb-2.5">
+            <div className="min-w-0">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-bold block">Purchase Order</span>
+              <span className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-slate-100 truncate block">
                 {purchase.purchaseOrderNo}
               </span>
             </div>
-            <div className="text-right">
-              <span className="text-xs text-slate-500 font-bold block">Supplier</span>
-              <span className="text-base font-extrabold text-slate-900 dark:text-slate-100">
+            <div className="text-right min-w-0">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-bold block">Supplier</span>
+              <span className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-slate-100 truncate block">
                 {purchase.supplierName}
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center pt-1">
-            <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-              <span className="text-[11px] font-bold text-slate-500 block">Total Cost</span>
-              <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">
-                {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+          {/* 3 Financial metric cards side by side on small screen */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center pt-1">
+            <div className="p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 min-w-0">
+              <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 block truncate">Total Cost</span>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 block truncate">
+                {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-slate-400">Br</span>
               </span>
             </div>
-            <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-              <span className="text-[11px] font-bold text-slate-500 block">Total Paid So Far</span>
-              <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">
-                {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+            <div className="p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 min-w-0">
+              <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 block truncate">Total Paid</span>
+              <span className="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 block truncate">
+                {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-emerald-500">Br</span>
               </span>
             </div>
-            <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60">
-              <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 block">Remaining Balance</span>
-              <span className="text-sm font-black text-rose-700 dark:text-rose-300">
-                {remainingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr
+            <div className="p-2 sm:p-2.5 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 min-w-0">
+              <span className="text-[9px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 block truncate">Remaining</span>
+              <span className="text-xs sm:text-sm font-black text-rose-700 dark:text-rose-300 block truncate">
+                {remainingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-rose-400">Br</span>
               </span>
             </div>
           </div>
@@ -197,14 +198,14 @@ export const RecordPaymentModal = ({
           </div>
         )}
 
-        {/* Actions */}
-        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+        {/* Actions - side by side on small screens */}
+        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-2.5 sm:gap-3">
+          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="flex-1 sm:flex-initial text-xs sm:text-sm py-2 sm:py-2.5">
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={isLoading} className="flex items-center gap-2">
+          <Button type="submit" variant="primary" disabled={isLoading} className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5">
             <CreditCard className="w-4 h-4" />
-            <span>{isLoading ? 'Recording Payment...' : 'Pay & Record Payment'}</span>
+            <span className="truncate">{isLoading ? 'Recording...' : 'Record Payment'}</span>
           </Button>
         </div>
       </form>

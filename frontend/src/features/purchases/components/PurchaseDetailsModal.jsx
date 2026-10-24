@@ -57,23 +57,23 @@ export const PurchaseDetailsModal = ({
     >
       <div className="space-y-6 text-sm">
         {/* Top Header Card */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50/80 via-slate-50 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-emerald-950/20 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-black text-xl sm:text-2xl flex items-center justify-center shrink-0 shadow-sm ring-4 ring-emerald-500/10">
-              <Package className="w-6 h-6 sm:w-7 sm:h-7" />
+        <div className="p-3.5 sm:p-5 bg-gradient-to-r from-emerald-50/80 via-slate-50 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-emerald-950/20 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl flex flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-black text-lg sm:text-2xl flex items-center justify-center shrink-0 shadow-sm ring-4 ring-emerald-500/10">
+              <Package className="w-5 h-5 sm:w-7 sm:h-7" />
             </div>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="font-mono font-black text-slate-900 dark:text-slate-100 text-sm sm:text-base tracking-tight">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
+                <span className="font-mono font-black text-slate-900 dark:text-slate-100 text-xs sm:text-base tracking-tight truncate">
                   {activePurchase.purchaseOrderNo || `#${activePurchase.id?.slice(0, 8)}`}
                 </span>
                 {activePurchase.invoiceNo && (
-                  <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold">
+                  <span className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] sm:text-[11px] font-bold">
                     Inv: {activePurchase.invoiceNo}
                   </span>
                 )}
               </div>
-              <p className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+              <p className="flex flex-wrap items-center gap-1 text-[11px] sm:text-sm font-medium text-slate-600 dark:text-slate-300">
                 <span className="text-slate-400">Ordered on:</span>
                 <span className="font-bold text-slate-800 dark:text-slate-100">
                   {activePurchase.orderDate ? formatDate(activePurchase.orderDate) : '-'}
@@ -82,78 +82,78 @@ export const PurchaseDetailsModal = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0 justify-end">
             <DeliveryStatusBadge status={activePurchase.status} />
             <PaymentStatusBadge status={activePurchase.paymentStatus} />
           </div>
         </div>
 
-        {/* 2-Column: Supplier & Financial Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 2-Column: Supplier & Financial Overview - side by side on small screens */}
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
           {/* Supplier details card */}
-          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3.5 shadow-2xs">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-emerald-600" />
-              <span>Supplier Information</span>
+          <div className="p-3 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-2.5 sm:space-y-3.5 shadow-2xs min-w-0">
+            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-1.5 sm:pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-1.5 sm:gap-2 truncate">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
+              <span className="truncate">Supplier Info</span>
             </h4>
 
             <div>
-              <span className="text-xs text-slate-400 font-bold block mb-0.5">Supplier Name</span>
-              <span className="text-base font-bold text-slate-900 dark:text-slate-100">
+              <span className="text-[10px] sm:text-xs text-slate-400 font-bold block mb-0.5">Supplier Name</span>
+              <span className="text-xs sm:text-base font-bold text-slate-900 dark:text-slate-100 break-words">
                 {activePurchase.supplierName}
               </span>
             </div>
 
             {activePurchase.supplierPhone && (
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                <a href={`tel:${activePurchase.supplierPhone}`} className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 shrink-0" />
+                <a href={`tel:${activePurchase.supplierPhone}`} className="text-[11px] sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline break-all">
                   {activePurchase.supplierPhone}
                 </a>
               </div>
             )}
 
             {activePurchase.supplierEmail && (
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-xs text-slate-600 dark:text-slate-300 truncate">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 shrink-0" />
+                <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 truncate">
                   {activePurchase.supplierEmail}
                 </span>
               </div>
             )}
 
             {activePurchase.notes && (
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-700 text-xs">
+              <div className="pt-1.5 sm:pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px] sm:text-xs">
                 <span className="font-bold text-slate-500 block mb-0.5">Order Notes:</span>
-                <p className="text-slate-700 dark:text-slate-300 italic">{activePurchase.notes}</p>
+                <p className="text-slate-700 dark:text-slate-300 italic line-clamp-2">{activePurchase.notes}</p>
               </div>
             )}
           </div>
 
           {/* Financial Overview card */}
-          <div className="p-4 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs flex flex-col justify-between space-y-3.5">
-            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-emerald-600" />
-              <span>Financial Overview</span>
+          <div className="p-3 sm:p-5 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xs flex flex-col justify-between space-y-2.5 sm:space-y-3.5 min-w-0">
+            <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wider pb-1.5 sm:pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center gap-1.5 sm:gap-2 truncate">
+              <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
+              <span className="truncate">Financials</span>
             </h4>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center">
-              <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Total Cost</span>
-                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 block">
-                  {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-slate-400">Br</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-2.5 text-center">
+              <div className="p-1.5 sm:p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Total Cost</span>
+                <span className="text-xs sm:text-base font-black text-slate-900 dark:text-slate-100 block">
+                  {totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] sm:text-xs font-semibold text-slate-400">Br</span>
                 </span>
               </div>
-              <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Amount Paid</span>
-                <span className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 block">
-                  {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-emerald-500">Br</span>
+              <div className="p-1.5 sm:p-3 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Paid</span>
+                <span className="text-xs sm:text-base font-black text-emerald-700 dark:text-emerald-400 block">
+                  {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] sm:text-xs font-semibold text-emerald-500">Br</span>
                 </span>
               </div>
-              <div className="p-3 bg-rose-50/70 dark:bg-rose-950/40 rounded-xl border border-rose-100 dark:border-rose-900/50">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block mb-0.5">Balance Due</span>
-                <span className="text-sm sm:text-base font-black text-rose-700 dark:text-rose-300 block">
-                  {amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-semibold text-rose-400">Br</span>
+              <div className="p-1.5 sm:p-3 bg-rose-50/70 dark:bg-rose-950/40 rounded-xl border border-rose-100 dark:border-rose-900/50">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block mb-0.5">Due</span>
+                <span className="text-xs sm:text-base font-black text-rose-700 dark:text-rose-300 block">
+                  {amountDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] sm:text-xs font-semibold text-rose-400">Br</span>
                 </span>
               </div>
             </div>
@@ -290,9 +290,9 @@ export const PurchaseDetailsModal = ({
           </div>
         )}
 
-        {/* Modal Bottom Actions */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5">
+        {/* Modal Bottom Actions - side by side on small screens */}
+        <div className="pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-row items-center justify-between gap-2 sm:gap-3">
+          <div className="flex flex-row items-center gap-1.5 sm:gap-2.5 flex-1 min-w-0 overflow-x-auto py-1">
             {canReceive && (
               <button
                 type="button"
@@ -300,12 +300,12 @@ export const PurchaseDetailsModal = ({
                   onClose();
                   onOpenReceive(activePurchase);
                 }}
-                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 font-bold text-xs rounded-xl border border-emerald-300 dark:border-emerald-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+                className="group inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 font-bold text-xs rounded-xl border border-emerald-300 dark:border-emerald-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer shrink-0"
               >
                 <div className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
                   <PackageCheck className="w-3.5 h-3.5" />
                 </div>
-                <span>Receive Medicines</span>
+                <span>Receive</span>
               </button>
             )}
 
@@ -316,12 +316,12 @@ export const PurchaseDetailsModal = ({
                   onClose();
                   onOpenPayment(activePurchase);
                 }}
-                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/70 text-sky-800 dark:text-sky-200 font-bold text-xs rounded-xl border border-sky-300 dark:border-sky-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+                className="group inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/70 text-sky-800 dark:text-sky-200 font-bold text-xs rounded-xl border border-sky-300 dark:border-sky-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer shrink-0"
               >
                 <div className="w-5 h-5 rounded-md bg-sky-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
                   <CreditCard className="w-3.5 h-3.5" />
                 </div>
-                <span>Record Payment</span>
+                <span>Payment</span>
               </button>
             )}
 
@@ -332,17 +332,17 @@ export const PurchaseDetailsModal = ({
                   onClose();
                   onOpenReturn(activePurchase);
                 }}
-                className="group inline-flex items-center gap-2 px-3.5 py-2 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-950/70 text-purple-800 dark:text-purple-200 font-bold text-xs rounded-xl border border-purple-300 dark:border-purple-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+                className="group inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-950/70 text-purple-800 dark:text-purple-200 font-bold text-xs rounded-xl border border-purple-300 dark:border-purple-800 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer shrink-0"
               >
                 <div className="w-5 h-5 rounded-md bg-purple-600 text-white flex items-center justify-center transition-transform group-hover:scale-105">
                   <RotateCcw className="w-3.5 h-3.5" />
                 </div>
-                <span>Return Medicines</span>
+                <span>Return</span>
               </button>
             )}
           </div>
 
-          <Button type="button" variant="secondary" onClick={onClose} className="px-6">
+          <Button type="button" variant="secondary" onClick={onClose} className="px-4 sm:px-6 shrink-0 text-xs sm:text-sm">
             Close
           </Button>
         </div>

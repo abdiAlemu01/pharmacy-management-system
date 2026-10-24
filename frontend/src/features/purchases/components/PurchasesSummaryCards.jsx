@@ -102,11 +102,12 @@ export const PurchasesSummaryCards = ({
 
   return (
     <div className="space-y-4">
-      {/* 5 KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+      {/* 5 KPI Metric Cards - side by side on small screens */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
         {cards.map((card) => {
           const Icon = card.icon;
           const isActive = activeFilter === card.key;
+          const isOutstanding = card.key === 'OUTSTANDING';
 
           return (
             <div
@@ -121,32 +122,32 @@ export const PurchasesSummaryCards = ({
                 }
               }}
               title={`${card.title} — Click to view content`}
-              className={`p-4 bg-white dark:bg-slate-900 border rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none ${
-                isActive ? card.activeRing : card.borderColor
-              }`}
+              className={`p-3 sm:p-4 bg-white dark:bg-slate-900 border rounded-2xl shadow-2xs flex flex-col justify-between transition-all cursor-pointer group hover:scale-[1.02] hover:shadow-md active:scale-[0.99] select-none ${
+                isOutstanding ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''
+              } ${isActive ? card.activeRing : card.borderColor}`}
             >
               <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate">
                     {card.title}
                   </span>
-                  <span className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${card.iconColor} transition-transform group-hover:scale-110`}>
-                    <Icon className="w-4 h-4" />
+                  <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${card.iconColor} transition-transform group-hover:scale-110`}>
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </span>
                 </div>
-                <p className={`text-lg font-black ${card.textColor}`}>
+                <p className={`text-sm sm:text-lg font-black truncate ${card.textColor}`}>
                   {card.value}
                 </p>
-                <p className="text-[11px] text-slate-500 font-medium">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">
                   {card.subtitle}
                 </p>
               </div>
 
               {/* Bottom Action Footer */}
-              <div className="mt-3.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+              <div className="mt-2.5 sm:mt-3.5 pt-1.5 sm:pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] sm:text-[11px]">
                 <span className="font-semibold text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1">
                   <span>View content</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </span>
 
                 {isActive ? (
@@ -155,7 +156,7 @@ export const PurchasesSummaryCards = ({
                     <span>Filtered</span>
                   </span>
                 ) : (
-                  <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">
                     Click to open
                   </span>
                 )}

@@ -60,7 +60,11 @@ export const SupplierForm = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let finalValue = value;
+    if (name === 'phone') {
+      finalValue = value.replace(/[^0-9+\-\s()]/g, '');
+    }
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -76,6 +80,8 @@ export const SupplierForm = ({
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
+    } else if (!/^[0-9+\-\s()]{4,20}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Please enter a valid phone number (digits only)';
     }
 
     if (!formData.stockSupplied.trim()) {
@@ -165,10 +171,31 @@ export const SupplierForm = ({
             <div className="relative">
               <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
-                type="text"
+                type="tel"
                 name="phone"
+                inputMode="tel"
                 value={formData.phone}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'Backspace' ||
+                    e.key === 'Delete' ||
+                    e.key === 'Tab' ||
+                    e.key === 'Escape' ||
+                    e.key === 'Enter' ||
+                    e.key === 'ArrowLeft' ||
+                    e.key === 'ArrowRight' ||
+                    e.key === 'Home' ||
+                    e.key === 'End' ||
+                    e.ctrlKey ||
+                    e.metaKey
+                  ) {
+                    return;
+                  }
+                  if (!/[\d+\-\s()]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 placeholder="Enter phone number"
                 className={`w-full pl-11 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
                   errors.phone

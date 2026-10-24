@@ -797,9 +797,6 @@ export const SupplierPurchaseHistory = ({
             <div className="py-12 text-center text-slate-400">
               <AlertCircle className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
               <p className="font-bold text-slate-700 dark:text-slate-300 text-base">No purchases recorded yet</p>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                No orders have been recorded from this supplier yet. Click &quot;Record New Purchase&quot; above to add one.
-              </p>
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">

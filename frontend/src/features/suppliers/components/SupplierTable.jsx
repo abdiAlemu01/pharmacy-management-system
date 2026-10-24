@@ -122,27 +122,6 @@ export const SupplierTable = ({
             <span>Delete</span>
           </button>
         </div>
-
-        {/* Selection Banner / Status */}
-        {selectedSupplier && (
-          <div className="flex items-center gap-2 self-stretch md:self-auto justify-between md:justify-end">
-            <div className="inline-flex items-center gap-2 bg-emerald-100/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 px-3.5 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm font-bold shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="truncate max-w-[220px]">
-                Selected: <strong className="font-extrabold">{selectedSupplier.name}</strong>
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedSupplierId(null)}
-                className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-950 dark:hover:text-white font-bold ml-1.5 p-0.5 rounded cursor-pointer"
-                title="Deselect"
-                aria-label="Deselect"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Helpful prompt when an action is clicked without a selection */}
@@ -188,9 +167,6 @@ export const SupplierTable = ({
                 <td colSpan="6" className="text-center py-16 text-slate-400">
                   <Building2 className="w-10 h-10 mx-auto text-slate-300 mb-2" />
                   <p className="font-bold text-slate-700 dark:text-slate-200 text-base">No suppliers found</p>
-                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                    Try adjusting your search criteria, or click &quot;+ Add Supplier&quot; to register a new vendor.
-                  </p>
                 </td>
               </tr>
             ) : (

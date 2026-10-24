@@ -39,7 +39,11 @@ export const CreateSupplierPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let finalValue = value;
+    if (name === 'phone') {
+      finalValue = value.replace(/[^0-9+\-\s()]/g, '');
+    }
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -55,6 +59,8 @@ export const CreateSupplierPage = () => {
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
+    } else if (!/^[0-9+\-\s()]{4,20}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Please provide a valid phone number (digits only)';
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -213,8 +219,29 @@ export const CreateSupplierPage = () => {
                 <input
                   type="tel"
                   name="phone"
+                  inputMode="tel"
                   value={formData.phone}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Backspace' ||
+                      e.key === 'Delete' ||
+                      e.key === 'Tab' ||
+                      e.key === 'Escape' ||
+                      e.key === 'Enter' ||
+                      e.key === 'ArrowLeft' ||
+                      e.key === 'ArrowRight' ||
+                      e.key === 'Home' ||
+                      e.key === 'End' ||
+                      e.ctrlKey ||
+                      e.metaKey
+                    ) {
+                      return;
+                    }
+                    if (!/[\d+\-\s()]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="e.g. +251 911 234 567"
                   className={`w-full pl-9 pr-3.5 py-2.5 text-xs bg-slate-50 border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
                     errors.phone ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200'

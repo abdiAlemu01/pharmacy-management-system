@@ -126,7 +126,7 @@ export const SuppliersPage = () => {
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <Truck className="w-7 h-7 text-emerald-600" />
-            <span>Supplier Management Page </span>
+            <span>Suppliers Page </span>
           </h1>
           
         </div>

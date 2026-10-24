@@ -67,6 +67,8 @@ export const CreateSupplierPage = () => {
 
     if (!formData.stockSupplied.trim()) {
       newErrors.stockSupplied = 'Please specify items/stock categories supplied';
+    } else if (formData.stockSupplied.trim().length < 2) {
+      newErrors.stockSupplied = 'Supplied medicines must be at least 2 characters';
     }
 
     setErrors(newErrors);

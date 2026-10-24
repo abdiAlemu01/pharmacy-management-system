@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { ShoppingCart, BarChart3, Receipt, RefreshCw, AlertCircle, CheckCircle2, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  ShoppingCart,
+  BarChart3,
+  Receipt,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  Filter,
+} from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { SalesAnalyticsCards } from '../components/SalesAnalyticsCards';
 import { TopAndLessSellingSection } from '../components/TopAndLessSellingSection';
-import { POSTerminal } from '../components/POSTerminal';
 import { SalesHistoryTable } from '../components/SalesHistoryTable';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { SaleCardContentModal } from '../components/SaleCardContentModal';
-import {
-  useSalesAnalytics,
-  usePOSMedicines,
-  useSalesHistory,
-  useCreateSale,
-} from '../hooks/use-sales';
+import { useSalesAnalytics, useSalesHistory } from '../hooks/use-sales';
 
 export const SalesPage = () => {
-  const [activeTab, setActiveTab] = useState('pos'); // 'pos' | 'analytics' | 'history'
+  const [activeTab, setActiveTab] = useState('history'); // 'history' | 'analytics'
   const [showSummaryCards, setShowSummaryCards] = useState(false);
 
   // History search & pagination
@@ -26,7 +29,7 @@ export const SalesPage = () => {
   const [historyPage, setHistoryPage] = useState(1);
   const [historyLimit, setHistoryLimit] = useState(15);
 
-  // Completed sale receipt modal
+  // Completed sale receipt modal for viewing receipt from records
   const [completedSale, setCompletedSale] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -64,12 +67,6 @@ export const SalesPage = () => {
   } = useSalesAnalytics();
 
   const {
-    data: posMedsData,
-    isLoading: isPOSMedsLoading,
-    refetch: refetchPOSMeds,
-  } = usePOSMedicines();
-
-  const {
     data: historyData,
     isLoading: isHistoryLoading,
     refetch: refetchHistory,
@@ -81,10 +78,7 @@ export const SalesPage = () => {
     endDate: historyEndDate,
   });
 
-  const createSaleMutation = useCreateSale();
-
   const analytics = analyticsData?.data || {};
-  const posMedicines = posMedsData?.data || [];
   const salesHistory = historyData?.data?.sales || [];
   const historyPagination = historyData?.data?.pagination || {
     total: 0,
@@ -95,24 +89,7 @@ export const SalesPage = () => {
 
   const handleRefresh = () => {
     refetchAnalytics();
-    refetchPOSMeds();
     refetchHistory();
-  };
-
-  const handleCheckout = async (salePayload, onSuccessCallback) => {
-    try {
-      setNotification(null);
-      const res = await createSaleMutation.mutateAsync(salePayload);
-      if (onSuccessCallback) onSuccessCallback();
-      setCompletedSale(res.data);
-      setNotification({
-        type: 'success',
-        message: `Sale completed successfully! Total: ${res.data.total} Birr, Profit: +${res.data.totalProfit} Birr.`,
-      });
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to process sale. Please check available stock.';
-      setNotification({ type: 'error', message: msg });
-    }
   };
 
   return (
@@ -120,17 +97,35 @@ export const SalesPage = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Sales & Point of Sale 
-          </h1>
-         
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+              <Receipt className="w-4 h-4" />
+            </div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+              Sales Records & Analytics
+            </h1>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Review pharmacy sales transactions, customer receipts, and financial revenue trends.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Primary Action Button to Open Dedicated POS Feature */}
+          <Link to="/pos">
+            <Button
+              variant="primary"
+              className="flex items-center gap-2 text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 font-bold shadow-xs cursor-pointer"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>Launch POS Terminal</span>
+            </Button>
+          </Link>
+
           <Button
             variant="outline"
             onClick={() => setShowSummaryCards((prev) => !prev)}
-            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4"
+            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4 cursor-pointer"
           >
             <BarChart3 className="w-4 h-4 text-emerald-600" />
             <span>{showSummaryCards ? 'Hide Metrics' : 'Financial Metrics'}</span>
@@ -140,10 +135,10 @@ export const SalesPage = () => {
             variant="outline"
             onClick={handleRefresh}
             disabled={isFetchingAnalytics}
-            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4"
+            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4 cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isFetchingAnalytics ? 'animate-spin' : ''}`} />
-            Refresh
+            <span>Refresh</span>
           </Button>
         </div>
       </div>
@@ -151,7 +146,7 @@ export const SalesPage = () => {
       {/* Notifications */}
       {notification && (
         <div
-          className={`p-4 rounded-xl flex items-center justify-between text-sm transition-all ${
+          className={`p-4 rounded-xl flex items-center justify-between text-sm transition-all shadow-2xs ${
             notification.type === 'success'
               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
               : 'bg-rose-50 text-rose-800 border border-rose-200'
@@ -237,19 +232,19 @@ export const SalesPage = () => {
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="flex border-b border-slate-200 gap-1 overflow-x-auto">
+      {/* Tab Navigation (Separated from POS) */}
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto">
         <button
           type="button"
-          onClick={() => setActiveTab('pos')}
+          onClick={() => setActiveTab('history')}
           className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'pos'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+            activeTab === 'history'
+              ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-950/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300'
           }`}
         >
-          <ShoppingCart className="w-4 h-4" />
-          <span>Point of Sale (POS Terminal)</span>
+          <Receipt className="w-4 h-4" />
+          <span>Sales History & Receipts</span>
         </button>
 
         <button
@@ -257,45 +252,16 @@ export const SalesPage = () => {
           onClick={() => setActiveTab('analytics')}
           className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeTab === 'analytics'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-950/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300'
           }`}
         >
           <BarChart3 className="w-4 h-4" />
           <span>Most Selling Medicines Analytics</span>
         </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('history')}
-          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'history'
-              ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40 rounded-t-xl'
-              : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-          }`}
-        >
-          <Receipt className="w-4 h-4" />
-          <span>Sales History & Receipts</span>
-        </button>
       </div>
 
       {/* Tab Contents */}
-      {activeTab === 'pos' && (
-        <POSTerminal
-          medicines={posMedicines}
-          isLoading={isPOSMedsLoading}
-          onCheckout={handleCheckout}
-          isCheckingOut={createSaleMutation.isPending}
-        />
-      )}
-
-      {activeTab === 'analytics' && (
-        <TopAndLessSellingSection
-          analytics={analytics}
-          isLoading={isAnalyticsLoading}
-        />
-      )}
-
       {activeTab === 'history' && (
         <div className="space-y-4">
           <SalesHistoryTable
@@ -334,6 +300,13 @@ export const SalesPage = () => {
         </div>
       )}
 
+      {activeTab === 'analytics' && (
+        <TopAndLessSellingSection
+          analytics={analytics}
+          isLoading={isAnalyticsLoading}
+        />
+      )}
+
       {/* Printable Receipt Modal */}
       <ReceiptModal
         isOpen={Boolean(completedSale)}
@@ -359,4 +332,3 @@ export const SalesPage = () => {
 };
 
 export default SalesPage;
-

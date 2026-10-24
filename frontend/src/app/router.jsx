@@ -9,6 +9,7 @@ import { DashboardPage } from '@/features/dashboard';
 import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from '@/features/auth';
 import { MedicinesPage } from '@/features/medicines';
 import { InventoryPage } from '@/features/inventory';
+import { POSPage } from '@/features/POS';
 import { SalesPage } from '@/features/sales';
 import { SuppliersPage, CreateSupplierPage, SupplierDetailsPage } from '@/features/suppliers';
 import { PurchasesPage } from '@/features/purchases';
@@ -64,8 +65,9 @@ export const AppRouter = () => {
               <Route path="/purchases" element={<PurchasesPage />} />
             </Route>
 
-            {/* 3. Sales Feature (Admin & Cashier) */}
+            {/* 3. POS & Sales Features (Admin & Cashier) */}
             <Route element={<RoleRoute allowedRoles={['ADMIN', 'CASHIER']} />}>
+              <Route path="/pos" element={<POSPage />} />
               <Route path="/sales" element={<SalesPage />} />
             </Route>
           </Route>

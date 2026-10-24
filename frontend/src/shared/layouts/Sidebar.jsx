@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Pill, Boxes, ShoppingCart, Truck, ShoppingBag,
-  Receipt, BarChart3, Settings, LogOut, Menu, X,
+  Receipt, BarChart3, Settings, LogOut, Menu, X, Wallet, TrendingUp,
 } from 'lucide-react';
 import { Dialog } from '@/shared/components/ui/Dialog';
 import { useAuth } from '@/features/auth';
@@ -41,8 +41,9 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
     { to: '/inventory', label: t('nav.inventory', 'Inventory'), icon: Boxes, roles: ['ADMIN', 'INVENTOR'] },
     { to: '/suppliers', label: t('nav.suppliers', 'Suppliers'), icon: Truck, roles: ['ADMIN', 'INVENTOR'] },
     { to: '/purchases', label: t('nav.purchases', 'Purchases'), icon: ShoppingBag, roles: ['ADMIN', 'INVENTOR'] },
-    { to: '/expenses', label: t('nav.expenses', 'Expenses'), icon: Receipt, roles: ['ADMIN'] },
-    { to: '/sales', label: t('nav.sales', 'Sales / POS'), icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { to: '/expenses', label: t('nav.expenses', 'Expenses'), icon: Wallet, roles: ['ADMIN'] },
+    { to: '/pos', label: t('nav.pos', 'POS Terminal'), icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { to: '/sales', label: t('nav.sales', 'Sales History'), icon: TrendingUp, roles: ['ADMIN', 'CASHIER'] },
     { to: '/reports', label: t('nav.reports', 'Reports'), icon: BarChart3, roles: ['ADMIN'] },
     { to: '/settings', label: t('nav.settings', 'Settings'), icon: Settings, roles: ['ADMIN'] },
   ];

@@ -80,6 +80,8 @@ export const SupplierForm = ({
 
     if (!formData.stockSupplied.trim()) {
       newErrors.stockSupplied = 'Please specify the medicines or stock supplied';
+    } else if (formData.stockSupplied.trim().length < 2) {
+      newErrors.stockSupplied = 'Supplied medicines must be at least 2 characters';
     }
 
     if (formData.email && formData.email.trim()) {
@@ -112,7 +114,7 @@ export const SupplierForm = ({
         {/* Company / Supplier Name */}
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-            Company / Supplier Name <span className="text-rose-500 font-bold"></span>
+            Company / Supplier Name <span className="text-rose-500 font-bold">*</span>
           </label>
           <div className="relative">
             <Building2 className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -158,7 +160,7 @@ export const SupplierForm = ({
 
           <div>
             <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-              Phone Number <span className="text-rose-500 font-bold"></span>
+              Phone Number <span className="text-rose-500 font-bold">*</span>
             </label>
             <div className="relative">
               <Phone className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -187,7 +189,7 @@ export const SupplierForm = ({
         {/* Supplied Medicines / Stock Supplied */}
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-            Supplied Medicines  <span className="text-rose-500 font-bold"></span>
+            Supplied Medicines <span className="text-rose-500 font-bold">*</span>
           </label>
           <div className="relative">
             <Package className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />

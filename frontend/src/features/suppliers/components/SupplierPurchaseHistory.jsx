@@ -14,12 +14,14 @@ import {
   ChevronDown,
   ChevronUp,
   Trash2,
+  X,
 } from 'lucide-react';
 import {
   useSupplierPurchaseHistory,
   useCreateSupplierPurchase,
   useDeleteSupplierPurchase,
 } from '../hooks/use-suppliers';
+import { useMedicines } from '@/features/medicines';
 
 export const SupplierPurchaseHistory = ({
   isOpen,
@@ -39,9 +41,18 @@ export const SupplierPurchaseHistory = ({
     { medicineName: '', batchNumber: '', quantity: 1, unitCost: '', expiryDate: '' },
   ]);
 
+  // Validation state
+  const [itemErrors, setItemErrors] = useState({});
+  const [paymentError, setPaymentError] = useState(null);
+  const [formError, setFormError] = useState(null);
+
   const { data, isLoading } = useSupplierPurchaseHistory(supplier?.id, {
     enabled: Boolean(isOpen && supplier?.id),
   });
+
+  const { data: medicinesData } = useMedicines({ limit: 200 });
+  const medicineOptions = medicinesData?.data?.medicines || [];
+  const datalistId = `supplier-medicines-${supplier?.id || 'list'}`;
 
   const createPurchaseMutation = useCreateSupplierPurchase();
   const deletePurchaseMutation = useDeleteSupplierPurchase();
@@ -93,7 +104,91 @@ export const SupplierPurchaseHistory = ({
     setExpandedPurchaseId((prev) => (prev === id ? null : id));
   };
 
+  // Field validation helper for real-time and submission checks
+  const validateField = (field, value) => {
+    if (field === 'medicineName') {
+      if (!value || !value.toString().trim()) {
+        return 'Medicine name is required';
+      }
+      if (value.toString().trim().length < 2) {
+        return 'Medicine name must be at least 2 characters';
+      }
+      return null;
+    }
+
+    if (field === 'quantity') {
+      if (value === '' || value === null || value === undefined) {
+        return 'Quantity is required';
+      }
+      const num = Number(value);
+      if (isNaN(num) || num <= 0) {
+        return 'Quantity must be at least 1';
+      }
+      if (!Number.isInteger(num)) {
+        return 'Quantity must be a whole number';
+      }
+      return null;
+    }
+
+    if (field === 'unitCost') {
+      if (value === '' || value === null || value === undefined) {
+        return 'Unit cost is required';
+      }
+      const num = Number(value);
+      if (isNaN(num) || num <= 0) {
+        return 'Unit cost must be greater than 0';
+      }
+      return null;
+    }
+
+    if (field === 'expiryDate') {
+      if (value) {
+        const expDate = new Date(value);
+        if (isNaN(expDate.getTime())) {
+          return 'Invalid date format';
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (expDate < today) {
+          return 'Expiry date cannot be in the past';
+        }
+      }
+      return null;
+    }
+
+    return null;
+  };
+
   const handleAddItemRow = () => {
+    // Validate current medicine rows before appending another
+    let hasRowErrors = false;
+    const currentErrors = {};
+
+    newItems.forEach((item, i) => {
+      const rowErr = {};
+      const nameErr = validateField('medicineName', item.medicineName);
+      const qtyErr = validateField('quantity', item.quantity);
+      const costErr = validateField('unitCost', item.unitCost);
+      const expErr = validateField('expiryDate', item.expiryDate);
+
+      if (nameErr) rowErr.medicineName = nameErr;
+      if (qtyErr) rowErr.quantity = qtyErr;
+      if (costErr) rowErr.unitCost = costErr;
+      if (expErr) rowErr.expiryDate = expErr;
+
+      if (Object.keys(rowErr).length > 0) {
+        hasRowErrors = true;
+        currentErrors[i] = rowErr;
+      }
+    });
+
+    if (hasRowErrors) {
+      setItemErrors(currentErrors);
+      setFormError('Please complete all required fields for the current medicine before adding another item.');
+      return;
+    }
+
+    setFormError(null);
     setNewItems((prev) => [
       ...prev,
       { medicineName: '', batchNumber: '', quantity: 1, unitCost: '', expiryDate: '' },
@@ -101,32 +196,123 @@ export const SupplierPurchaseHistory = ({
   };
 
   const handleRemoveItemRow = (idx) => {
+    if (newItems.length <= 1) {
+      // If only one row remains, reset its inputs cleanly
+      setNewItems([{ medicineName: '', batchNumber: '', quantity: 1, unitCost: '', expiryDate: '' }]);
+      setItemErrors({});
+      if (formError) setFormError(null);
+      return;
+    }
+
     setNewItems((prev) => prev.filter((_, i) => i !== idx));
+    setItemErrors((prev) => {
+      const updated = {};
+      Object.keys(prev).forEach((key) => {
+        const k = Number(key);
+        if (k < idx) updated[k] = prev[k];
+        else if (k > idx) updated[k - 1] = prev[k];
+      });
+      return updated;
+    });
+    if (formError) setFormError(null);
   };
 
   const handleItemChange = (idx, field, value) => {
     setNewItems((prev) =>
       prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item))
     );
+
+    // Instant real-time validation detection
+    const fieldErr = validateField(field, value);
+    setItemErrors((prev) => {
+      const rowErr = { ...(prev[idx] || {}) };
+      if (fieldErr) {
+        rowErr[field] = fieldErr;
+      } else {
+        delete rowErr[field];
+      }
+      return { ...prev, [idx]: rowErr };
+    });
+
+    if (formError) setFormError(null);
+  };
+
+  const handleItemBlur = (idx, field, value) => {
+    const fieldErr = validateField(field, value);
+    setItemErrors((prev) => {
+      const rowErr = { ...(prev[idx] || {}) };
+      if (fieldErr) {
+        rowErr[field] = fieldErr;
+      } else {
+        delete rowErr[field];
+      }
+      return { ...prev, [idx]: rowErr };
+    });
+  };
+
+  const handleAmountPaidChange = (value) => {
+    setNewAmountPaid(value);
+    if (!value || !value.toString().trim()) {
+      setPaymentError('Amount paid is required for partial payment');
+    } else {
+      const num = parseFloat(value);
+      if (isNaN(num) || num <= 0) {
+        setPaymentError('Amount paid must be greater than 0');
+      } else if (num >= currentOrderTotal && currentOrderTotal > 0) {
+        setPaymentError(`Amount paid cannot equal or exceed total order (${formatBirr(currentOrderTotal)}). For full payment, select PAID.`);
+      } else {
+        setPaymentError(null);
+      }
+    }
   };
 
   const handleSavePurchase = (e) => {
     e.preventDefault();
-    if (newItems.length === 0 || !newItems[0].medicineName.trim()) {
-      alert('Please enter at least one valid medicine item');
+    setFormError(null);
+
+    if (newItems.length === 0) {
+      setFormError('Please add at least one medicine item to the purchase order.');
       return;
     }
 
+    let hasErrors = false;
+    const allItemErrors = {};
+
+    newItems.forEach((item, idx) => {
+      const rowErr = {};
+      const nameErr = validateField('medicineName', item.medicineName);
+      const qtyErr = validateField('quantity', item.quantity);
+      const costErr = validateField('unitCost', item.unitCost);
+      const expErr = validateField('expiryDate', item.expiryDate);
+
+      if (nameErr) rowErr.medicineName = nameErr;
+      if (qtyErr) rowErr.quantity = qtyErr;
+      if (costErr) rowErr.unitCost = costErr;
+      if (expErr) rowErr.expiryDate = expErr;
+
+      if (Object.keys(rowErr).length > 0) {
+        hasErrors = true;
+        allItemErrors[idx] = rowErr;
+      }
+    });
+
+    let payErr = null;
     if (newPaymentStatus === 'PARTIAL') {
       const paidVal = parseFloat(newAmountPaid);
-      if (isNaN(paidVal) || paidVal < 0) {
-        alert('Please enter a valid amount paid for partial payment');
-        return;
+      if (isNaN(paidVal) || paidVal <= 0) {
+        payErr = 'Please enter a valid amount paid greater than 0';
+        hasErrors = true;
+      } else if (paidVal >= currentOrderTotal && currentOrderTotal > 0) {
+        payErr = `Amount paid cannot exceed total order cost (${formatBirr(currentOrderTotal)})`;
+        hasErrors = true;
       }
-      if (paidVal > currentOrderTotal) {
-        alert(`Amount paid cannot exceed total order cost (${formatBirr(currentOrderTotal)})`);
-        return;
-      }
+    }
+
+    if (hasErrors) {
+      setItemErrors(allItemErrors);
+      setPaymentError(payErr);
+      setFormError('Please resolve all highlighted medicine input errors before submitting.');
+      return;
     }
 
     const payload = {
@@ -134,12 +320,12 @@ export const SupplierPurchaseHistory = ({
       paymentStatus: newPaymentStatus,
       amountPaid: parsedAmountPaid,
       amountDue: calculatedAmountLeft,
-      notes: newNotes,
+      notes: newNotes.trim() || null,
       items: newItems.map((item) => ({
-        medicineName: item.medicineName,
-        batchNumber: item.batchNumber || `BATCH-${Date.now().toString().slice(-4)}`,
-        quantity: parseInt(item.quantity, 10) || 1,
-        unitCost: parseFloat(item.unitCost) || 0,
+        medicineName: item.medicineName.trim(),
+        batchNumber: item.batchNumber.trim() || `BATCH-${Date.now().toString().slice(-4)}`,
+        quantity: parseInt(item.quantity, 10),
+        unitCost: parseFloat(item.unitCost),
         expiryDate: item.expiryDate || null,
       })),
     };
@@ -149,8 +335,34 @@ export const SupplierPurchaseHistory = ({
         setIsAddingPurchase(false);
         setNewNotes('');
         setNewAmountPaid('');
+        setPaymentError(null);
+        setItemErrors({});
+        setFormError(null);
         setNewItems([{ medicineName: '', batchNumber: '', quantity: 1, unitCost: '', expiryDate: '' }]);
       },
+      onError: (err) => {
+        setFormError(
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to record purchase. Please check your inputs and try again.'
+        );
+      },
+    });
+  };
+
+  const handleToggleAddPurchase = () => {
+    setIsAddingPurchase((prev) => {
+      const nextState = !prev;
+      if (!nextState) {
+        // Reset state on close
+        setNewNotes('');
+        setNewAmountPaid('');
+        setPaymentError(null);
+        setItemErrors({});
+        setFormError(null);
+        setNewItems([{ medicineName: '', batchNumber: '', quantity: 1, unitCost: '', expiryDate: '' }]);
+      }
+      return nextState;
     });
   };
 
@@ -163,6 +375,18 @@ export const SupplierPurchaseHistory = ({
       className="max-w-4xl"
     >
       <div className="space-y-5 text-sm">
+        {/* Available medicines datalist for quick autocomplete */}
+        {medicineOptions.length > 0 && (
+          <datalist id={datalistId}>
+            {medicineOptions.map((med) => (
+              <option key={med.id} value={med.name}>
+                {med.dosageForm ? `${med.dosageForm} • ` : ''}
+                {med.genericName || ''}
+              </option>
+            ))}
+          </datalist>
+        )}
+
         {/* Supplier Header & Summary Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs">
@@ -223,7 +447,7 @@ export const SupplierPurchaseHistory = ({
           <Button
             type="button"
             variant={isAddingPurchase ? 'secondary' : 'primary'}
-            onClick={() => setIsAddingPurchase((prev) => !prev)}
+            onClick={handleToggleAddPurchase}
             className="text-sm py-2 px-4 rounded-xl flex items-center gap-2 cursor-pointer shadow-xs self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
@@ -235,6 +459,7 @@ export const SupplierPurchaseHistory = ({
         {isAddingPurchase && (
           <form
             onSubmit={handleSavePurchase}
+            noValidate
             className="p-5 bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl space-y-4"
           >
             <div className="flex items-center justify-between border-b border-emerald-200/60 dark:border-emerald-800/50 pb-2.5">
@@ -243,6 +468,25 @@ export const SupplierPurchaseHistory = ({
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Add delivered batch stock</span>
             </div>
+
+            {/* Error Banner */}
+            {formError && (
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-xl flex items-center justify-between text-xs font-semibold animate-in fade-in duration-150">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormError(null)}
+                  className="text-rose-500 hover:text-rose-700 font-bold p-1 cursor-pointer"
+                  title="Dismiss error"
+                  aria-label="Dismiss error"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
@@ -255,6 +499,7 @@ export const SupplierPurchaseHistory = ({
                     setNewPaymentStatus(e.target.value);
                     if (e.target.value !== 'PARTIAL') {
                       setNewAmountPaid('');
+                      setPaymentError(null);
                     }
                   }}
                   className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-semibold"
@@ -289,19 +534,28 @@ export const SupplierPurchaseHistory = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-center">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Amount Paid (Birr) *
+                      Amount Paid (Birr) <span className="text-rose-500 font-bold">*</span>
                     </label>
                     <input
                       type="number"
                       step="0.01"
-                      min="0"
+                      min="0.01"
                       max={currentOrderTotal > 0 ? currentOrderTotal : undefined}
                       value={newAmountPaid}
-                      onChange={(e) => setNewAmountPaid(e.target.value)}
+                      onChange={(e) => handleAmountPaidChange(e.target.value)}
                       placeholder="Enter amount paid (e.g. 5000)"
-                      className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-                      required
+                      className={`w-full px-3.5 py-2.5 bg-white dark:bg-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-all ${
+                        paymentError
+                          ? 'border border-rose-400 bg-rose-50/30 focus:border-rose-500 focus:ring-rose-500/20'
+                          : 'border border-amber-300 dark:border-amber-700 focus:ring-amber-500/30 focus:border-amber-500'
+                      }`}
                     />
+                    {paymentError && (
+                      <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{paymentError}</span>
+                      </p>
+                    )}
                   </div>
                   <div>
                     <span className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -316,73 +570,178 @@ export const SupplierPurchaseHistory = ({
               </div>
             )}
 
-            {/* Item Rows */}
-            <div className="space-y-2.5 pt-2">
-              <span className="block font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider">
-                Delivered Items:
-              </span>
-              {newItems.map((item, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-2.5 items-center bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs">
-                  <div className="col-span-10 sm:col-span-3">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">Medicine Name</label>
-                    <input
-                      type="text"
-                      value={item.medicineName}
-                      onChange={(e) => handleItemChange(idx, 'medicineName', e.target.value)}
-                      placeholder="Medicine / Item Name"
-                      className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500"
-                      required
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-2">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">Batch #</label>
-                    <input
-                      type="text"
-                      value={item.batchNumber}
-                      onChange={(e) => handleItemChange(idx, 'batchNumber', e.target.value)}
-                      placeholder="Batch No"
-                      className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="col-span-3 sm:col-span-2">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">Qty</label>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                      placeholder="Quantity"
-                      className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="col-span-4 sm:col-span-3">
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">Cost</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={item.unitCost}
-                      onChange={(e) => handleItemChange(idx, 'unitCost', e.target.value)}
-                      placeholder="Purchasing Cost "
-                      className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-2.5">
-                    <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                      {formatBirr((item.quantity || 0) * (item.unitCost || 0))}
-                    </span>
-                    {newItems.length > 1 && (
+            {/* Delivered Items Section */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <span className="block font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider">
+                  Delivered Items / Medicines:
+                </span>
+                <span className="text-xs text-slate-500">
+                  {newItems.length} {newItems.length === 1 ? 'medicine item' : 'medicine items'}
+                </span>
+              </div>
+
+              {/* Desktop Table Header */}
+              <div className="hidden sm:grid grid-cols-12 gap-2.5 px-3 py-1.5 bg-emerald-100/50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/60 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300">
+                <div className="col-span-3">Medicine Name *</div>
+                <div className="col-span-2">Batch #</div>
+                <div className="col-span-2">Expiry Date</div>
+                <div className="col-span-1 text-center">Qty *</div>
+                <div className="col-span-2 text-right">Unit Cost (Birr) *</div>
+                <div className="col-span-2 text-right pr-2">Total & Actions</div>
+              </div>
+
+              {/* Item Rows */}
+              {newItems.map((item, idx) => {
+                const rowErrors = itemErrors[idx] || {};
+                const hasRowError = Object.keys(rowErrors).length > 0;
+                const lineTotal = (parseInt(item.quantity, 10) || 0) * (parseFloat(item.unitCost) || 0);
+
+                return (
+                  <div
+                    key={idx}
+                    className={`grid grid-cols-12 gap-2.5 items-start p-3 rounded-xl border transition-all ${
+                      hasRowError
+                        ? 'bg-rose-50/30 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900 shadow-2xs'
+                        : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 shadow-2xs'
+                    }`}
+                  >
+                    {/* Medicine Name */}
+                    <div className="col-span-12 sm:col-span-3">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">
+                        Medicine Name <span className="text-rose-500 font-bold">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        list={datalistId}
+                        value={item.medicineName}
+                        onChange={(e) => handleItemChange(idx, 'medicineName', e.target.value)}
+                        onBlur={(e) => handleItemBlur(idx, 'medicineName', e.target.value)}
+                        placeholder="Search / enter medicine name"
+                        className={`w-full px-3 py-2 text-sm rounded-xl border transition-all ${
+                          rowErrors.medicineName
+                            ? 'border-rose-400 bg-rose-50/20 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500'
+                        }`}
+                      />
+                      {rowErrors.medicineName && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{rowErrors.medicineName}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Batch Number */}
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">
+                        Batch # (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={item.batchNumber}
+                        onChange={(e) => handleItemChange(idx, 'batchNumber', e.target.value)}
+                        placeholder="Auto if empty"
+                        className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500"
+                      />
+                    </div>
+
+                    {/* Expiry Date */}
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">
+                        Expiry Date
+                      </label>
+                      <input
+                        type="date"
+                        value={item.expiryDate}
+                        onChange={(e) => handleItemChange(idx, 'expiryDate', e.target.value)}
+                        onBlur={(e) => handleItemBlur(idx, 'expiryDate', e.target.value)}
+                        className={`w-full px-3 py-2 text-sm rounded-xl border transition-all ${
+                          rowErrors.expiryDate
+                            ? 'border-rose-400 bg-rose-50/20 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500'
+                        }`}
+                      />
+                      {rowErrors.expiryDate && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{rowErrors.expiryDate}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Quantity */}
+                    <div className="col-span-6 sm:col-span-1">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">
+                        Qty <span className="text-rose-500 font-bold">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
+                        onBlur={(e) => handleItemBlur(idx, 'quantity', e.target.value)}
+                        placeholder="1"
+                        className={`w-full px-3 py-2 text-sm text-center font-bold rounded-xl border transition-all ${
+                          rowErrors.quantity
+                            ? 'border-rose-400 bg-rose-50/20 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500'
+                        }`}
+                      />
+                      {rowErrors.quantity && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{rowErrors.quantity}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Unit Cost */}
+                    <div className="col-span-6 sm:col-span-2">
+                      <label className="block text-[11px] font-semibold text-slate-500 mb-1 sm:hidden">
+                        Cost <span className="text-rose-500 font-bold">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        value={item.unitCost}
+                        onChange={(e) => handleItemChange(idx, 'unitCost', e.target.value)}
+                        onBlur={(e) => handleItemBlur(idx, 'unitCost', e.target.value)}
+                        placeholder="Cost (Birr)"
+                        className={`w-full px-3 py-2 text-sm font-semibold rounded-xl border transition-all ${
+                          rowErrors.unitCost
+                            ? 'border-rose-400 bg-rose-50/20 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500'
+                        }`}
+                      />
+                      {rowErrors.unitCost && (
+                        <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1 animate-in fade-in duration-150">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{rowErrors.unitCost}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Total & Action */}
+                    <div className="col-span-12 sm:col-span-2 flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-2">
+                      <span className="font-black text-slate-900 dark:text-slate-100 text-sm whitespace-nowrap">
+                        {formatBirr(lineTotal)}
+                      </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveItemRow(idx)}
-                        className="text-rose-500 hover:text-rose-700 text-sm font-bold p-1 cursor-pointer"
-                        title="Remove Item"
+                        className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-1.5 rounded-lg transition-colors cursor-pointer"
+                        title={newItems.length > 1 ? 'Remove medicine' : 'Clear medicine inputs'}
+                        aria-label="Remove medicine row"
                       >
-                        ✕
+                        <Trash2 className="w-4 h-4" />
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex items-center justify-between pt-2">
                 <button
@@ -407,6 +766,14 @@ export const SupplierPurchaseHistory = ({
             </div>
 
             <div className="flex justify-end gap-2.5 pt-3 border-t border-emerald-200/60 dark:border-emerald-800/50">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleToggleAddPurchase}
+                className="text-sm py-2 px-4 rounded-xl cursor-pointer"
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
                 variant="primary"

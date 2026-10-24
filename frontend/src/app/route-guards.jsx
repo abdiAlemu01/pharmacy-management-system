@@ -7,7 +7,7 @@ import { useAuth } from '@/features/auth';
  */
 export const getDefaultHomeForRole = (role) => {
   const r = (role || 'ADMIN').toUpperCase();
-  if (r === 'CASHIER' || r === 'CASHER') return '/sales';
+  if (r === 'CASHIER' || r === 'CASHER') return '/pos';
   if (r === 'INVENTOR' || r === 'INVENTORY') return '/inventory';
   return '/dashboard';
 };

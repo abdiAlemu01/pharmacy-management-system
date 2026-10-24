@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/shared/components/ui/Input';
 import { Button } from '@/shared/components/ui/Button';
+import { useAppDate } from '@/shared/lib/date-utils';
 
 export const MedicineForm = ({
   initialData = null,
@@ -8,6 +9,7 @@ export const MedicineForm = ({
   onCancel,
   loading = false,
 }) => {
+  const { formatDate, calendarType } = useAppDate();
   const [formData, setFormData] = useState({
     name: '',
     quantity: '',
@@ -41,8 +43,26 @@ export const MedicineForm = ({
     setShowConfirm(false);
   }, [initialData]);
 
+  const handleKeyDownNonNegative = (e) => {
+    // Prevent minus sign, exponents, and unnecessary symbols
+    if (e.key === '-' || e.key === 'Subtract' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+      e.preventDefault();
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Disallow negative numbers for quantity, purchaseCost, and sellingPrice
+    if (name === 'quantity') {
+      if (value.includes('-')) return;
+      if (value !== '' && Number(value) < 0) return;
+    }
+    if (name === 'purchaseCost' || name === 'sellingPrice') {
+      if (value.includes('-')) return;
+      if (value !== '' && Number(value) < 0) return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
@@ -61,8 +81,10 @@ export const MedicineForm = ({
     const qtyNum = Number(formData.quantity);
     if (formData.quantity === '' || isNaN(qtyNum)) {
       newErrors.quantity = 'Quantity is required and must be a valid number';
-    } else if (!Number.isInteger(qtyNum) || qtyNum < 0) {
-      newErrors.quantity = 'Quantity must be a whole number greater than or equal to 0';
+    } else if (qtyNum < 0) {
+      newErrors.quantity = 'Quantity cannot be negative';
+    } else if (!Number.isInteger(qtyNum)) {
+      newErrors.quantity = 'Quantity must be a whole number';
     }
 
     // Purchase Cost: non-negative decimal amount
@@ -162,6 +184,7 @@ export const MedicineForm = ({
             placeholder="e.g. 100"
             value={formData.quantity}
             onChange={handleChange}
+            onKeyDown={handleKeyDownNonNegative}
             error={errors.quantity}
           />
 
@@ -175,6 +198,7 @@ export const MedicineForm = ({
               placeholder="e.g. 5.00"
               value={formData.purchaseCost}
               onChange={handleChange}
+              onKeyDown={handleKeyDownNonNegative}
               error={errors.purchaseCost}
             />
 
@@ -187,19 +211,30 @@ export const MedicineForm = ({
               placeholder="e.g. 10.00"
               value={formData.sellingPrice}
               onChange={handleChange}
+              onKeyDown={handleKeyDownNonNegative}
               error={errors.sellingPrice}
             />
           </div>
 
-          <Input
-            label="Expiry Date"
-            name="expiryDate"
-            type="date"
-            placeholder="YYYY-MM-DD"
-            value={formData.expiryDate}
-            onChange={handleChange}
-            error={errors.expiryDate}
-          />
+          <div>
+            <Input
+              label={`Expiry Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
+              name="expiryDate"
+              type="date"
+              placeholder="YYYY-MM-DD"
+              value={formData.expiryDate}
+              onChange={handleChange}
+              error={errors.expiryDate}
+            />
+            {formData.expiryDate && (
+              <div className="text-[11px] text-slate-500 mt-1 pl-1">
+                <span>Selected: </span>
+                <span className="font-semibold text-emerald-700">
+                  {formatDate(formData.expiryDate)}
+                </span>
+              </div>
+            )}
+          </div>
 
           {calculatedProfit !== null && (
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center text-sm">

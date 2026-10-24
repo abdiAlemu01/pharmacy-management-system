@@ -74,9 +74,6 @@ export const MedicineTable = ({
           💊
         </div>
         <h3 className="text-base font-semibold text-slate-800">No medicines found</h3>
-        <p className="text-sm text-slate-500 max-w-sm mx-auto mt-1">
-          No medicines match your current filters or none have been added yet.
-        </p>
       </div>
     );
   }

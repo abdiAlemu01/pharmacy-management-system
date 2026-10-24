@@ -54,6 +54,12 @@ export class MedicinesService {
    * Create a new medicine
    */
   async createMedicine({ name, quantity, purchaseCost, sellingPrice, expiryDate }) {
+    if (quantity !== undefined && (isNaN(Number(quantity)) || Number(quantity) < 0)) {
+      const error = new Error('Quantity cannot be negative.');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const trimmedName = name.trim();
     const expDate = expiryDate && expiryDate.trim() !== '' ? expiryDate : null;
 
@@ -208,6 +214,12 @@ export class MedicinesService {
    * Update existing medicine
    */
   async updateMedicine(id, updates) {
+    if (updates.quantity !== undefined && (isNaN(Number(updates.quantity)) || Number(updates.quantity) < 0)) {
+      const error = new Error('Quantity cannot be negative.');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const existing = await db.query(
       'SELECT * FROM "Medicine" WHERE "id" = $1 LIMIT 1',
       [id]

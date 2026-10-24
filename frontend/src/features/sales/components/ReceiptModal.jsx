@@ -41,8 +41,9 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
                 Sold By:{' '}
                 {(() => {
                   const raw = sale.cashierName || '';
-                  const clean = (sale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (sale.role === 'ADMIN' ? 'Admin' : 'Cashier');
-                  const isAdmin = sale.role === 'ADMIN' || raw.toLowerCase().includes('admin');
+                  const role = (sale.role || sale.sellerRole || sale.userRole || '').toUpperCase();
+                  const clean = (sale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (role === 'ADMIN' ? 'Admin' : 'Cashier');
+                  const isAdmin = role === 'ADMIN' || raw.toLowerCase().includes('admin');
                   return isAdmin ? `${clean}(admin)` : `${clean}(casher)`;
                 })()}
               </p>

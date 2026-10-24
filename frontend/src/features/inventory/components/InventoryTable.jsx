@@ -21,7 +21,7 @@ export const InventoryTable = ({
     { id: 'ALL', label: 'All Items' },
     { id: 'LOW_STOCK', label: 'Low Stock (1-10)' },
     { id: 'EXCESS_STOCK', label: 'Excess Stock (> 50)' },
-    { id: 'NORMAL', label: 'Normal' },
+    { id: 'NORMAL', label: 'Normal (11-50)' },
   ];
 
   // Client-side filtering by status if user clicks tabs

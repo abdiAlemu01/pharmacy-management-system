@@ -183,27 +183,28 @@ export class SalesService {
         dbUser = fallbackUser.rows[0] || null;
       }
 
-      const rawRole = (dbUser?.role || user?.role || 'CASHIER').toUpperCase().trim();
-      const sellerRole = rawRole === 'ADMIN' ? 'ADMIN' : 'CASHIER';
+      // Check role priority: database role > user role object
+      const rawRole = (dbUser?.role || user?.role || user?.userRole || 'CASHIER').toString().toUpperCase().trim();
+      const isAdmin = rawRole === 'ADMIN';
+      const sellerRole = isAdmin ? 'ADMIN' : 'CASHIER';
+      const roleLabel = isAdmin ? 'admin' : 'casher';
 
       // Extract first name safely and capitalize it
       let rawFirstName = dbUser?.firstName || user?.firstName;
-      if (!rawFirstName && (dbUser?.name || user?.name)) {
-        rawFirstName = (dbUser?.name || user?.name).trim().split(' ')[0];
+      if (!rawFirstName && (dbUser?.name || user?.name || user?.userName)) {
+        rawFirstName = (dbUser?.name || user?.name || user?.userName).trim().split(' ')[0];
       }
       if (!rawFirstName && (dbUser?.email || user?.email)) {
         rawFirstName = (dbUser?.email || user?.email).split('@')[0];
       }
       if (!rawFirstName) {
-        rawFirstName = sellerRole === 'ADMIN' ? 'Admin' : 'Cashier';
+        rawFirstName = isAdmin ? 'Admin' : 'Cashier';
       }
       const trimmedFirstName = rawFirstName.trim();
       const capitalizedFirstName = trimmedFirstName.charAt(0).toUpperCase() + trimmedFirstName.slice(1);
 
-      // Record format: Name(casher) for cashier, Name(admin) for admin
-      const recordedName = sellerRole === 'ADMIN' 
-        ? `${capitalizedFirstName}(admin)` 
-        : `${capitalizedFirstName}(casher)`;
+      // Record format: Name(admin) for admin, Name(casher) for cashier
+      const recordedName = `${capitalizedFirstName}(${roleLabel})`;
 
       const saleId = crypto.randomUUID();
       const saleDate = new Date();
@@ -426,16 +427,19 @@ export class SalesService {
     const dataRes = await db.query(dataSql, queryValues);
 
     const sales = dataRes.rows.map((row) => {
-      const normalizedRole = (row.userRole || 'CASHIER').toUpperCase();
-      const roleLabel = normalizedRole === 'ADMIN' ? 'Admin' : 'Cashier';
+      const normalizedRole = (row.userRole || '').toUpperCase() === 'ADMIN' ? 'ADMIN' : 'CASHIER';
+      const isAdmin = normalizedRole === 'ADMIN';
+      const roleLabel = isAdmin ? 'Admin' : 'Cashier';
+      const cleanName = (row.cashierName || 'Staff').replace(/\s*\([^)]*\)/g, '').trim() || (isAdmin ? 'Admin' : 'Cashier');
+      const formattedName = isAdmin ? `${cleanName}(admin)` : `${cleanName}(casher)`;
 
       return {
         id: row.id,
         total: parseFloat(row.total || 0),
         totalProfit: parseFloat(row.totalProfit || 0),
         totalQuantity: parseInt(row.totalQuantity || 0, 10),
-        cashierName: row.cashierName,
-        sellerName: (row.cashierName || '').replace(/\s*\([^)]*\)/g, '').trim(),
+        cashierName: formattedName,
+        sellerName: cleanName,
         role: normalizedRole,
         sellerRole: roleLabel,
         createdAt: row.createdAt,

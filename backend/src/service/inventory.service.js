@@ -73,7 +73,8 @@ export class InventoryService {
         COALESCE(SUM(quantity * "sellingPrice"), 0)::numeric as "totalSellingValue",
         COALESCE(SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END), 0)::int as "outOfStockCount",
         COALESCE(SUM(CASE WHEN quantity > 0 AND quantity <= 10 THEN 1 ELSE 0 END), 0)::int as "lowStockCount",
-        COALESCE(SUM(CASE WHEN quantity > 50 THEN 1 ELSE 0 END), 0)::int as "excessStockCount"
+        COALESCE(SUM(CASE WHEN quantity > 50 THEN 1 ELSE 0 END), 0)::int as "excessStockCount",
+        COALESCE(SUM(CASE WHEN quantity > 10 AND quantity <= 50 THEN 1 ELSE 0 END), 0)::int as "normalStockCount"
       FROM "Medicine"
     `);
 
@@ -91,6 +92,7 @@ export class InventoryService {
       outOfStockCount: row.outOfStockCount || 0,
       lowStockCount: row.lowStockCount || 0,
       excessStockCount: row.excessStockCount || 0,
+      normalStockCount: row.normalStockCount || 0,
     };
   }
 

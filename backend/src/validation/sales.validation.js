@@ -3,6 +3,10 @@ import { z } from 'zod';
 export const createSaleSchema = z.object({
   body: z.object({
     patientId: z.string().optional().nullable(),
+    userId: z.string().optional().nullable(),
+    userRole: z.string().optional().nullable(),
+    userName: z.string().optional().nullable(),
+    discount: z.number().optional().nullable(),
     items: z
       .array(
         z.object({
@@ -18,7 +22,7 @@ export const createSaleSchema = z.object({
         })
       )
       .min(1, 'Sale must include at least one item'),
-  }),
+  }).passthrough(),
 });
 
 export const getSalesQuerySchema = z.object({

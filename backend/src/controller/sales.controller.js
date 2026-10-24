@@ -24,11 +24,18 @@ export class SalesController {
    */
   static async createSale(req, res, next) {
     try {
-      const { items, patientId } = req.body;
+      const { items, patientId, userId, userRole, userName } = req.body;
+      const effectiveUser = {
+        ...(req.user || {}),
+        ...(userId ? { id: userId } : {}),
+        ...(userRole ? { role: userRole } : {}),
+        ...(userName ? { name: userName } : {}),
+      };
+
       const sale = await salesService.createSale({
         items,
         patientId,
-        user: req.user,
+        user: Object.keys(effectiveUser).length > 0 ? effectiveUser : req.user,
       });
       return res.status(201).json({
         success: true,

@@ -12,8 +12,10 @@ import { Button } from '@/shared/components/ui/Button';
 import { POSTerminal } from '../components/POSTerminal';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { usePOSMedicines, useCreatePOSSale } from '../hooks/use-pos';
+import { useAuth } from '@/features/auth';
 
 export const POSPage = () => {
+  const { user: currentUser } = useAuth();
   const [completedSale, setCompletedSale] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -30,12 +32,19 @@ export const POSPage = () => {
   const handleCheckout = async (salePayload, onSuccessCallback) => {
     try {
       setNotification(null);
-      const res = await createSaleMutation.mutateAsync(salePayload);
+      const payloadWithUser = {
+        ...salePayload,
+        userId: currentUser?.id,
+        userRole: currentUser?.role,
+        userName: currentUser?.firstName || currentUser?.name,
+      };
+      const res = await createSaleMutation.mutateAsync(payloadWithUser);
       if (onSuccessCallback) onSuccessCallback();
-      setCompletedSale(res.data);
+      const saleResult = res?.data || res;
+      setCompletedSale(saleResult);
       setNotification({
         type: 'success',
-        message: `Sale successfully completed! Total: ${res.data.total} Birr, Net Profit: +${res.data.totalProfit} Birr.`,
+        message: `Sale successfully completed! Total: ${saleResult.total} Birr, Net Profit: +${saleResult.totalProfit} Birr.`,
       });
     } catch (err) {
       const msg =

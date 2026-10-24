@@ -212,8 +212,9 @@ export const SalesHistoryTable = ({
                 <div>
                   {(() => {
                     const raw = selectedSale.cashierName || '';
-                    const clean = (selectedSale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (selectedSale.role === 'ADMIN' ? 'Admin' : 'Cashier');
-                    const isAdmin = selectedSale.role === 'ADMIN' || raw.toLowerCase().includes('admin');
+                    const role = (selectedSale.role || selectedSale.sellerRole || selectedSale.userRole || '').toUpperCase();
+                    const clean = (selectedSale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (role === 'ADMIN' ? 'Admin' : 'Cashier');
+                    const isAdmin = role === 'ADMIN' || raw.toLowerCase().includes('admin');
                     const formatted = isAdmin ? `${clean}(admin)` : `${clean}(casher)`;
 
                     return isAdmin ? (

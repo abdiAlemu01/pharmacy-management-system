@@ -6,6 +6,17 @@ export const InventorySummaryCards = ({ summary = {}, isLoading = false }) => {
     return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
   };
 
+  const normalStockCount =
+    summary.normalStockCount !== undefined
+      ? summary.normalStockCount
+      : Math.max(
+          0,
+          (summary.totalMedicines || 0) -
+            (summary.lowStockCount || 0) -
+            (summary.excessStockCount || 0) -
+            (summary.outOfStockCount || 0)
+        );
+
   const cards = [
     {
       title: 'Total Capital Invested',
@@ -34,6 +45,10 @@ export const InventorySummaryCards = ({ summary = {}, isLoading = false }) => {
           <div className="flex items-center justify-between text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200 font-medium">
             <span>Excess Stock (&gt; 50 units)</span>
             <span className="font-bold">{summary.excessStockCount || 0}</span>
+          </div>
+          <div className="flex items-center justify-between text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 font-medium">
+            <span>Normal Stock (11-50 units)</span>
+            <span className="font-bold">{normalStockCount}</span>
           </div>
         </div>
       ),

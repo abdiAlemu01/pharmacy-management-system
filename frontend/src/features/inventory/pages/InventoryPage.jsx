@@ -220,7 +220,8 @@ export const InventoryPage = () => {
           currentPage={pagination.page}
           totalPages={pagination.totalPages}
           totalRecords={pagination.total}
-          pageSize={pagination.limit}
+          pageSize={pagination.limit || 10}
+          showRecordSummary={false}
           onPageChange={setPage}
           onPageSizeChange={(newLimit) => {
             setLimit(newLimit);

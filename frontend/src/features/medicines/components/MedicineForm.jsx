@@ -228,7 +228,7 @@ export const MedicineForm = ({
             />
             {formData.expiryDate && (
               <div className="text-[11px] text-slate-500 mt-1 pl-1">
-                <span>Selected: </span>
+                
                 <span className="font-semibold text-emerald-700">
                   {formatDate(formData.expiryDate)}
                 </span>

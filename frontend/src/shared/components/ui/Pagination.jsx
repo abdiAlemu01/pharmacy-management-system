@@ -7,6 +7,7 @@ export const Pagination = ({
   totalPages = 1,
   totalRecords = 0,
   pageSize = 10,
+  showRecordSummary = true,
   onPageChange,
   onPageSizeChange,
 }) => {
@@ -19,17 +20,21 @@ export const Pagination = ({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-1 text-sm text-slate-600">
       <div className="flex items-center gap-3">
-        <span>
-          Showing page <strong>{currentPage}</strong> of <strong>{totalPages || 1}</strong> (<strong>{totalRecords}</strong> total records)
-        </span>
-        <div className="w-36">
-          <Select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            options={limitOptions}
-            className="py-1 text-xs"
-          />
-        </div>
+        {showRecordSummary && (
+          <span>
+            Showing page <strong>{currentPage}</strong> of <strong>{totalPages || 1}</strong> (<strong>{totalRecords}</strong> total records)
+          </span>
+        )}
+        {onPageSizeChange && (
+          <div className="w-36">
+            <Select
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              options={limitOptions}
+              className="py-1 text-xs"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">

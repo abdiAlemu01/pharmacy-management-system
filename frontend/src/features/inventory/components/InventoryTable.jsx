@@ -68,8 +68,8 @@ export const InventoryTable = ({
                 onClick={() => onStatusFilterChange(tab.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                    ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20'
+                    : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
                 }`}
               >
                 {tab.label}
@@ -108,11 +108,6 @@ export const InventoryTable = ({
                 <td colSpan="7" className="text-center py-12 text-slate-400">
                   <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
                   <p className="font-semibold text-slate-700">No medicines found</p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {searchTerm
-                      ? `No inventory items matched "${searchTerm}".`
-                      : 'No items found in inventory for the selected filter.'}
-                  </p>
                 </td>
               </tr>
             ) : (

@@ -313,7 +313,7 @@ export const SaleCardContentModal = ({
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             <Filter className="w-3.5 h-3.5" />
-            <span>Apply Filter to Sales History</span>
+            <span>Sales History</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 

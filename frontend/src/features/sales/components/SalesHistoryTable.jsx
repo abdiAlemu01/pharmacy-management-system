@@ -90,6 +90,7 @@ export const SalesHistoryTable = ({
               <th className="px-5 py-3.5">Receipt #</th>
               <th className="px-4 py-3.5">Date & Time</th>
               <th className="px-4 py-3.5">Cashier</th>
+              <th className="px-4 py-3.5">Medicine Name</th>
               <th className="px-4 py-3.5 text-center">Items (Qty)</th>
               <th className="px-4 py-3.5 text-right font-extrabold text-slate-900">Total Sell</th>
               <th className="px-5 py-3.5 text-right bg-emerald-50/40 text-emerald-800">Total Profit</th>
@@ -99,57 +100,74 @@ export const SalesHistoryTable = ({
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan="7" className="text-center py-12 text-slate-400">
+                <td colSpan="8" className="text-center py-12 text-slate-400">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent" />
                   <p className="mt-2 text-xs font-medium">Loading sales history...</p>
                 </td>
               </tr>
             ) : sales.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center py-12 text-slate-400">
+                <td colSpan="8" className="text-center py-12 text-slate-400">
                   <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
                   <p className="font-semibold text-slate-700">No sales transactions found</p>
                   <p className="text-xs text-slate-500 mt-1">
-                    Complete sales using the POS tab to view transaction history.
+                    Complete sales using POS to view transaction history.
                   </p>
                 </td>
               </tr>
             ) : (
-              sales.map((sale) => (
-                <tr key={sale.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-5 py-4 font-mono font-bold text-xs text-slate-800">
-                    {sale.id.slice(0, 8)}...
-                  </td>
-                  <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
-                    {formatDateTime(sale.createdAt)}
-                  </td>
-                  <td className="px-4 py-4 font-medium text-slate-700">
-                    {sale.cashierName}
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <span className="font-semibold text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                      {(sale.items || []).length} items ({sale.totalQuantity} units)
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-right font-black text-slate-900 whitespace-nowrap">
-                    {formatBirr(sale.total)}
-                  </td>
-                  <td className="px-5 py-4 text-right font-extrabold text-emerald-700 bg-emerald-50/20 whitespace-nowrap">
-                    +{formatBirr(sale.totalProfit)}
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setSelectedSale(sale)}
-                      className="text-xs py-1 px-2.5 flex items-center gap-1 mx-auto"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      View
-                    </Button>
-                  </td>
-                </tr>
-              ))
+              sales.map((sale) => {
+                const medicineNames = (sale.items || [])
+                  .map((i) => i.medicineName || i.medicine?.name || i.name)
+                  .filter(Boolean)
+                  .join(', ');
+
+                return (
+                  <tr key={sale.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-5 py-4 font-mono font-bold text-xs text-slate-800">
+                      {sale.id.slice(0, 8)}...
+                    </td>
+                    <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
+                      {formatDateTime(sale.createdAt)}
+                    </td>
+                    <td className="px-4 py-4 font-medium text-slate-700">
+                      {sale.cashierName}
+                    </td>
+                    <td className="px-4 py-4 max-w-[200px]" title={medicineNames}>
+                      <div className="font-semibold text-xs text-slate-800 truncate">
+                        {medicineNames || '—'}
+                      </div>
+                      {(sale.items || []).length > 1 && (
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {(sale.items || []).length} medicines
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <span className="font-semibold text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">
+                        {(sale.items || []).length} items ({sale.totalQuantity} units)
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right font-black text-slate-900 whitespace-nowrap">
+                      {formatBirr(sale.total)}
+                    </td>
+                    <td className="px-5 py-4 text-right font-extrabold text-emerald-700 bg-emerald-50/20 whitespace-nowrap">
+                      +{formatBirr(sale.totalProfit)}
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setSelectedSale(sale)}
+                        className="text-xs py-1 px-2.5 flex items-center gap-1 mx-auto"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

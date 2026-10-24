@@ -310,17 +310,6 @@ export const POSTerminal = ({
             <div className="p-16 text-center text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
               <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
               <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">No medicines found</p>
-              <p className="text-xs text-slate-400 mt-1">Try resetting your search query or inventory filter.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setStockFilter('all');
-                }}
-                className="mt-3 px-4 py-1.5 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs hover:bg-emerald-700 transition-colors cursor-pointer"
-              >
-                Reset Filters
-              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -469,7 +458,6 @@ export const POSTerminal = ({
                     <ShoppingBag className="w-6 h-6" />
                   </div>
                   <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Your order is empty</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Click "Add to cart" on any medicine</p>
                 </div>
               ) : (
                 cart.map((item, idx) => {

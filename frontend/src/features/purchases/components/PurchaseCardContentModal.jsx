@@ -10,6 +10,7 @@ import {
   Eye,
   Filter,
   ArrowRight,
+  ArrowLeft,
   ShoppingBag,
 } from 'lucide-react';
 import { usePurchases } from '../hooks/use-purchases';
@@ -47,7 +48,7 @@ export const PurchaseCardContentModal = ({
       case 'TODAY':
         return {
           title: `Purchases Today (${todayStr})`,
-          subtitle: `Purchase orders recorded for today (${todayStr})`,
+          subtitle: '',
           icon: Calendar,
           iconColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60',
           startDate: todayStr,
@@ -178,9 +179,11 @@ export const PurchaseCardContentModal = ({
                   {stats.count} {stats.count === 1 ? 'Order' : 'Orders'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {cardConfig.subtitle}
-              </p>
+              {cardConfig.subtitle ? (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {cardConfig.subtitle}
+                </p>
+              ) : null}
             </div>
           </div>
           <button
@@ -226,7 +229,7 @@ export const PurchaseCardContentModal = ({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by supplier, PO #, invoice #, or medicine..."
+              placeholder="Search by supplier"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
@@ -340,9 +343,8 @@ export const PurchaseCardContentModal = ({
             }}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
-            <Filter className="w-3.5 h-3.5" />
-            <span>Apply Filter to Main Table</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Main Table</span>
           </button>
 
           <button

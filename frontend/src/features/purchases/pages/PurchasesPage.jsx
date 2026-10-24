@@ -449,114 +449,53 @@ export const PurchasesPage = () => {
       )}
 
       {/* 3. Search & Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
-          {/* Search bar */}
-          <div className="relative col-span-2 md:col-span-2">
-            <Search className="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Search by Supplier Name, Medicine,....."
-              className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Supplier filter */}
-          <div className="col-span-1">
-            <DropdownSelect
-              value={supplierFilter}
-              onChange={(val) => {
-                setSupplierFilter(val);
-                setPage(1);
-              }}
-              options={supplierOptions}
-              placeholder="All Suppliers"
-            />
-          </div>
-
-          {/* Delivery Status filter */}
-          <div className="col-span-1">
-            <DropdownSelect
-              value={statusFilter}
-              onChange={(val) => {
-                setStatusFilter(val);
-                setPage(1);
-              }}
-              options={statusOptions}
-              placeholder="Delivery Status"
-            />
-          </div>
-        </div>
-
-        {/* Second Row: Payment Status & Date Range */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 text-xs">
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            <div className="col-span-2 sm:col-span-1 flex items-center gap-1.5">
-              <span className="font-bold text-slate-500 shrink-0">Payment</span>
-              <DropdownSelect
-                value={paymentStatusFilter}
-                onChange={(val) => {
-                  setPaymentStatusFilter(val);
-                  setPage(1);
-                }}
-                options={paymentStatusOptions}
-                placeholder="All Payments"
-                className="w-full sm:min-w-[130px]"
-                buttonClassName="px-2.5 py-1.5 rounded-lg text-xs"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-500 shrink-0">From</span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-500 shrink-0">To</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-2 py-1.5 bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-            </div>
-          </div>
-
-          {hasActiveFilters && (
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center gap-3">
+        {/* Search bar */}
+        <div className="relative flex-1 w-full">
+          <Search className="w-4 h-4 text-emerald-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search by supplier"
+            className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-emerald-400 dark:border-emerald-500 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium"
+          />
+          {searchTerm && (
             <button
               type="button"
-              onClick={handleClearFilters}
-              className="self-end sm:self-auto px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 transition-colors cursor-pointer"
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
             >
-              Reset Filters
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
+
+        {/* Supplier filter */}
+        <div className="w-full sm:w-64">
+          <DropdownSelect
+            value={supplierFilter}
+            onChange={(val) => {
+              setSupplierFilter(val);
+              setPage(1);
+            }}
+            options={supplierOptions}
+            placeholder="All Suppliers"
+          />
+        </div>
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="self-end sm:self-auto px-3 py-2 text-xs font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900/60 transition-colors cursor-pointer shrink-0"
+          >
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {/* 4. Action Toolbar for Selected Purchase (matches SupplierTable pattern) */}

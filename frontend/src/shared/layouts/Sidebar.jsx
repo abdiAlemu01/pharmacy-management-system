@@ -42,8 +42,8 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
     { to: '/suppliers', label: t('nav.suppliers', 'Suppliers'), icon: Truck, roles: ['ADMIN', 'INVENTOR'] },
     { to: '/purchases', label: t('nav.purchases', 'Purchases'), icon: ShoppingBag, roles: ['ADMIN', 'INVENTOR'] },
     { to: '/expenses', label: t('nav.expenses', 'Expenses'), icon: Wallet, roles: ['ADMIN'] },
-    { to: '/pos', label: t('nav.pos', 'POS Terminal'), icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
-    { to: '/sales', label: t('nav.sales', 'Sales History'), icon: TrendingUp, roles: ['ADMIN', 'CASHIER'] },
+    { to: '/pos', label: t('nav.pos', 'POS'), icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { to: '/sales', label: t('nav.sales', 'Sales'), icon: TrendingUp, roles: ['ADMIN', 'CASHIER'] },
     { to: '/reports', label: t('nav.reports', 'Reports'), icon: BarChart3, roles: ['ADMIN'] },
     { to: '/settings', label: t('nav.settings', 'Settings'), icon: Settings, roles: ['ADMIN'] },
   ];

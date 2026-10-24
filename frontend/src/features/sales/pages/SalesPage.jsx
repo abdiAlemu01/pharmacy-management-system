@@ -20,7 +20,6 @@ import { useSalesAnalytics, useSalesHistory } from '../hooks/use-sales';
 
 export const SalesPage = () => {
   const [activeTab, setActiveTab] = useState('history'); // 'history' | 'analytics'
-  const [showSummaryCards, setShowSummaryCards] = useState(false);
 
   // History search & pagination
   const [historySearch, setHistorySearch] = useState('');
@@ -105,9 +104,6 @@ export const SalesPage = () => {
               Sales Records & Analytics
             </h1>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Review pharmacy sales transactions, customer receipts, and financial revenue trends.
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
@@ -118,18 +114,9 @@ export const SalesPage = () => {
               className="flex items-center gap-2 text-xs sm:text-sm py-2 px-3.5 sm:px-4.5 font-bold shadow-xs cursor-pointer"
             >
               <ShoppingCart className="w-4 h-4" />
-              <span>Launch POS Terminal</span>
+              <span>Open POS</span>
             </Button>
           </Link>
-
-          <Button
-            variant="outline"
-            onClick={() => setShowSummaryCards((prev) => !prev)}
-            className="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-3 sm:px-4 cursor-pointer"
-          >
-            <BarChart3 className="w-4 h-4 text-emerald-600" />
-            <span>{showSummaryCards ? 'Hide Metrics' : 'Financial Metrics'}</span>
-          </Button>
 
           <Button
             variant="outline"
@@ -171,7 +158,7 @@ export const SalesPage = () => {
       )}
 
       {/* Key Financial Analytics Cards (Daily & Monthly Sell & Profit) */}
-      {(showSummaryCards || activeTab === 'analytics' || activeCardFilter) && (
+      {(activeTab === 'analytics' || activeCardFilter) && (
         <SalesAnalyticsCards
           analytics={analytics}
           isLoading={isAnalyticsLoading}

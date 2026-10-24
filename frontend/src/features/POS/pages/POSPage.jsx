@@ -63,8 +63,6 @@ export const POSPage = () => {
             </h1>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-            <span>Dispensary checkout terminal</span>
-            <span>•</span>
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
               <UserCheck className="w-3.5 h-3.5" />
               Cashier: {user?.name || user?.firstName || user?.email || 'Active Dispensary'}

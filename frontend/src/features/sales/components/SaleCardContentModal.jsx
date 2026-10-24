@@ -12,7 +12,11 @@ import {
   ShoppingCart,
 } from 'lucide-react';
 import { useSalesHistory } from '../hooks/use-sales';
-import { useAppDate } from '@/shared/lib/date-utils';
+import {
+  useAppDate,
+  gregorianToEthiopian,
+  ethiopianToGregorian,
+} from '@/shared/lib/date-utils';
 
 export const SaleCardContentModal = ({
   isOpen,
@@ -21,7 +25,7 @@ export const SaleCardContentModal = ({
   onViewReceipt,
   onApplyFilterToHistory,
 }) => {
-  const { formatDateTime } = useAppDate();
+  const { formatDate, formatDateTime, calendarType } = useAppDate();
   const [searchTerm, setSearchTerm] = useState('');
 
   // Compute card date range & configuration
@@ -32,15 +36,32 @@ export const SaleCardContentModal = ({
     const pad = (n) => String(n).padStart(2, '0');
     const todayStr = `${currentYear}-${pad(currentMonthNum)}-${pad(now.getDate())}`;
 
-    // Month dates
-    const monthStart = `${currentYear}-${pad(currentMonthNum)}-01`;
+    // Gregorian Month dates default
+    let monthStart = `${currentYear}-${pad(currentMonthNum)}-01`;
     const lastDayOfMonth = new Date(currentYear, currentMonthNum, 0).getDate();
-    const monthEnd = `${currentYear}-${pad(currentMonthNum)}-${pad(lastDayOfMonth)}`;
+    let monthEnd = `${currentYear}-${pad(currentMonthNum)}-${pad(lastDayOfMonth)}`;
+    let monthDisplay = `${now.toLocaleString('default', { month: 'long', year: 'numeric' })} G.C.`;
+
+    if (calendarType === 'ethiopian') {
+      const eth = gregorianToEthiopian(now);
+      if (eth) {
+        // Ethiopian current month start & end in Gregorian
+        const ethStartGreg = ethiopianToGregorian(eth.year, eth.month, 1);
+        const ethEndGreg = ethiopianToGregorian(eth.year, eth.month, eth.month === 13 ? 5 : 30);
+        if (ethStartGreg && ethEndGreg) {
+          monthStart = `${ethStartGreg.year}-${pad(ethStartGreg.month)}-${pad(ethStartGreg.day)}`;
+          monthEnd = `${ethEndGreg.year}-${pad(ethEndGreg.month)}-${pad(ethEndGreg.day)}`;
+        }
+        monthDisplay = `${formatDate(todayStr, { showMonthName: true })} (${eth.year} E.C.)`;
+      }
+    }
+
+    const todayDisplay = formatDate(todayStr, { showMonthName: true, showSuffix: true });
 
     switch (cardType) {
       case 'DAILY_SELL':
         return {
-          title: `Daily Sales Transactions (${todayStr})`,
+          title: `Daily Sales Transactions (${todayDisplay})`,
           icon: ShoppingCart,
           iconColor: 'text-emerald-600 bg-emerald-100',
           startDate: todayStr,
@@ -48,7 +69,7 @@ export const SaleCardContentModal = ({
         };
       case 'DAILY_PROFIT':
         return {
-          title: `Daily Profit Breakdown (${todayStr})`,
+          title: `Daily Profit Breakdown (${todayDisplay})`,
           icon: TrendingUp,
           iconColor: 'text-blue-600 bg-blue-100',
           startDate: todayStr,
@@ -56,7 +77,7 @@ export const SaleCardContentModal = ({
         };
       case 'MONTHLY_SELL':
         return {
-          title: `Monthly Sales Transactions (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
+          title: `Monthly Sales Transactions (${monthDisplay})`,
           icon: DollarSign,
           iconColor: 'text-indigo-600 bg-indigo-100',
           startDate: monthStart,
@@ -65,14 +86,14 @@ export const SaleCardContentModal = ({
       case 'MONTHLY_PROFIT':
       default:
         return {
-          title: `Monthly Profit Breakdown (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
+          title: `Monthly Profit Breakdown (${monthDisplay})`,
           icon: TrendingUp,
           iconColor: 'text-purple-600 bg-purple-100',
           startDate: monthStart,
           endDate: monthEnd,
         };
     }
-  }, [cardType]);
+  }, [cardType, calendarType, formatDate]);
 
   // Query sales history for this date range
   const { data: historyData, isLoading } = useSalesHistory({
@@ -231,7 +252,14 @@ export const SaleCardContentModal = ({
                 <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-2.5 px-3">Sale ID</th>
-                    <th className="py-2.5 px-3">Date & Time</th>
+                    <th className="py-2.5 px-3">
+                      <span className="inline-flex items-center gap-1">
+                        <span>Date & Time</span>
+                        <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-1 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
+                          {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
+                        </span>
+                      </span>
+                    </th>
                     <th className="py-2.5 px-3">Cashier</th>
                     <th className="py-2.5 px-3">Medicines</th>
                     <th className="py-2.5 px-3 text-center">Items</th>
@@ -256,7 +284,7 @@ export const SaleCardContentModal = ({
                           {sale.id.slice(0, 8)}...
                         </td>
                         <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                          {formatDateTime(sale.createdAt)}
+                          {formatDateTime(sale.createdAt, { showSuffix: true })}
                         </td>
                         <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
                           {sale.cashierName || 'Cashier'}

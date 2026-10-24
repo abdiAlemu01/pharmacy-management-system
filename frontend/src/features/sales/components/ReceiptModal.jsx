@@ -35,7 +35,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
           <div className="text-center pb-3 border-b border-dashed border-slate-200 space-y-1">
             <h3 className="font-black text-base text-slate-900 tracking-tight">Pharmacy Care Management</h3>
             <p className="text-slate-500 text-[11px]">Official Pharmacy POS Sales Receipt</p>
-            <p className="text-[10px] text-slate-400">Date: {formatDateTime(sale.createdAt || Date.now())}</p>
+            <p className="text-[10px] text-slate-400">Date: {formatDateTime(sale.createdAt || Date.now(), { showSuffix: true })}</p>
             
           </div>
 

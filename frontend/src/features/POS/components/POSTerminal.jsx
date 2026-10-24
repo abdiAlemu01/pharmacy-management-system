@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useAppDate } from '@/shared/lib/date-utils';
 import {
   Search,
   Plus,
@@ -86,15 +87,13 @@ export const POSTerminal = ({
     })} Birr`;
   };
 
+  const { formatDate, formatDateTime, calendarType } = useAppDate();
+
   // ── Formatted Date for Top Banner ──
   const formattedDate = useMemo(() => {
     const today = new Date();
-    return today.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  }, []);
+    return formatDate(today, { showMonthName: true, showSuffix: true });
+  }, [formatDate, calendarType]);
 
   // ── Filter Medicines ──
   const filteredMedicines = useMemo(() => {
@@ -249,9 +248,14 @@ export const POSTerminal = ({
           {/* 1. Header: Date + Title + Search Bar & Filter */}
           <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
-              <span className="text-xs font-semibold text-slate-400 block tracking-tight">
-                {formattedDate}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400 block tracking-tight">
+                  {formattedDate}
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
+                </span>
+              </div>
               <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
                 Pharmacy Dispensary
               </h2>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppDate } from '@/shared/lib/date-utils';
 import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
 export const SalesAnalyticsCards = ({
@@ -7,6 +8,8 @@ export const SalesAnalyticsCards = ({
   onCardClick,
   activeFilter = null,
 }) => {
+  const { calendarType } = useAppDate();
+
   const formatBirr = (val) => {
     const num = parseFloat(val || 0);
     return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Birr`;
@@ -15,13 +18,18 @@ export const SalesAnalyticsCards = ({
   const daily = analytics.daily || {};
   const monthly = analytics.monthly || {};
 
+  const todayBadge = calendarType === 'ethiopian' ? 'Today (E.C.)' : 'Today (G.C.)';
+  const dailyProfitBadge = calendarType === 'ethiopian' ? 'Daily (E.C.)' : 'Daily (G.C.)';
+  const monthBadge = calendarType === 'ethiopian' ? 'This Month (E.C.)' : 'This Month (G.C.)';
+  const monthlyProfitBadge = calendarType === 'ethiopian' ? 'Monthly (E.C.)' : 'Monthly (G.C.)';
+
   const cards = [
     {
       key: 'DAILY_SELL',
       title: 'Total Daily Sell',
       value: formatBirr(daily.totalSell),
       borderAccent: 'border-emerald-200 bg-linear-to-br from-emerald-50/60 to-white',
-      badge: 'Today',
+      badge: todayBadge,
       badgeColor: 'bg-emerald-100 text-emerald-800',
       activeRing: 'ring-2 ring-emerald-500 shadow-md ring-offset-1 border-emerald-400',
     },
@@ -30,7 +38,7 @@ export const SalesAnalyticsCards = ({
       title: 'Total Daily Profit',
       value: formatBirr(daily.totalProfit),
       borderAccent: 'border-blue-200 bg-linear-to-br from-blue-50/60 to-white',
-      badge: 'Daily Profit',
+      badge: dailyProfitBadge,
       badgeColor: 'bg-blue-100 text-blue-800',
       activeRing: 'ring-2 ring-blue-500 shadow-md ring-offset-1 border-blue-400',
     },
@@ -39,7 +47,7 @@ export const SalesAnalyticsCards = ({
       title: 'Total Monthly Sell',
       value: formatBirr(monthly.totalSell),
       borderAccent: 'border-indigo-200 bg-linear-to-br from-indigo-50/60 to-white',
-      badge: 'This Month',
+      badge: monthBadge,
       badgeColor: 'bg-indigo-100 text-indigo-800',
       activeRing: 'ring-2 ring-indigo-500 shadow-md ring-offset-1 border-indigo-400',
     },
@@ -48,7 +56,7 @@ export const SalesAnalyticsCards = ({
       title: 'Total Monthly Profit',
       value: formatBirr(monthly.totalProfit),
       borderAccent: 'border-purple-200 bg-linear-to-br from-purple-50/60 to-white',
-      badge: 'Monthly Profit',
+      badge: monthlyProfitBadge,
       badgeColor: 'bg-purple-100 text-purple-800',
       activeRing: 'ring-2 ring-purple-500 shadow-md ring-offset-1 border-purple-400',
     },

@@ -15,7 +15,7 @@ export const SalesHistoryTable = ({
   onEndDateChange,
 }) => {
   const [selectedSale, setSelectedSale] = useState(null);
-  const { formatDateTime } = useAppDate();
+  const { formatDate, formatDateTime, calendarType } = useAppDate();
 
   const formatBirr = (val) => {
     const num = parseFloat(val || 0);
@@ -48,7 +48,7 @@ export const SalesHistoryTable = ({
         </div>
 
         {/* Date range filters */}
-        <div className="flex items-center gap-2 w-full md:w-auto text-xs">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto text-xs">
           <div className="flex items-center gap-1.5">
             <span className="text-slate-400 font-medium">From:</span>
             <input
@@ -56,6 +56,7 @@ export const SalesHistoryTable = ({
               value={startDate}
               onChange={(e) => onStartDateChange(e.target.value)}
               className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              title={`From Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -65,8 +66,17 @@ export const SalesHistoryTable = ({
               value={endDate}
               onChange={(e) => onEndDateChange(e.target.value)}
               className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              title={`To Date (${calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'})`}
             />
           </div>
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
+          </span>
+          {(startDate || endDate) && (
+            <span className="text-[11px] font-semibold text-emerald-700">
+              ({startDate ? formatDate(startDate) : '...'} &rarr; {endDate ? formatDate(endDate) : '...'})
+            </span>
+          )}
           {(startDate || endDate) && (
             <button
               type="button"
@@ -88,7 +98,14 @@ export const SalesHistoryTable = ({
           <thead className="bg-slate-50/80 text-xs uppercase font-bold text-slate-500 tracking-wider border-b border-slate-100">
             <tr>
               <th className="px-5 py-3.5">Receipt #</th>
-              <th className="px-4 py-3.5">Date & Time</th>
+              <th className="px-4 py-3.5">
+                <span className="inline-flex items-center gap-1">
+                  <span>Date & Time</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                    {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
+                  </span>
+                </span>
+              </th>
               <th className="px-4 py-3.5">Cashier</th>
               <th className="px-4 py-3.5">Medicine Name</th>
               <th className="px-4 py-3.5 text-center">Items (Qty)</th>
@@ -128,7 +145,7 @@ export const SalesHistoryTable = ({
                       {sale.id.slice(0, 8)}...
                     </td>
                     <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
-                      {formatDateTime(sale.createdAt)}
+                      {formatDateTime(sale.createdAt, { showSuffix: true })}
                     </td>
                     <td className="px-4 py-4 font-medium text-slate-700">
                       {sale.cashierName}
@@ -188,7 +205,7 @@ export const SalesHistoryTable = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Date & Time:</span>
-                <span className="font-medium text-slate-800">{formatDateTime(selectedSale.createdAt)}</span>
+                <span className="font-medium text-slate-800">{formatDateTime(selectedSale.createdAt, { showSuffix: true })}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Cashier:</span>

@@ -6,17 +6,14 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  UserCheck,
   Store,
 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
-import { useAuth } from '@/features/auth';
 import { POSTerminal } from '../components/POSTerminal';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { usePOSMedicines, useCreatePOSSale } from '../hooks/use-pos';
 
 export const POSPage = () => {
-  const { user } = useAuth();
   const [completedSale, setCompletedSale] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -62,12 +59,6 @@ export const POSPage = () => {
               Point of Sale (POS)
             </h1>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
-              <UserCheck className="w-3.5 h-3.5" />
-              Cashier: {user?.name || user?.firstName || user?.email || 'Active Dispensary'}
-            </span>
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5">

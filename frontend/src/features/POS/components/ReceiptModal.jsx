@@ -57,7 +57,7 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
               <p className="text-slate-400 text-[10px]">Tel: {pharmacyPhone}</p>
             )}
             <div className="pt-1 flex items-center justify-center gap-3 text-[10px] text-slate-500 font-medium">
-              <span>Date: {formatDateTime(sale.createdAt || Date.now())}</span>
+              <span>Date: {formatDateTime(sale.createdAt || Date.now(), { showSuffix: true })}</span>
               {sale.cashierName && (
                 <span>• Cashier: {sale.cashierName}</span>
               )}

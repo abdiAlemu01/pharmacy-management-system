@@ -136,6 +136,44 @@ export function jdnToEthiopian(jdn) {
 }
 
 /**
+ * Convert Ethiopian date (year, month: 1-13, day: 1-30) to Julian Day Number (JDN)
+ */
+export function ethiopianToJdn(year, month, day) {
+  return (
+    1723856 +
+    365 * year +
+    Math.floor(year / 4) +
+    30 * (month - 1) +
+    day -
+    1
+  );
+}
+
+/**
+ * Convert Julian Day Number (JDN) to Gregorian date { year, month: 1-12, day: 1-31 }
+ */
+export function jdnToGregorian(jdn) {
+  const a = jdn + 32044;
+  const b = Math.floor((4 * a + 3) / 146097);
+  const c = a - Math.floor((146097 * b) / 4);
+  const d = Math.floor((4 * c + 3) / 1461);
+  const e = c - Math.floor((1461 * d) / 4);
+  const m = Math.floor((5 * e + 2) / 153);
+  const day = e - Math.floor((153 * m + 2) / 5) + 1;
+  const month = m + 3 - 12 * Math.floor(m / 10);
+  const year = 100 * b + d - 4800 + Math.floor(m / 10);
+  return { year, month, day };
+}
+
+/**
+ * Convert Ethiopian date to Gregorian date object { year, month, day }
+ */
+export function ethiopianToGregorian(year, month, day) {
+  const jdn = ethiopianToJdn(year, month, day);
+  return jdnToGregorian(jdn);
+}
+
+/**
  * Convert Gregorian date to Ethiopian calendar representation
  */
 export function gregorianToEthiopian(dateInput) {

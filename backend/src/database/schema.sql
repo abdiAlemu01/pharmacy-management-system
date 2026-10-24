@@ -163,12 +163,14 @@ CREATE TABLE IF NOT EXISTS "Prescription" (
 
 -- 12. Sale table
 CREATE TABLE IF NOT EXISTS "Sale" (
-  "id"        TEXT PRIMARY KEY DEFAULT (gen_random_uuid())::text,
-  "userId"    TEXT REFERENCES "User"("id") ON DELETE SET NULL,
-  "patientId" TEXT REFERENCES "Patient"("id"),
-  "total"     NUMERIC(10,2) NOT NULL,
-  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "id"          TEXT PRIMARY KEY DEFAULT (gen_random_uuid())::text,
+  "userId"      TEXT REFERENCES "User"("id") ON DELETE SET NULL,
+  "patientId"   TEXT REFERENCES "Patient"("id"),
+  "total"       NUMERIC(10,2) NOT NULL,
+  "sellerRole"  TEXT DEFAULT 'CASHIER',
+  "cashierName" TEXT,
+  "createdAt"   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt"   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 13. SaleItem table

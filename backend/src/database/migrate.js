@@ -27,6 +27,27 @@ export async function runMigration() {
       ALTER TABLE "Sale" DROP CONSTRAINT IF EXISTS "Sale_userId_fkey";
       ALTER TABLE "Sale" ADD CONSTRAINT "Sale_userId_fkey" 
         FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL;
+
+      -- Ensure Sale has sellerRole and cashierName columns
+      ALTER TABLE "Sale" ADD COLUMN IF NOT EXISTS "sellerRole" TEXT DEFAULT 'CASHIER';
+      ALTER TABLE "Sale" ADD COLUMN IF NOT EXISTS "cashierName" TEXT;
+      UPDATE "Sale" s
+      SET 
+        "sellerRole" = COALESCE(u.role, 'CASHIER'),
+        "cashierName" = CASE 
+          WHEN UPPER(COALESCE(u.role, '')) = 'ADMIN' THEN 
+            INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Admin')) || '(admin)'
+          ELSE 
+            INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Cashier')) || '(casher)'
+        END
+      FROM "User" u
+      WHERE s."userId" = u.id;
+
+      UPDATE "Sale"
+      SET 
+        "sellerRole" = 'CASHIER',
+        "cashierName" = 'Cashier(casher)'
+      WHERE "cashierName" IS NULL;
     `);
 
     console.log('✅ Database schema migration completed successfully.');

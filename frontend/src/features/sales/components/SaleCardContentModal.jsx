@@ -114,7 +114,10 @@ export const SaleCardContentModal = ({
 
     return salesList.filter((s) => {
       const matchId = s.id?.toLowerCase().includes(term);
-      const matchCashier = s.cashierName?.toLowerCase().includes(term);
+      const matchCashier =
+        s.cashierName?.toLowerCase().includes(term) ||
+        (s.role && s.role.toLowerCase().includes(term)) ||
+        (s.sellerRole && s.sellerRole.toLowerCase().includes(term));
       const matchItems = (s.items || []).some((item) =>
         item.medicineName?.toLowerCase().includes(term)
       );
@@ -220,7 +223,7 @@ export const SaleCardContentModal = ({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by sale ID, cashier, or medicine name..."
+              placeholder="Search by sale ID, sold by, or medicine name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
@@ -256,13 +259,13 @@ export const SaleCardContentModal = ({
                     <th className="py-2.5 px-3">Sale ID</th>
                     <th className="py-2.5 px-3">
                       <span className="inline-flex items-center gap-1">
-                        <span>Date & Time</span>
+                        <span>Date</span>
                         <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-1 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
                           {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
                         </span>
                       </span>
                     </th>
-                    <th className="py-2.5 px-3">Cashier</th>
+                    <th className="py-2.5 px-3">Sold By</th>
                     <th className="py-2.5 px-3">Medicines</th>
                     <th className="py-2.5 px-3 text-center">Items</th>
                     <th className="py-2.5 px-3 text-right">Total Revenue</th>
@@ -286,10 +289,10 @@ export const SaleCardContentModal = ({
                           {sale.id.slice(0, 8)}...
                         </td>
                         <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                          {formatDateTime(sale.createdAt, { showSuffix: true })}
+                          {formatDate(sale.createdAt, { showSuffix: true })}
                         </td>
-                        <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                          {sale.cashierName || 'Cashier'}
+                        <td className="py-2.5 px-3 font-semibold text-xs text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                          {sale.sellerName || (sale.cashierName || 'Staff').replace(/\s*\([^)]*\)/g, '').trim()}
                         </td>
                         <td className="py-2.5 px-3 max-w-[180px] truncate text-slate-600 dark:text-slate-300" title={medicineNames}>
                           {medicineNames || `${sale.items?.length || 0} medicines`}

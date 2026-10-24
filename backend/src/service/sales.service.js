@@ -163,6 +163,48 @@ export class SalesService {
     try {
       await client.query('BEGIN');
 
+      // Resolve seller user & role accurately (Admin vs Cashier)
+      let validUserId = user?.id;
+      let dbUser = null;
+      if (validUserId) {
+        const uCheck = await client.query(
+          'SELECT id, name, "firstName", "lastName", email, role FROM "User" WHERE id = $1 LIMIT 1',
+          [validUserId]
+        );
+        if (uCheck.rows.length > 0) {
+          dbUser = uCheck.rows[0];
+        } else {
+          validUserId = null;
+        }
+      }
+      if (!validUserId) {
+        const fallbackUser = await client.query('SELECT id, name, "firstName", "lastName", email, role FROM "User" LIMIT 1');
+        validUserId = fallbackUser.rows[0]?.id || null;
+        dbUser = fallbackUser.rows[0] || null;
+      }
+
+      const rawRole = (dbUser?.role || user?.role || 'CASHIER').toUpperCase().trim();
+      const sellerRole = rawRole === 'ADMIN' ? 'ADMIN' : 'CASHIER';
+
+      // Extract first name safely and capitalize it
+      let rawFirstName = dbUser?.firstName || user?.firstName;
+      if (!rawFirstName && (dbUser?.name || user?.name)) {
+        rawFirstName = (dbUser?.name || user?.name).trim().split(' ')[0];
+      }
+      if (!rawFirstName && (dbUser?.email || user?.email)) {
+        rawFirstName = (dbUser?.email || user?.email).split('@')[0];
+      }
+      if (!rawFirstName) {
+        rawFirstName = sellerRole === 'ADMIN' ? 'Admin' : 'Cashier';
+      }
+      const trimmedFirstName = rawFirstName.trim();
+      const capitalizedFirstName = trimmedFirstName.charAt(0).toUpperCase() + trimmedFirstName.slice(1);
+
+      // Record format: Name(casher) for cashier, Name(admin) for admin
+      const recordedName = sellerRole === 'ADMIN' 
+        ? `${capitalizedFirstName}(admin)` 
+        : `${capitalizedFirstName}(casher)`;
+
       const saleId = crypto.randomUUID();
       const saleDate = new Date();
       let totalSaleAmount = 0;
@@ -239,8 +281,8 @@ export class SalesService {
             itemTotal,
             saleDate.toISOString().split('T')[0],
             'POS Customer Sale',
-            user?.id || null,
-            user?.name || user?.email || 'Cashier',
+            validUserId,
+            recordedName,
           ]
         );
 
@@ -260,24 +302,11 @@ export class SalesService {
       totalSaleAmount = parseFloat(totalSaleAmount.toFixed(2));
       totalProfitAmount = parseFloat(totalProfitAmount.toFixed(2));
 
-      // Ensure valid userId for foreign key constraint
-      let validUserId = user?.id;
-      if (validUserId) {
-        const uCheck = await client.query('SELECT id FROM "User" WHERE id = $1 LIMIT 1', [validUserId]);
-        if (uCheck.rows.length === 0) {
-          validUserId = null;
-        }
-      }
-      if (!validUserId) {
-        const fallbackUser = await client.query('SELECT id FROM "User" LIMIT 1');
-        validUserId = fallbackUser.rows[0]?.id;
-      }
-
-      // Insert Sale
+      // Insert Sale with explicit sellerRole and cashierName
       await client.query(
-        `INSERT INTO "Sale" ("id", "userId", "patientId", "total", "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, $4, NOW(), NOW())`,
-        [saleId, validUserId, patientId || null, totalSaleAmount]
+        `INSERT INTO "Sale" ("id", "userId", "patientId", "total", "sellerRole", "cashierName", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+        [saleId, validUserId, patientId || null, totalSaleAmount, sellerRole, recordedName]
       );
 
       // Insert SaleItems
@@ -296,7 +325,10 @@ export class SalesService {
         total: totalSaleAmount,
         totalProfit: totalProfitAmount,
         createdAt: saleDate,
-        cashierName: user?.name || user?.email || 'Staff',
+        cashierName: recordedName,
+        sellerName: capitalizedFirstName,
+        role: sellerRole,
+        sellerRole: sellerRole === 'ADMIN' ? 'Admin' : 'Cashier',
         items: saleItemsToInsert,
       };
     } catch (err) {
@@ -316,7 +348,7 @@ export class SalesService {
     let pIdx = 1;
 
     if (search && search.trim() !== '') {
-      conditions.push(`(s.id::text ILIKE $${pIdx} OR u.name ILIKE $${pIdx} OR EXISTS (
+      conditions.push(`(s.id::text ILIKE $${pIdx} OR s."cashierName" ILIKE $${pIdx} OR u.name ILIKE $${pIdx} OR u."firstName" ILIKE $${pIdx} OR COALESCE(s."sellerRole", u.role, '') ILIKE $${pIdx} OR EXISTS (
         SELECT 1 FROM "SaleItem" si2 
         JOIN "Medicine" m2 ON si2."medicineId" = m2.id 
         WHERE si2."saleId" = s.id AND m2.name ILIKE $${pIdx}
@@ -357,7 +389,16 @@ export class SalesService {
         s.total,
         s."createdAt",
         s."userId",
-        COALESCE(u.name, 'Staff') as "cashierName",
+        COALESCE(s."sellerRole", u.role, 'CASHIER') as "userRole",
+        COALESCE(
+          s."cashierName",
+          CASE 
+            WHEN UPPER(COALESCE(s."sellerRole", u.role, '')) = 'ADMIN' THEN 
+              INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Admin')) || '(admin)'
+            ELSE 
+              INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Cashier')) || '(casher)'
+          END
+        ) as "cashierName",
         COALESCE(SUM(si.quantity * (si."unitPrice" - si."purchaseCost")), 0)::numeric as "totalProfit",
         COALESCE(SUM(si.quantity), 0)::int as "totalQuantity",
         json_agg(
@@ -377,22 +418,30 @@ export class SalesService {
       LEFT JOIN "SaleItem" si ON s.id = si."saleId"
       LEFT JOIN "Medicine" m ON si."medicineId" = m.id
       ${whereClause}
-      GROUP BY s.id, s.total, s."createdAt", s."userId", u.name
+      GROUP BY s.id, s.total, s."createdAt", s."userId", s."sellerRole", s."cashierName", u.name, u."firstName", u.role
       ORDER BY s."createdAt" DESC
       LIMIT $${pIdx} OFFSET $${pIdx + 1}
     `;
 
     const dataRes = await db.query(dataSql, queryValues);
 
-    const sales = dataRes.rows.map((row) => ({
-      id: row.id,
-      total: parseFloat(row.total || 0),
-      totalProfit: parseFloat(row.totalProfit || 0),
-      totalQuantity: parseInt(row.totalQuantity || 0, 10),
-      cashierName: row.cashierName || 'Staff',
-      createdAt: row.createdAt,
-      items: (row.items || []).filter((i) => i.id !== null),
-    }));
+    const sales = dataRes.rows.map((row) => {
+      const normalizedRole = (row.userRole || 'CASHIER').toUpperCase();
+      const roleLabel = normalizedRole === 'ADMIN' ? 'Admin' : 'Cashier';
+
+      return {
+        id: row.id,
+        total: parseFloat(row.total || 0),
+        totalProfit: parseFloat(row.totalProfit || 0),
+        totalQuantity: parseInt(row.totalQuantity || 0, 10),
+        cashierName: row.cashierName,
+        sellerName: (row.cashierName || '').replace(/\s*\([^)]*\)/g, '').trim(),
+        role: normalizedRole,
+        sellerRole: roleLabel,
+        createdAt: row.createdAt,
+        items: (row.items || []).filter((i) => i.id !== null),
+      };
+    });
 
     return {
       sales,

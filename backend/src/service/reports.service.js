@@ -236,7 +236,16 @@ export class ReportsService {
         ('SALE-' || UPPER(SUBSTRING(s.id::text, 1, 8))) as "saleNumber",
         s.total,
         s."createdAt",
-        COALESCE(u.name, 'Staff') as "cashierName",
+        COALESCE(
+          s."cashierName",
+          CASE 
+            WHEN UPPER(COALESCE(s."sellerRole", u.role, '')) = 'ADMIN' THEN 
+              INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Admin')) || '(admin)'
+            ELSE 
+              INITCAP(COALESCE(NULLIF(u."firstName", ''), SPLIT_PART(u.name, ' ', 1), 'Cashier')) || '(casher)'
+          END
+        ) as "cashierName",
+        COALESCE(s."sellerRole", u.role, 'CASHIER') as "userRole",
         COALESCE(p.name, 'Walk-in Customer') as "customerName",
         (SELECT COUNT(*)::int FROM "SaleItem" si WHERE si."saleId" = s.id) as "itemsCount"
       FROM "Sale" s
@@ -266,7 +275,10 @@ export class ReportsService {
         id: r.id,
         saleNumber: r.saleNumber,
         total: parseFloat(Number(r.total || 0).toFixed(2)),
-        cashierName: r.cashierName,
+        cashierName: r.cashierName || ((r.userRole || '').toUpperCase() === 'ADMIN' ? 'Admin(admin)' : 'Cashier(casher)'),
+        sellerName: (r.cashierName || '').replace(/\s*\([^)]*\)/g, '').trim(),
+        role: (r.userRole || 'CASHIER').toUpperCase(),
+        sellerRole: (r.userRole || '').toUpperCase() === 'ADMIN' ? 'Admin' : 'Cashier',
         customerName: r.customerName,
         itemsCount: parseInt(r.itemsCount || 0, 10),
         createdAt: r.createdAt,

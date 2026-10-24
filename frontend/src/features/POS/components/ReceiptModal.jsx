@@ -34,9 +34,6 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <div>
               <p className="font-bold text-sm">Dispensary Sale Confirmed!</p>
-              <p className="text-emerald-700 dark:text-emerald-300 text-xs">
-                Inventory deducted and transaction logged successfully.
-              </p>
             </div>
           </div>
           <span className="font-mono text-xs font-bold px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/60 rounded-md">
@@ -59,7 +56,15 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
             <div className="pt-1 flex items-center justify-center gap-3 text-[10px] text-slate-500 font-medium">
               <span>Date: {formatDateTime(sale.createdAt || Date.now(), { showSuffix: true })}</span>
               {sale.cashierName && (
-                <span>• Cashier: {sale.cashierName}</span>
+                <span>
+                  • Sold By:{' '}
+                  {(() => {
+                    const raw = sale.cashierName || '';
+                    const clean = (sale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (sale.role === 'ADMIN' ? 'Admin' : 'Cashier');
+                    const isAdmin = sale.role === 'ADMIN' || raw.toLowerCase().includes('admin');
+                    return isAdmin ? `${clean}(admin)` : `${clean}(casher)`;
+                  })()}
+                </span>
               )}
             </div>
           </div>

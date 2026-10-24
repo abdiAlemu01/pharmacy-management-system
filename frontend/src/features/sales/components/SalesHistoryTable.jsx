@@ -100,13 +100,13 @@ export const SalesHistoryTable = ({
               <th className="px-5 py-3.5">Receipt #</th>
               <th className="px-4 py-3.5">
                 <span className="inline-flex items-center gap-1">
-                  <span>Date & Time</span>
+                  <span>Date</span>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
                     {calendarType === 'ethiopian' ? 'E.C.' : 'G.C.'}
                   </span>
                 </span>
               </th>
-              <th className="px-4 py-3.5">Cashier</th>
+              <th className="px-4 py-3.5">Sold By</th>
               <th className="px-4 py-3.5">Medicine Name</th>
               <th className="px-4 py-3.5 text-center">Items (Qty)</th>
               <th className="px-4 py-3.5 text-right font-extrabold text-slate-900">Total Sell</th>
@@ -145,10 +145,10 @@ export const SalesHistoryTable = ({
                       {sale.id.slice(0, 8)}...
                     </td>
                     <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">
-                      {formatDateTime(sale.createdAt, { showSuffix: true })}
+                      {formatDate(sale.createdAt, { showSuffix: true })}
                     </td>
-                    <td className="px-4 py-4 font-medium text-slate-700">
-                      {sale.cashierName}
+                    <td className="px-4 py-4 font-semibold text-xs text-slate-800 whitespace-nowrap">
+                      {sale.sellerName || (sale.cashierName || 'Staff').replace(/\s*\([^)]*\)/g, '').trim()}
                     </td>
                     <td className="px-4 py-4 max-w-[200px]" title={medicineNames}>
                       <div className="font-semibold text-xs text-slate-800 truncate">
@@ -207,9 +207,28 @@ export const SalesHistoryTable = ({
                 <span className="text-slate-500">Date & Time:</span>
                 <span className="font-medium text-slate-800">{formatDateTime(selectedSale.createdAt, { showSuffix: true })}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Cashier:</span>
-                <span className="font-medium text-slate-800">{selectedSale.cashierName}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500 font-medium">Sold By:</span>
+                <div>
+                  {(() => {
+                    const raw = selectedSale.cashierName || '';
+                    const clean = (selectedSale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (selectedSale.role === 'ADMIN' ? 'Admin' : 'Cashier');
+                    const isAdmin = selectedSale.role === 'ADMIN' || raw.toLowerCase().includes('admin');
+                    const formatted = isAdmin ? `${clean}(admin)` : `${clean}(casher)`;
+
+                    return isAdmin ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                        {formatted}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        {formatted}
+                      </span>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
 

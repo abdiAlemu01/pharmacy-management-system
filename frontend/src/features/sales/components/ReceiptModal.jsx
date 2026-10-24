@@ -36,6 +36,17 @@ export const ReceiptModal = ({ isOpen, onClose, sale }) => {
             <h3 className="font-black text-base text-slate-900 tracking-tight">Pharmacy Care Management</h3>
             <p className="text-slate-500 text-[11px]">Official Pharmacy POS Sales Receipt</p>
             <p className="text-[10px] text-slate-400">Date: {formatDateTime(sale.createdAt || Date.now(), { showSuffix: true })}</p>
+            {sale.cashierName && (
+              <p className="text-[10px] text-slate-500 font-medium">
+                Sold By:{' '}
+                {(() => {
+                  const raw = sale.cashierName || '';
+                  const clean = (sale.sellerName || raw.replace(/\s*\([^)]*\)/g, '')).trim() || (sale.role === 'ADMIN' ? 'Admin' : 'Cashier');
+                  const isAdmin = sale.role === 'ADMIN' || raw.toLowerCase().includes('admin');
+                  return isAdmin ? `${clean}(admin)` : `${clean}(casher)`;
+                })()}
+              </p>
+            )}
             
           </div>
 

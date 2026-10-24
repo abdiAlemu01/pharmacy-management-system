@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   Pill,
   ShoppingBag,
+  Camera,
 } from 'lucide-react';
 
 export const POSTerminal = ({
@@ -30,6 +31,49 @@ export const POSTerminal = ({
   const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'inStock' | 'lowStock'
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [favorites, setFavorites] = useState(() => new Set());
+
+  // ── Custom Medicine Images (Persistent & Safe) ──
+  const [customImages, setCustomImages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pos_medicine_images');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const handleImageUpload = (medId, file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result;
+      if (!base64) return;
+      setCustomImages((prev) => {
+        const updated = { ...prev, [medId]: base64 };
+        try {
+          localStorage.setItem('pos_medicine_images', JSON.stringify(updated));
+        } catch (err) {
+          console.warn('Failed to save medicine image to localStorage:', err);
+        }
+        return updated;
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = (medId, e) => {
+    e.stopPropagation();
+    setCustomImages((prev) => {
+      const updated = { ...prev };
+      delete updated[medId];
+      try {
+        localStorage.setItem('pos_medicine_images', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('Failed to save medicine image to localStorage:', err);
+      }
+      return updated;
+    });
+  };
 
   // ── Financial Modifiers ──
   const [discountPercent, setDiscountPercent] = useState(0); // 0%, 5%, 10%, etc.
@@ -318,6 +362,7 @@ export const POSTerminal = ({
                 const isOutOfStock = med.quantity <= 0;
                 const isFav = favorites.has(med.id);
                 const inCart = cart.find((i) => i.medicine.id === med.id);
+                const medImage = customImages[med.id] || med.imageUrl || med.image;
 
                 return (
                   <div
@@ -328,7 +373,7 @@ export const POSTerminal = ({
                     <button
                       type="button"
                       onClick={() => toggleFavorite(med.id)}
-                      className="absolute top-3.5 right-3.5 p-1 rounded-full text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 transition-colors z-10 cursor-pointer"
+                      className="absolute top-3.5 right-3.5 p-1 rounded-full text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 transition-colors z-20 cursor-pointer"
                       title={isFav ? 'Remove from favorites' : 'Add to favorites'}
                     >
                       <Heart
@@ -339,16 +384,61 @@ export const POSTerminal = ({
                     </button>
 
                     <div>
-                      {/* Product Visual Centerpiece */}
+                      {/* Product Visual Centerpiece: Displays Image or Icon, with Take/Upload action */}
                       <div className="py-2 flex items-center justify-center">
                         <div
-                          className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center border transition-transform duration-200 group-hover:scale-105 shadow-2xs relative ${artwork.bg} ${artwork.border}`}
+                          className={`w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center border transition-transform duration-200 group-hover:scale-105 shadow-2xs relative overflow-hidden ${
+                            medImage
+                              ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                              : `${artwork.bg} ${artwork.border}`
+                          }`}
                         >
-                          <Pill className={`w-9 h-9 sm:w-10 sm:h-10 ${artwork.text}`} />
+                          {medImage ? (
+                            <img
+                              src={medImage}
+                              alt={med.name}
+                              className="w-full h-full object-cover rounded-full"
+                            />
+                          ) : (
+                            <Pill className={`w-9 h-9 sm:w-10 sm:h-10 ${artwork.text}`} />
+                          )}
+
                           {inCart && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs z-10">
                               {inCart.quantity}
                             </span>
+                          )}
+
+                          {/* Take / Upload Image Trigger */}
+                          <label
+                            title={medImage ? 'Change medicine image' : 'Take or upload medicine image'}
+                            className="absolute inset-0 bg-black/45 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full z-10"
+                          >
+                            <Camera className="w-5 h-5 text-white drop-shadow" />
+                            <span className="text-[9px] font-bold text-white mt-0.5 drop-shadow">
+                              {medImage ? 'Change' : 'Add photo'}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(med.id, file);
+                              }}
+                            />
+                          </label>
+
+                          {medImage && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleRemoveImage(med.id, e)}
+                              title="Remove image"
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-xs opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
                           )}
                         </div>
                       </div>
@@ -366,31 +456,28 @@ export const POSTerminal = ({
                         </span>
                       </div>
 
-                      {/* Subtitle / Generic Name / Description Line */}
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
-                        {med.genericName ? `Generic: ${med.genericName}` : 'Pharmaceutical product formulation'}
-                      </p>
+                      {/* Generic Name (displayed only when available) */}
+                      {med.genericName ? (
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                          Generic: {med.genericName}
+                        </p>
+                      ) : null}
                     </div>
 
-                    {/* Bottom Row: Rating/Stock + Add to Cart Button */}
+                    {/* Bottom Row: Stock Status + Add to Cart Button */}
                     <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                      {/* Stock / Rating Indicator */}
+                      {/* Stock Indicator */}
                       <div className="flex items-center gap-1.5">
-                        <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          <span>5.0</span>
-                        </span>
-                        <span className="text-slate-300 dark:text-slate-700">•</span>
                         {isOutOfStock ? (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/60 px-1.5 py-0.5 rounded">
-                            Out
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full">
+                            Out of stock
                           </span>
                         ) : med.quantity <= 10 ? (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded">
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full">
                             {med.quantity} left
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-500">
+                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                             {med.quantity} in stock
                           </span>
                         )}
@@ -464,14 +551,23 @@ export const POSTerminal = ({
                   const med = item.medicine;
                   const artwork = getProductArtwork(med.name, idx);
                   const safeQty = parseInt(item.quantity, 10) || 1;
+                  const medImage = customImages[med.id] || med.imageUrl || med.image;
 
                   return (
                     <div key={med.id} className="pt-3 first:pt-0 flex items-center gap-3">
                       {/* Thumbnail */}
                       <div
-                        className={`w-11 h-11 rounded-xl flex items-center justify-center border shrink-0 ${artwork.bg} ${artwork.border}`}
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center border shrink-0 overflow-hidden ${
+                          medImage
+                            ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                            : `${artwork.bg} ${artwork.border}`
+                        }`}
                       >
-                        <Pill className={`w-5 h-5 ${artwork.text}`} />
+                        {medImage ? (
+                          <img src={medImage} alt={med.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Pill className={`w-5 h-5 ${artwork.text}`} />
+                        )}
                       </div>
 
                       {/* Title & Price */}

@@ -41,7 +41,6 @@ export const SaleCardContentModal = ({
       case 'DAILY_SELL':
         return {
           title: `Daily Sales Transactions (${todayStr})`,
-          subtitle: `All customer sales completed today (${todayStr})`,
           icon: ShoppingCart,
           iconColor: 'text-emerald-600 bg-emerald-100',
           startDate: todayStr,
@@ -50,7 +49,6 @@ export const SaleCardContentModal = ({
       case 'DAILY_PROFIT':
         return {
           title: `Daily Profit Breakdown (${todayStr})`,
-          subtitle: `Net profit generated from customer sales completed today (${todayStr})`,
           icon: TrendingUp,
           iconColor: 'text-blue-600 bg-blue-100',
           startDate: todayStr,
@@ -59,7 +57,6 @@ export const SaleCardContentModal = ({
       case 'MONTHLY_SELL':
         return {
           title: `Monthly Sales Transactions (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
-          subtitle: `Sales completed this month from ${monthStart} to ${monthEnd}`,
           icon: DollarSign,
           iconColor: 'text-indigo-600 bg-indigo-100',
           startDate: monthStart,
@@ -69,7 +66,6 @@ export const SaleCardContentModal = ({
       default:
         return {
           title: `Monthly Profit Breakdown (${now.toLocaleString('default', { month: 'long', year: 'numeric' })})`,
-          subtitle: `Net profit generated this month from ${monthStart} to ${monthEnd}`,
           icon: TrendingUp,
           iconColor: 'text-purple-600 bg-purple-100',
           startDate: monthStart,
@@ -156,9 +152,6 @@ export const SaleCardContentModal = ({
                   {stats.count} {stats.count === 1 ? 'Sale' : 'Sales'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {cardConfig.subtitle}
-              </p>
             </div>
           </div>
           <button

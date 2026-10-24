@@ -32,6 +32,16 @@ export const SalesPage = () => {
   const [completedSale, setCompletedSale] = useState(null);
   const [notification, setNotification] = useState(null);
 
+  // Auto-dismiss notification after 10 seconds
+  React.useEffect(() => {
+    if (!notification) return;
+    const timer = setTimeout(() => {
+      setNotification(null);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [notification]);
+
   // Summary Card Modal & Active Filter
   const [selectedCardModal, setSelectedCardModal] = useState({ isOpen: false, cardType: 'DAILY_SELL' });
   const [activeCardFilter, setActiveCardFilter] = useState(null);

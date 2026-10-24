@@ -33,6 +33,16 @@ export const InventoryPage = () => {
   // Notification feedback
   const [notification, setNotification] = useState(null); // { type: 'success' | 'error', message: '' }
 
+  // Auto-dismiss notification after 10 seconds
+  React.useEffect(() => {
+    if (!notification) return;
+    const timer = setTimeout(() => {
+      setNotification(null);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [notification]);
+
   // Queries
   const {
     data: summaryData,

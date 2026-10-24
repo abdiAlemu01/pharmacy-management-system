@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/Button';
 import { Dialog } from '@/shared/components/ui/Dialog';
@@ -26,6 +26,16 @@ export const MedicinesPage = () => {
 
   // Notifications
   const [notification, setNotification] = useState(null); // { type: 'success' | 'error', message: '' }
+
+  // Auto-dismiss notification banner after 10 seconds
+  useEffect(() => {
+    if (!notification) return;
+    const timer = setTimeout(() => {
+      setNotification(null);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [notification]);
 
   // Handlers for filter/search updates (resets page to 1 as required)
   const handleSearchChange = (val) => {
